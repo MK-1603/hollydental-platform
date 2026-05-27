@@ -72,16 +72,17 @@ export default function TreatmentPageTemplate({
     setActiveFaq(activeFaq === index ? null : index);
   };
 
-  const schemaUrl = `https://hollyhilldental.ie/${slug}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://hollydental-platform.vercel.app";
+  const schemaUrl = `${siteUrl}/${slug}`;
 
   // Structured schemas
   const schemas = [
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "@id": "https://hollyhilldental.ie/#clinic",
+      "@id": `${siteUrl}/#clinic`,
       "name": "Hollyhill Aesthetic & Dental Clinic",
-      "image": "https://hollyhilldental.ie/logo.png",
+      "image": `${siteUrl}/logo.png`,
       "priceRange": "$$",
       "telephone": "+353214303072",
       "address": {

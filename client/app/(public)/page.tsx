@@ -16,12 +16,12 @@ export const metadata: Metadata = {
     "Ireland"
   ],
   alternates: {
-    canonical: "https://hollyhilldental.ie",
+    canonical: "https://hollydental-platform.vercel.app",
   },
   openGraph: {
     title: "Hollyhill Aesthetic Clinic | Luxury Skin & Aesthetic Clinic",
     description: "Premium aesthetic clinic offering advanced skin treatments, facial aesthetics, anti-aging procedures, and cosmetic consultations.",
-    url: "https://hollyhilldental.ie",
+    url: "https://hollydental-platform.vercel.app",
     siteName: "Hollyhill Aesthetic Clinic",
     locale: "en_IE",
     type: "website",
@@ -33,11 +33,11 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "MedicalClinic",
-      "@id": "https://hollyhilldental.ie/#clinic",
+      "@id": "https://hollydental-platform.vercel.app/#clinic",
       "name": "Hollyhill Aesthetic & Dental Clinic",
       "alternateName": "Hollyhill Aesthetic Clinic",
-      "image": "https://hollyhilldental.ie/logo.png",
-      "url": "https://hollyhilldental.ie",
+      "image": "https://hollydental-platform.vercel.app/logo.png",
+      "url": "https://hollydental-platform.vercel.app",
       "telephone": "+353214303072",
       "priceRange": "$$",
       "address": {
@@ -67,9 +67,9 @@ export default function HomePage() {
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "@id": "https://hollyhilldental.ie/#local-business",
+      "@id": "https://hollydental-platform.vercel.app/#local-business",
       "name": "Hollyhill Aesthetic & Dental Clinic",
-      "image": "https://hollyhilldental.ie/logo.png",
+      "image": "https://hollydental-platform.vercel.app/logo.png",
       "priceRange": "$$",
       "telephone": "+353214303072",
       "address": {
