@@ -23,8 +23,8 @@ const PRODUCTS = [
     price: "120.00",
     priceTo: "180.00",
     description:
-      "With dental bonding we can repair chips, stains and fluorosis, and reshape or resize teeth to improve your smile. Composite (white tooth filling) is carefully sculpted onto the tooth and polished for a natural finish. Book an appointment with our team — we'll walk you through the process and put your mind at ease. Call 021 430 3072 for bookings.",
-    imageUrl: "/products/dental-bonding.svg",
+      "With dental bonding we can repair chips, stains and fluorosis as well as change the shape and size of the tooth to improve your smile. We do this by adding composite (white tooth filling) carefully to the teeth. Book an appointment with us and our amazing dental team who will walk you through the process and put your mind at ease!! Contact 0214303072 for bookings",
+    imageUrl: "/products/image.png",
     stockCount: 0,
     displayOrder: 1,
   },
@@ -35,7 +35,7 @@ const PRODUCTS = [
     priceTo: null,
     description:
       "Fresh lime mint toothpaste from Curaprox with activated carbon to gently lift surface stains and brighten the natural whiteness of teeth. Daily use, fluoride formula, suitable for sensitive teeth.",
-    imageUrl: "/products/black-is-white-toothpaste.svg",
+    imageUrl: "/products/image copy.png",
     stockCount: 12,
     displayOrder: 1,
   },
@@ -45,8 +45,8 @@ const PRODUCTS = [
     price: "250.00",
     priceTo: null,
     description:
-      "Advanced at-home teeth whitening system. Pola Light pairs the award-winning Pola whitening formula with an LED mouthpiece for a noticeably brighter, more confident smile in as little as 5 days. Includes whitening gel, LED activator, and step-by-step instructions.",
-    imageUrl: "/products/pola-light-whitening.svg",
+      "Advanced teeth whitening system. Enjoy a brighter more confident smile in 5 days. Pola Light is an advanced tooth whitening system that combines Pola's award winning whitening formula, with an LED mouthpiece, for a faster whitening treatment. Buy Now",
+    imageUrl: "/products/image copy 2.png",
     stockCount: 8,
     displayOrder: 2,
   },

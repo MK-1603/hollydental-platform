@@ -111,10 +111,23 @@ router.post("/invoices", verifyToken, requireRole("admin"), async (req, res) => 
   }
 });
 
-// 4. PUT Pay Invoice (Admin only)
-router.put("/invoices/:id/pay", verifyToken, requireRole("admin"), async (req, res) => {
+// 4. PUT Pay Invoice (Admin or Patient own)
+router.put("/invoices/:id/pay", verifyToken, async (req, res) => {
   try {
     if (process.env.DATABASE_URL) {
+      // If client is a patient, verify invoice belongs to them
+      if (req.user.role === "patient") {
+        const pRows = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+        if (pRows.length === 0) return res.status(404).json({ message: "Patient profile not found." });
+        
+        const invRows = await db.select().from(invoices).where(eq(invoices.id, req.params.id)).limit(1);
+        if (invRows.length === 0) return res.status(404).json({ message: "Invoice not found." });
+        
+        if (invRows[0].patientId !== pRows[0].id) {
+          return res.status(403).json({ message: "Forbidden: This invoice is not yours." });
+        }
+      }
+
       const updated = await db.update(invoices)
         .set({ status: "paid", paidAt: new Date() })
         .where(eq(invoices.id, req.params.id))

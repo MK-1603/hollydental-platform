@@ -1,278 +1,310 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { apiRequest } from "@/lib/api";
-import { Cpu, Copy, Check, MessageCircle, AlertTriangle, FileText, CalendarDays } from "lucide-react";
+import {
+  Sparkles, Send, RefreshCw, Copy, Check, FileText,
+  MessageSquare, Rss, Bell, Pill, Bot, User, ChevronRight,
+  Trash2, AlertTriangle,
+} from "lucide-react";
 
-function parseMarkdownToHtml(markdown: string) {
-  if (!markdown) return "";
-  
-  let html = markdown
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+const TOOLS = [
+  { id: "summary",      label: "Clinical Brief",   icon: FileText,      color: "text-blue-500",    desc: "Compile patient history into a concise dental summary" },
+  { id: "review",       label: "Review Reply",      icon: MessageSquare, color: "text-emerald-500", desc: "Draft a warm professional response to a patient review" },
+  { id: "blog",         label: "Blog Article",      icon: Rss,           color: "text-violet-500",  desc: "Generate SEO-optimised dental blog content" },
+  { id: "sms",          label: "SMS Reminder",      icon: Bell,          color: "text-amber-500",   desc: "Write a follow-up SMS reminder for a patient" },
+  { id: "prescription", label: "Rx Suggestion",     icon: Pill,          color: "text-red-500",     desc: "Get AI-assisted prescription note drafts" },
+];
 
-  // Bold (**text**)
-  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  tool?: string;
+  ts: Date;
+  loading?: boolean;
+}
 
-  // Italic (*text*)
-  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+function parseMarkdown(md: string) {
+  if (!md) return "";
+  return md
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/^### (.*?)$/gm, "<h4 class='font-bold text-navy text-xs mt-3 mb-1'>$1</h4>")
+    .replace(/^## (.*?)$/gm, "<h3 class='font-bold text-navy text-sm mt-4 mb-1.5'>$1</h3>")
+    .replace(/^# (.*?)$/gm, "<h2 class='font-bold text-navy text-base mt-5 mb-2'>$1</h2>")
+    .replace(/^\s*[-*]\s+(.*?)$/gm, "<li class='ml-4 list-disc text-[11px] text-gray-700 my-0.5'>$1</li>")
+    .replace(/\n/g, "<br />");
+}
 
-  // Headers (### Header, ## Header, # Header)
-  html = html.replace(/^### (.*?)$/gm, "<h4 class='font-serif text-xs font-bold text-navy mt-3 mb-1'>$1</h4>");
-  html = html.replace(/^## (.*?)$/gm, "<h3 class='font-serif text-sm font-bold text-navy mt-4 mb-1.5'>$1</h3>");
-  html = html.replace(/^# (.*?)$/gm, "<h2 class='font-serif text-base font-bold text-navy mt-5 mb-2'>$1</h2>");
-
-  // Lists (- Item or * Item)
-  html = html.replace(/^\s*[-*]\s+(.*?)$/gm, "<li class='list-disc list-inside ml-2 my-0.5 text-[11px]'>$1</li>");
-
-  // Line breaks
-  html = html.replace(/\n/g, "<br />");
-
-  return html;
+function buildPayload(tool: string, input: string) {
+  switch (tool) {
+    case "summary":      return { endpoint: "/ai/patient-summary",    body: { name: input || "Patient", age: 38, lastVisit: "June 2025", completedTreatments: "Teeth Cleaning", outstanding: "Composite fillings on 14, 15", medicalNotes: "Penicillin allergy, dental anxiety" } };
+    case "review":       return { endpoint: "/ai/review-reply",       body: { reviewText: input || "Great service!", rating: 5 } };
+    case "blog":         return { endpoint: "/ai/blog-generate",      body: { topic: input || "Dental hygiene tips", keyword: "dentist Cork" } };
+    case "sms":          return { endpoint: "/ai/followup-reminder",  body: { name: input || "Patient", treatment: "Composite Fillings" } };
+    case "prescription": return { endpoint: "/ai/prescription-note",  body: { drugName: "Amoxicillin", dosage: "500mg", instructions: "Take 3 times daily" } };
+    default:             return { endpoint: "/ai/patient-summary",    body: {} };
+  }
 }
 
 export default function AdminAIPage() {
-  const [activeTab, setActiveTab] = useState<"summary" | "review" | "blog" | "sms" | "prescription">("summary");
+  const [activeTool, setActiveTool] = useState("summary");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [output, setOutput] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Form states
-  const [patientName, setPatientName] = useState("Sarah O'Connor");
-  const [treatmentCompleted, setTreatmentCompleted] = useState("teeth-cleaning");
-  const [reviewText, setReviewText] = useState("Great service! Dr. Roghay is the best dentist in Cork!");
-  const [blogTopic, setBlogTopic] = useState("Why Teeth Cleaning is Vital");
-  const [blogKeyword, setBlogKeyword] = useState("teeth cleaning Cork");
+  const tool = TOOLS.find((t) => t.id === activeTool)!;
 
-  const handleGenerate = async () => {
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    setInput("");
     setLoading(true);
-    setOutput("");
-    setCopied(false);
+
+    const userMsg: Message = { id: `u-${Date.now()}`, role: "user", content: text || `Generate ${tool.label}`, tool: activeTool, ts: new Date() };
+    const loadingMsg: Message = { id: `a-${Date.now()}`, role: "assistant", content: "", tool: activeTool, ts: new Date(), loading: true };
+    setMessages((prev) => [...prev, userMsg, loadingMsg]);
 
     try {
-      let endpoint = "/ai/patient-summary";
-      let body: any = {};
-
-      if (activeTab === "summary") {
-        endpoint = "/ai/patient-summary";
-        body = {
-          name: patientName,
-          age: 38,
-          lastVisit: "June 2025",
-          completedTreatments: "Teeth Cleaning",
-          outstanding: "Composite fillings on 14, 15",
-          medicalNotes: "Penicillin allergy, dental anxiety",
-        };
-      } else if (activeTab === "review") {
-        endpoint = "/ai/review-reply";
-        body = { reviewText, rating: 5 };
-      } else if (activeTab === "blog") {
-        endpoint = "/ai/blog-generate";
-        body = { topic: blogTopic, keyword: blogKeyword };
-      } else if (activeTab === "sms") {
-        endpoint = "/ai/followup-reminder";
-        body = { name: patientName, treatment: "Composite Fillings" };
-      } else if (activeTab === "prescription") {
-        endpoint = "/ai/prescription-note";
-        body = { drugName: "Amoxicillin", dosage: "500mg", instructions: "Take 3 times daily" };
-      }
-
-      const data = await apiRequest(endpoint, {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
-
-      setOutput(data.summary || data.reply || data.article || data.smsText || data.note || "");
-    } catch (error) {
-      setOutput("Failed to generate content. Please try again.");
+      const { endpoint, body } = buildPayload(activeTool, text);
+      const data = await apiRequest(endpoint, { method: "POST", body: JSON.stringify(body) });
+      const content = data.summary || data.reply || data.article || data.smsText || data.note || "No output generated.";
+      setMessages((prev) => prev.map((m) => m.id === loadingMsg.id ? { ...m, content, loading: false } : m));
+    } catch {
+      setMessages((prev) => prev.map((m) => m.id === loadingMsg.id ? { ...m, content: "Failed to generate. Please try again.", loading: false } : m));
     } finally {
       setLoading(false);
+      inputRef.current?.focus();
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(output);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!loading) handleSend(); }
+  };
+
+  const handleCopy = (id: string, content: string) => {
+    navigator.clipboard.writeText(content);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const clearChat = () => setMessages([]);
+
+  const switchTool = (id: string) => {
+    setActiveTool(id);
+    setInput("");
   };
 
   return (
-    <div className="space-y-6">
-      
-      {/* Header */}
-      <div className="border-b border-gray-200 pb-4">
-        <h1 className="font-serif text-2xl font-bold text-navy flex items-center gap-2">
-          <Cpu className="w-6 h-6 text-gold animate-pulse" /> AI Clinical Assistant
-        </h1>
-        <p className="text-gray-500 text-xs mt-1">Scribe clinic letters, draft patient reminders, generate replies, and produce SEO drafts</p>
-      </div>
+    <div className="flex h-full w-full gap-0 bg-white overflow-hidden">
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 gap-6 overflow-x-auto pb-1 text-xs font-semibold text-navy">
-        {["summary", "review", "blog", "sms", "prescription"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => { setActiveTab(tab as any); setOutput(""); }}
-            className={`pb-2.5 shrink-0 border-b-2 uppercase tracking-wider transition-all ${
-              activeTab === tab ? "border-gold text-gold" : "border-transparent text-gray-400"
-            }`}
-          >
-            {tab === "summary" ? "Clinical Brief" : tab === "review" ? "Review Reply" : tab === "blog" ? "Blog Generator" : tab === "sms" ? "SMS Follow-up" : "Rx suggestion"}
-          </button>
-        ))}
-      </div>
-
-      {/* Form Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Input Parameters column */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
-          
-          {activeTab === "summary" && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-sm font-bold text-navy">Patient Brief Parameters</h4>
-              <div className="space-y-1">
-                <label className="text-[10px] font-semibold text-navy">Patient Name</label>
-                <input
-                  type="text"
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
-                />
-              </div>
+      {/* ── Sidebar ── */}
+      <aside className="w-64 shrink-0 bg-navy flex flex-col border-r border-white/5 hidden md:flex">
+        {/* Brand */}
+        <div className="p-5 border-b border-white/10">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gold/20 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-gold" />
             </div>
-          )}
-
-          {activeTab === "review" && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-sm font-bold text-navy">Review Text Reply</h4>
-              <div className="space-y-1">
-                <label className="text-[10px] font-semibold text-navy">Paste Patient Review</label>
-                <textarea
-                  rows={4}
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none resize-none"
-                />
-              </div>
+            <div>
+              <p className="text-xs font-bold text-white">AI Assistant</p>
+              <p className="text-[9px] text-white/40">Powered by Gemini</p>
             </div>
-          )}
-
-          {activeTab === "blog" && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-sm font-bold text-navy">Article SEO Parameters</h4>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Topic / Title Idea</label>
-                  <input
-                    type="text"
-                    value={blogTopic}
-                    onChange={(e) => setBlogTopic(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Primary SEO Keyword</label>
-                  <input
-                    type="text"
-                    value={blogKeyword}
-                    onChange={(e) => setBlogKeyword(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "sms" && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-sm font-bold text-navy">SMS Follow-up Parameters</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Patient Name</label>
-                  <input
-                    type="text"
-                    value={patientName}
-                    onChange={(e) => setPatientName(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Treatment Completed</label>
-                  <select
-                    value={treatmentCompleted}
-                    onChange={(e) => setTreatmentCompleted(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
-                  >
-                    <option value="teeth-cleaning">Hygiene Cleaning</option>
-                    <option value="composite-fillings">Composite Fillings</option>
-                    <option value="veneers">Porcelain Veneers</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "prescription" && (
-            <div className="space-y-4">
-              <h4 className="font-serif text-sm font-bold text-navy">Usage Tip Generator</h4>
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-3 text-red-800 text-xs">
-                <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                <div>
-                  <h5 className="font-bold">Clinical Audit Warning</h5>
-                  <p className="text-[10px] text-red-700 leading-relaxed">
-                    Prescription suggestions generated by clinical AI must be reviewed by Dr. Roghay Alizadeh before committing to logs.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleGenerate}
-            disabled={loading}
-            className="w-full bg-gold hover:bg-gold-dark text-navy font-bold py-2.5 rounded-lg text-xs shadow-md transition-colors disabled:opacity-50"
-          >
-            {loading ? "Generating..." : "Generate AI Output &rarr;"}
-          </button>
-        </div>
-
-        {/* Output Panel column */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between min-h-[340px]">
-          <div className="space-y-3 flex-1 flex flex-col justify-between">
-            <div className="border-b border-gray-100 pb-2 flex justify-between items-center">
-              <span className="text-[10px] uppercase font-bold text-gray-400">Gemini Output Brief</span>
-              {output && (
-                <button
-                  onClick={handleCopy}
-                  className="text-navy hover:text-gold text-xs font-semibold flex items-center gap-1.5 focus:outline-none"
-                >
-                  {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                  {copied ? "Copied" : "Copy"}
-                </button>
-              )}
-            </div>
-
-            {loading ? (
-              <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                AI is compiling results...
-              </div>
-            ) : output ? (
-              <div
-                className="prose prose-sm max-w-none text-xs text-gray-600 leading-relaxed overflow-y-auto max-h-[260px] p-3 bg-gray-50 rounded-lg flex-1 mt-3"
-                dangerouslySetInnerHTML={{ __html: parseMarkdownToHtml(output) }}
-              />
-            ) : (
-              <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                Click Generate to see result brief.
-              </div>
-            )}
           </div>
         </div>
 
-      </div>
+        {/* Tools */}
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+          <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest px-3 py-2">Clinical Tools</p>
+          {TOOLS.map((t) => {
+            const Icon = t.icon;
+            const isActive = activeTool === t.id;
+            return (
+              <button key={t.id} onClick={() => switchTool(t.id)}
+                className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive ? "bg-white/10 border border-white/10" : "hover:bg-white/5"}`}
+              >
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isActive ? "bg-gold/20" : "bg-white/5"}`}>
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? "text-gold" : "text-white/40"}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-xs font-semibold truncate ${isActive ? "text-white" : "text-white/60"}`}>{t.label}</p>
+                </div>
+                {isActive && <ChevronRight className="w-3.5 h-3.5 text-gold shrink-0" />}
+              </button>
+            );
+          })}
+        </nav>
 
+        {/* Clear */}
+        {messages.length > 0 && (
+          <div className="p-3 border-t border-white/10">
+            <button onClick={clearChat} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs text-red-400 hover:bg-red-950/20 transition-colors">
+              <Trash2 className="w-3.5 h-3.5" /> Clear conversation
+            </button>
+          </div>
+        )}
+      </aside>
+
+      {/* ── Chat area ── */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Chat header */}
+        <header className="bg-white border-b border-gray-100 px-5 py-3.5 flex items-center gap-3 shrink-0">
+          <div className={`w-8 h-8 rounded-xl bg-navy/5 flex items-center justify-center`}>
+            {(() => { const Icon = tool.icon; return <Icon className={`w-4 h-4 ${tool.color}`} />; })()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-navy">{tool.label}</p>
+            <p className="text-[10px] text-gray-400 truncate">{tool.desc}</p>
+          </div>
+          {/* Mobile tool switcher */}
+          <div className="md:hidden flex gap-1 overflow-x-auto no-scrollbar">
+            {TOOLS.map((t) => {
+              const Icon = t.icon;
+              return (
+                <button key={t.id} onClick={() => switchTool(t.id)}
+                  className={`p-2 rounded-xl border transition-all shrink-0 ${activeTool === t.id ? "bg-navy border-navy" : "border-gray-200"}`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${activeTool === t.id ? "text-gold" : "text-gray-400"}`} />
+                </button>
+              );
+            })}
+          </div>
+          {messages.length > 0 && (
+            <button onClick={clearChat} className="p-2 rounded-xl border border-gray-200 hover:border-red-200 hover:text-red-500 text-gray-400 transition-colors md:flex hidden">
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </header>
+
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4" style={{ background: "linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%)" }}>
+
+          {messages.length === 0 && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4 max-w-sm">
+                <div className="w-16 h-16 rounded-2xl bg-navy/5 flex items-center justify-center mx-auto">
+                  <Sparkles className="w-8 h-8 text-navy/20" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-navy font-serif">AI Clinical Assistant</p>
+                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                    Select a tool from the sidebar and type your prompt, or just press Send to use the default template.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {TOOLS.map((t) => {
+                    const Icon = t.icon;
+                    return (
+                      <button key={t.id} onClick={() => { switchTool(t.id); setTimeout(handleSend, 50); }}
+                        className="flex items-center gap-3 bg-white border border-gray-100 hover:border-gold/40 rounded-xl px-4 py-3 text-left transition-all hover:shadow-sm group"
+                      >
+                        <Icon className={`w-4 h-4 ${t.color} shrink-0`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-navy">{t.label}</p>
+                          <p className="text-[10px] text-gray-400 truncate">{t.desc}</p>
+                        </div>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gold transition-colors shrink-0" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {messages.map((msg) => {
+            const isUser = msg.role === "user";
+            const msgTool = TOOLS.find((t) => t.id === msg.tool);
+            const Icon = msgTool?.icon || Bot;
+
+            return (
+              <div key={msg.id} className={`flex gap-3 ${isUser ? "flex-row-reverse" : "flex-row"}`}>
+                {/* Avatar */}
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-1 ${isUser ? "bg-gold text-navy" : "bg-navy text-gold"}`}>
+                  {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                </div>
+
+                <div className={`max-w-[80%] flex flex-col ${isUser ? "items-end" : "items-start"}`}>
+                  {/* Tool badge for assistant */}
+                  {!isUser && msgTool && (
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Icon className={`w-3 h-3 ${msgTool.color}`} />
+                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{msgTool.label}</span>
+                    </div>
+                  )}
+
+                  <div className={`rounded-2xl px-4 py-3 shadow-sm ${isUser ? "bg-gold text-navy rounded-br-sm" : "bg-white border border-gray-100 rounded-bl-sm"}`}>
+                    {msg.loading ? (
+                      <div className="flex items-center gap-2 py-1">
+                        <div className="flex gap-1">
+                          {[0,1,2].map((i) => <span key={i} className="w-1.5 h-1.5 rounded-full bg-gray-300 animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />)}
+                        </div>
+                        <span className="text-[11px] text-gray-400">Generating…</span>
+                      </div>
+                    ) : isUser ? (
+                      <p className="text-xs font-medium">{msg.content}</p>
+                    ) : (
+                      <div className="text-xs text-navy leading-relaxed" dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.content) }} />
+                    )}
+                  </div>
+
+                  {/* Actions row */}
+                  <div className={`flex items-center gap-2 mt-1 px-1 ${isUser ? "flex-row-reverse" : ""}`}>
+                    <span className="text-[9px] text-gray-400">{msg.ts.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                    {!isUser && !msg.loading && msg.content && (
+                      <button onClick={() => handleCopy(msg.id, msg.content)} className="text-[9px] text-gray-400 hover:text-navy flex items-center gap-1 transition-colors">
+                        {copiedId === msg.id ? <><Check className="w-3 h-3 text-emerald-500" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ── Input bar ── */}
+        <div className="bg-white border-t border-gray-100 px-4 py-3 shrink-0">
+          {activeTool === "prescription" && (
+            <div className="mb-2 flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-3 py-2">
+              <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-[10px] text-red-700 font-medium">AI Rx suggestions must be reviewed by Dr. Roghay before use.</p>
+            </div>
+          )}
+          <div className="flex items-end gap-2">
+            <div className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 focus-within:border-gold focus-within:bg-white transition-colors">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                value={input}
+                onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }}
+                onKeyDown={handleKeyDown}
+                placeholder={`Ask ${tool.label}… or press Send for default`}
+                disabled={loading}
+                className="w-full bg-transparent text-xs text-navy placeholder-gray-400 focus:outline-none resize-none leading-relaxed max-h-[120px] overflow-y-auto"
+                style={{ height: "20px" }}
+              />
+            </div>
+            <button
+              onClick={handleSend}
+              disabled={loading}
+              className="w-10 h-10 rounded-2xl bg-gold hover:bg-yellow-400 text-navy flex items-center justify-center transition-all disabled:opacity-40 shadow-sm hover:shadow-md shrink-0"
+            >
+              {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </button>
+          </div>
+          <p className="text-[9px] text-gray-300 text-center mt-2">Gemini 1.5 Flash · Press Enter to send · Shift+Enter for new line</p>
+        </div>
+      </div>
     </div>
   );
 }

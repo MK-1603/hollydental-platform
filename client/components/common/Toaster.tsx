@@ -107,49 +107,49 @@ export default function Toaster() {
             aria-labelledby={`confirm-${c.id}-title`}
           >
             <div
-              className="absolute inset-0 bg-navy/40 backdrop-blur-sm animate-fade-in"
+              className="absolute inset-0 bg-navy/40 backdrop-blur-md transition-opacity duration-300"
               onClick={() => resolveConfirm(c.id, false)}
             />
-            <div className="relative bg-white border border-gray-100 rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 animate-fade-up z-10">
-              <div className="flex items-start gap-3">
+            <div className="relative bg-white/95 backdrop-blur-lg border border-white/40 rounded-3xl shadow-[0_20px_50px_rgba(5,38,78,0.15)] max-w-sm w-full p-6 space-y-5 animate-fade-up z-10">
+              <div className="flex items-start gap-4">
                 <span
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
                     c.danger
-                      ? "bg-red-50 text-red-600"
-                      : "bg-gold/10 text-gold"
+                      ? "bg-red-50 text-red-600 border border-red-100"
+                      : "bg-amber-50 text-amber-600 border border-amber-100"
                   }`}
                 >
-                  <ShieldAlert className="w-4 h-4" />
+                  <ShieldAlert className="w-5 h-5" />
                 </span>
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <h3
                     id={`confirm-${c.id}-title`}
-                    className="font-serif text-base font-bold text-navy leading-tight"
+                    className="font-serif text-lg font-extrabold text-navy leading-tight"
                   >
                     {c.title}
                   </h3>
                   {c.message && (
-                    <p className="text-xs text-gray-600 leading-relaxed">
+                    <p className="text-[11px] text-gray-500 font-medium leading-relaxed">
                       {c.message}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="flex justify-end gap-2 pt-1">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => resolveConfirm(c.id, false)}
-                  className="text-xs font-semibold text-navy border border-gray-200 hover:border-navy px-4 py-2 rounded-lg transition-colors"
+                  className="text-xs font-bold text-navy bg-gray-50 hover:bg-gray-100 border border-gray-200/80 px-4 py-2.5 rounded-xl transition-all duration-200 cursor-pointer active:scale-95"
                 >
                   {c.cancelText}
                 </button>
                 <button
                   type="button"
                   onClick={() => resolveConfirm(c.id, true)}
-                  className={`text-xs font-bold px-4 py-2 rounded-lg shadow transition-colors ${
+                  className={`text-xs font-bold px-4 py-2.5 rounded-xl shadow-sm transition-all duration-200 cursor-pointer active:scale-95 text-white ${
                     c.danger
-                      ? "bg-red-500 hover:bg-red-600 text-white"
-                      : "bg-gold hover:bg-gold-dark text-navy"
+                      ? "bg-red-500 hover:bg-red-600 hover:shadow-red-200 shadow-md"
+                      : "bg-gold hover:bg-gold-dark hover:shadow-gold/20 shadow-md"
                   }`}
                 >
                   {c.confirmText}

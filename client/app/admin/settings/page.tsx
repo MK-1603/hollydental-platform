@@ -105,6 +105,7 @@ export default function AdminSettingsPage() {
     address: CLINIC.address,
     phone: CLINIC.phone,
     email: CLINIC.email,
+    doctorName: "Dr. Roghay Alizadeh",
   });
 
   const handleSave = (e: React.FormEvent) => {
@@ -164,8 +165,8 @@ export default function AdminSettingsPage() {
 
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         {activeTab === "clinic" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <form onSubmit={handleSave} className="lg:col-span-2 space-y-4">
+          <div className="max-w-2xl">
+            <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Clinic Name">
                   <input
@@ -173,6 +174,16 @@ export default function AdminSettingsPage() {
                     value={clinicDetails.name}
                     onChange={(e) =>
                       setClinicDetails({ ...clinicDetails, name: e.target.value })
+                    }
+                    className={inputClass}
+                  />
+                </Field>
+                <Field label="Principal Dentist">
+                  <input
+                    type="text"
+                    value={clinicDetails.doctorName}
+                    onChange={(e) =>
+                      setClinicDetails({ ...clinicDetails, doctorName: e.target.value })
                     }
                     className={inputClass}
                   />
@@ -223,10 +234,6 @@ export default function AdminSettingsPage() {
                 {loading ? "Saving…" : "Save Clinic Details"}
               </button>
             </form>
-            
-            <div className="lg:col-span-1">
-              <DoctorProfilePicCard />
-            </div>
           </div>
         )}
 
@@ -360,15 +367,15 @@ function TeamTab({ currentUserId }: { currentUserId: string }) {
       return;
     }
     const next = !member.isActive;
-    if (
-      !confirm(
-        next
-          ? `Re-activate ${member.email}? They'll be able to sign in again.`
-          : `Deactivate ${member.email}? They will lose access immediately.`
-      )
-    ) {
-      return;
-    }
+    const ok = await toast.confirm({
+      title: next ? "Re-activate Account?" : "Deactivate Account?",
+      message: next
+        ? `Are you sure you want to re-activate ${member.email}? They will be able to sign in again.`
+        : `Are you sure you want to deactivate ${member.email}? They will lose access immediately.`,
+      confirmText: next ? "Activate" : "Deactivate",
+      danger: !next,
+    });
+    if (!ok) return;
     try {
       const resp: any = await apiRequest(`/admin/staff/${member.id}/status`, {
         method: "PATCH",

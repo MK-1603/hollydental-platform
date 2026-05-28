@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
@@ -10,9 +10,22 @@ import {
   Receipt,
   Download,
   RefreshCw,
-  ChevronDown,
+  X,
+  ShieldCheck,
+  CreditCard,
+  AlertCircle,
+  TrendingUp,
+  Activity,
+  ArrowRight,
+  Printer,
+  Lock,
+  QrCode,
+  CheckCircle2,
+  ShieldAlert,
+  MapPin,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { generateInvoicePDF } from "@/lib/pdf";
 
 interface InvoiceItem {
   description: string;
@@ -40,14 +53,32 @@ function normalizeInvoices(raw: any): Invoice[] {
   return [];
 }
 
-function statusStyles(status: string) {
-  if (status === "paid")
-    return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-  if (status === "overdue")
-    return "bg-red-50 text-red-700 border border-red-200";
-  if (status === "cancelled")
-    return "bg-gray-50 text-gray-500 border border-gray-200";
-  return "bg-amber-50 text-amber-700 border border-amber-200";
+// Visual styles for statuses
+function getStatusStyles(status: string) {
+  switch (status) {
+    case "paid":
+      return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+    case "overdue":
+      return "bg-red-500/10 text-red-400 border border-red-500/20";
+    case "cancelled":
+      return "bg-gray-500/10 text-gray-400 border border-gray-500/20";
+    default:
+      return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+  }
+}
+
+// 3D Visual gradients for virtual billing cards
+function getInvoiceCardBg(status: string) {
+  switch (status) {
+    case "paid":
+      return "from-emerald-700 via-teal-900 to-slate-950 border-emerald-500/20";
+    case "overdue":
+      return "from-rose-700 via-rose-950 to-slate-950 border-red-500/20";
+    case "cancelled":
+      return "from-gray-600 via-gray-800 to-slate-900 border-white/5";
+    default:
+      return "from-amber-600 via-amber-950 to-slate-950 border-amber-500/20";
+  }
 }
 
 export default function PatientInvoicesPage() {
@@ -61,211 +92,652 @@ export default function PatientInvoicesPage() {
     initialData: [],
   });
 
-  const [expanded, setExpanded] = useState<string | null>(null);
+  // Popup Modal Selection State
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
-  const handleDownloadPdf = async (id: string) => {
+  // Active Payment variables
+  const [activePaymentMethod, setActivePaymentMethod] = useState<"card" | "upi" | "cash">("cash");
+  
+  // Card Inputs
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+
+  // Simulated Payment Stages
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState(0);
+  const [show3DS, setShow3DS] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpSubmitting, setOtpSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
+
+  const handleDownloadPdf = (inv: Invoice) => {
+    generateInvoicePDF({
+      invoiceNumber: inv.invoiceNumber,
+      issueDate:     inv.issueDate,
+      dueDate:       inv.dueDate,
+      paidAt:        inv.paidAt,
+      status:        inv.status,
+      patientName:   "Patient Profile",
+      items:         Array.isArray(inv.items) ? inv.items : [],
+      subtotal:      inv.subtotal ?? inv.totalAmount,
+      vatAmount:     inv.vatAmount ?? 0,
+      totalAmount:   inv.totalAmount,
+    });
+    toast.success(`Downloaded ${inv.invoiceNumber} PDF receipt.`);
+  };
+
+  // Metrics Calculations
+  const metrics = useMemo(() => {
+    const totalCount = invoices.length;
+    const paidCount = invoices.filter((i) => i.status === "paid").length;
+    const unpaidBal = invoices
+      .filter((i) => i.status === "pending" || i.status === "overdue")
+      .reduce((sum, i) => sum + Number(i.totalAmount || 0), 0);
+
+    const lastPaid = invoices
+      .filter((i) => i.status === "paid" && i.paidAt)
+      .sort((a, b) => new Date(b.paidAt!).getTime() - new Date(a.paidAt!).getTime())[0];
+    const lastPaidDate = lastPaid?.paidAt ? formatDate(lastPaid.paidAt) : "—";
+
+    return { totalCount, paidCount, unpaidBal, lastPaidDate };
+  }, [invoices]);
+
+  // Form submission simulated gateway
+  const handlePayClick = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPaymentError("");
+
+    const cleanCard = cardNumber.replace(/\s/g, "");
+    if (cleanCard.length !== 16) {
+      setPaymentError("Please enter a valid 16-digit card number.");
+      return;
+    }
+    if (cardExpiry.length !== 5 || !cardExpiry.includes("/")) {
+      setPaymentError("Enter expiry date in MM/YY format.");
+      return;
+    }
+    if (cardCvc.length !== 3) {
+      setPaymentError("Enter a valid 3-digit CVC code.");
+      return;
+    }
+
+    // Trigger simulation sequence
+    setIsProcessing(true);
+    setProcessingStep(0);
+
+    setTimeout(() => {
+      setProcessingStep(1);
+      setTimeout(() => {
+        setProcessingStep(2);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setShow3DS(true);
+        }, 1000);
+      }, 1000);
+    }, 1000);
+  };
+
+  const handleOTPConfirm = async () => {
+    if (!selectedInvoice) return;
+    if (otp !== "123456" && otp.trim().length !== 6) {
+      setOtpError("Incorrect verification code. Use '123456' for sandbox check.");
+      return;
+    }
+
+    setOtpSubmitting(true);
+    setOtpError("");
+
     try {
-      const res = await apiRequest(`/billing/invoices/${id}/pdf`);
-      const url: string | undefined = res?.url || res?.pdfUrl;
-      if (url) {
-        window.open(url, "_blank", "noopener,noreferrer");
-        return;
+      // Put call to update invoice paid status in backend
+      const resp: any = await apiRequest(`/billing/invoices/${selectedInvoice.id}/pay`, {
+        method: "PUT",
+      });
+
+      if (resp) {
+        toast.success(`Payment captured! ${selectedInvoice.invoiceNumber} has been cleared.`);
+        
+        // Update local selected state & refetch list
+        setSelectedInvoice({
+          ...selectedInvoice,
+          status: "paid",
+          paidAt: new Date().toISOString(),
+        });
+        
+        setShow3DS(false);
+        setOtp("");
+        refetch();
+      } else {
+        throw new Error("Billing system failed to post payment.");
       }
-      throw new Error("No PDF URL");
-    } catch {
-      toast.warning(
-        "PDF receipt isn't ready yet for this invoice. Please contact the clinic."
-      );
+    } catch (err: any) {
+      setOtpError(err?.message || "Failed to update statement. Sandbox error.");
+      setOtpSubmitting(false);
+    } finally {
+      setOtpSubmitting(false);
     }
   };
 
   return (
-    <div className="space-y-6 font-sans">
-      <header className="flex items-center justify-between border-b border-gray-100 pb-4">
+    <div className="space-y-6 font-sans pb-12 relative">
+      
+      {/* 1. Immersive Processing Gateway Overlay inside Invoices */}
+      {isProcessing && (
+        <div className="fixed inset-0 z-50 bg-navy/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl space-y-6 animate-scale-in border border-gray-55">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
+              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+              <CreditCard className="w-8 h-8 text-gold animate-pulse" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="font-serif text-xl font-bold text-navy">Securing Transaction</h3>
+              <p className="text-gray-400 text-xs leading-relaxed">Securing SSL handshake with Hollyhill Gateways...</p>
+            </div>
+
+            <div className="space-y-3 bg-gray-50 p-4 rounded-2xl text-left text-xs border border-gray-100 font-medium">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 0 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "1"}
+                </div>
+                <span className={processingStep === 0 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Resolving payment parameters...</span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 1 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "2"}
+                </div>
+                <span className={processingStep === 1 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Authorizing €{Number(selectedInvoice?.totalAmount || 0).toFixed(2)} statement capture...</span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 2 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "3"}
+                </div>
+                <span className={processingStep === 2 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Requesting 3D-Secure MFA Identity Check...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. 3D Secure Verification Popup Modal inside Invoices */}
+      {show3DS && selectedInvoice && (
+        <div className="fixed inset-0 z-55 bg-navy/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white rounded-3xl overflow-hidden shadow-2xl animate-scale-in border border-gray-100">
+            
+            <div className="bg-navy p-5 text-white flex items-center justify-between border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-gold" />
+                <span className="font-serif text-sm font-bold tracking-wider">SECURE BANK CLEARING</span>
+              </div>
+              <span className="text-[9px] uppercase tracking-widest font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">Active Sandbox</span>
+            </div>
+
+            <div className="p-6 space-y-5 text-center">
+              <div className="w-12 h-12 bg-gold/15 rounded-full flex items-center justify-center mx-auto text-gold">
+                <ShieldCheck className="w-6 h-6 animate-pulse" />
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-serif text-base font-bold text-navy">Identity Check Verification</h4>
+                <p className="text-gray-400 text-xs px-2 leading-relaxed">
+                  Enter your multi-factor clearing code sent to your registered profile mobile.
+                </p>
+              </div>
+
+              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-left text-xs space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-semibold">Payment to:</span>
+                  <span className="font-bold text-navy">Hollyhill Dental Clinical</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-semibold">Statement ID:</span>
+                  <span className="font-bold text-navy font-mono">{selectedInvoice.invoiceNumber}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-400 font-semibold">Amount:</span>
+                  <span className="font-bold text-navy">€{Number(selectedInvoice.totalAmount).toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 text-left">
+                <label className="block text-[10px] uppercase font-bold text-navy tracking-wider">OTP Code *</label>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/gi, ""))}
+                  placeholder="Enter 123456"
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:bg-white focus:border-gold focus:ring-1 focus:ring-gold"
+                  maxLength={6}
+                />
+                <p className="text-[10px] text-gray-500">
+                  💡 Type sandbox bypass passcode <span className="font-bold text-gold">123456</span> to clear the invoice.
+                </p>
+              </div>
+
+              {otpError && (
+                <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700 flex items-start gap-2 text-left animate-fade-in">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <span>{otpError}</span>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShow3DS(false);
+                    setOtp("");
+                    setOtpError("");
+                  }}
+                  disabled={otpSubmitting}
+                  className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-500 font-bold py-3 rounded-xl text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOTPConfirm}
+                  disabled={otpSubmitting || otp.length !== 6}
+                  className="flex-1 bg-gold hover:bg-gold-dark text-navy font-bold py-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  {otpSubmitting ? (
+                    <div className="w-4 h-4 border-2 border-navy border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      <span>Verify OTP</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Page Header */}
+      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4 gap-3">
         <div>
-          <h1 className="font-sans text-2xl font-bold text-navy">
-            My billing & invoices
+          <h1 className="font-serif text-2xl md:text-3xl font-bold text-navy">
+            My Billing & Invoices
           </h1>
           <p className="text-gray-500 text-xs mt-1">
-            Track statements, see line-item breakdowns, and download PDF
-            receipts. Updates live.
+            Track statements, review clinical itemized fees, and complete secure payments.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600">
+        
+        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Live
+            Live Sync
           </span>
           <button
             onClick={refetch}
-            className="text-xs font-semibold text-gold border border-gold/20 hover:bg-gold/5 px-4 py-2 rounded-lg flex items-center gap-1.5 focus:outline-none transition-colors"
+            className="text-xs font-semibold text-gold border border-gold/20 hover:bg-gold/5 px-4 py-2 rounded-xl flex items-center gap-1.5 focus:outline-none transition-colors h-9"
           >
-            <RefreshCw
-              className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
-            />
-            Sync
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            <span>Sync</span>
           </button>
         </div>
       </header>
 
+      {/* 🚀 1. Premium Metrics Overview Panels */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-xs space-y-2 relative overflow-hidden group hover:border-gold/30 transition-all">
+          <div className="absolute right-3 top-3 text-gold/10 group-hover:scale-110 transition-transform">
+            <CreditCard className="w-12 h-12" />
+          </div>
+          <span className="text-[9px] text-gray-400 block uppercase font-bold tracking-wider">Unpaid Balance</span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-xl font-bold text-navy">€{metrics.unpaidBal.toFixed(2)}</span>
+            <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Pending</span>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-xs space-y-2 relative overflow-hidden group hover:border-gold/30 transition-all">
+          <div className="absolute right-3 top-3 text-emerald-500/10 group-hover:scale-110 transition-transform">
+            <ShieldCheck className="w-12 h-12" />
+          </div>
+          <span className="text-[9px] text-gray-400 block uppercase font-bold tracking-wider">Paid Invoices</span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-xl font-bold text-navy">{metrics.paidCount}</span>
+            <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Cleared</span>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-xs space-y-2 relative overflow-hidden group hover:border-gold/30 transition-all">
+          <div className="absolute right-3 top-3 text-navy/5 group-hover:scale-110 transition-transform">
+            <Receipt className="w-12 h-12" />
+          </div>
+          <span className="text-[9px] text-gray-400 block uppercase font-bold tracking-wider">Total Statements</span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-xl font-bold text-navy">{metrics.totalCount}</span>
+            <span className="text-[8px] font-bold text-navy bg-navy/5 px-2 py-0.5 rounded-full">Statements</span>
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-100 p-5 rounded-2xl shadow-xs space-y-2 relative overflow-hidden group hover:border-gold/30 transition-all">
+          <div className="absolute right-3 top-3 text-indigo-500/10 group-hover:scale-110 transition-transform">
+            <Calendar className="w-12 h-12" />
+          </div>
+          <span className="text-[9px] text-gray-400 block uppercase font-bold tracking-wider">Last Payment</span>
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-bold text-navy truncate block max-w-full">{metrics.lastPaidDate}</span>
+            <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">Clear</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 🚀 2. Invoices List Rendered as Gorgeous Virtual Cards Grid */}
       {loading && invoices.length === 0 ? (
-        <div className="h-[200px] shimmer rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="h-[210px] shimmer rounded-3xl" />
+          <div className="h-[210px] shimmer rounded-3xl" />
+        </div>
       ) : invoices.length === 0 ? (
-        <div className="border border-gray-100 rounded-2xl bg-white p-12 text-center space-y-4 max-w-md mx-auto">
-          <Receipt className="w-10 h-10 text-gray-300 mx-auto" />
-          <h3 className="font-sans text-base font-bold text-navy">
-            No billing statements
-          </h3>
-          <p className="text-gray-500 text-xs leading-relaxed">
-            You don&apos;t have any pending or past statements logged. Anything
-            raised by our office will appear here in real time.
+        <div className="border border-dashed border-gray-200 rounded-3xl bg-white p-12 text-center space-y-4 max-w-md mx-auto shadow-xs">
+          <Receipt className="w-10 h-10 text-gold/30 mx-auto animate-pulse" />
+          <h3 className="font-serif text-base font-bold text-navy">No Statements Issued</h3>
+          <p className="text-gray-500 text-xs leading-relaxed max-w-xs mx-auto">
+            You don't have any billing statements logged. Dental items raised during checkout or treatments will automatically appear here.
           </p>
         </div>
       ) : (
-        <div className="space-y-3 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-scale-in">
           {invoices.map((inv) => {
-            const isOpen = expanded === inv.id;
             const total = Number(inv.totalAmount || 0);
-            const subtotal = Number(inv.subtotal || total);
-            const vat = Number(inv.vatAmount || 0);
 
             return (
               <div
                 key={inv.id}
-                className="border border-gray-100 bg-white rounded-2xl shadow-sm hover:border-gold transition-colors overflow-hidden"
+                onClick={() => {
+                  setSelectedInvoice(inv);
+                  setPaymentError("");
+                  setCardHolder("");
+                  setCardNumber("");
+                  setCardExpiry("");
+                  setCardCvc("");
+                }}
+                className="w-full max-w-sm h-[210px] relative font-sans cursor-pointer group"
               >
-                <button
-                  type="button"
-                  onClick={() => setExpanded(isOpen ? null : inv.id)}
-                  className="w-full p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-left"
+                {/* Visual Glassmorphic credit-card shaped invoice representation */}
+                <div
+                  className={`w-full h-full rounded-3xl p-5 bg-gradient-to-br ${getInvoiceCardBg(
+                    inv.status
+                  )} text-white flex flex-col justify-between shadow-lg hover:shadow-xl hover:scale-102 border transition-all duration-300 relative overflow-hidden`}
                 >
-                  <div className="flex items-start gap-4 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-navy/5 text-navy flex items-center justify-center shrink-0 mt-0.5">
-                      <FileText className="w-5 h-5" />
+                  
+                  {/* Glowing background highlights */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.06),_transparent_45%)] pointer-events-none" />
+
+                  {/* Top Header of Card */}
+                  <div className="flex justify-between items-start z-10">
+                    <div className="space-y-0.5">
+                      <span className="block text-[8px] text-white/50 tracking-widest uppercase">Hollyhill Dental</span>
+                      <span className="block font-serif text-[9px] font-bold uppercase tracking-widest text-gold">Invoice Statement</span>
                     </div>
-                    <div className="space-y-1.5 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono font-semibold text-navy text-xs">
-                          {inv.invoiceNumber}
-                        </span>
-                        <span
-                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${statusStyles(
-                            inv.status
-                          )}`}
-                        >
-                          {inv.status}
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-gray-500 flex gap-x-3 gap-y-1 flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-gold" /> Issued{" "}
-                          {formatDate(inv.issueDate)}
-                        </span>
-                        {inv.status !== "paid" && inv.dueDate && (
-                          <span className="flex items-center gap-1 font-semibold text-amber-700">
-                            Due {formatDate(inv.dueDate)}
-                          </span>
-                        )}
-                        {inv.status === "paid" && inv.paidAt && (
-                          <span className="flex items-center gap-1 font-semibold text-emerald-700">
-                            Paid {formatDate(inv.paidAt)}
-                          </span>
-                        )}
-                      </div>
-                      {inv.items?.length > 0 && (
-                        <p className="text-gray-400 text-[11px] truncate max-w-md">
-                          {inv.items.map((it) => it.description).join(" · ")}
-                        </p>
-                      )}
+
+                    {/* Status pulsing badge */}
+                    <span
+                      className={`text-[8px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${getStatusStyles(
+                        inv.status
+                      )}`}
+                    >
+                      {inv.status}
+                    </span>
+                  </div>
+
+                  {/* Middle Section: Gold Chip and formatted invoice digits */}
+                  <div className="flex items-center gap-4 z-10 mt-1">
+                    
+                    {/* Hologram Card Chip */}
+                    <div className="w-10 h-7 rounded bg-gradient-to-r from-amber-400 to-yellow-300 relative overflow-hidden border border-gold/40 flex items-center justify-center shadow-inner shrink-0">
+                      <div className="absolute inset-x-0 top-1/4 h-px bg-navy/15" />
+                      <div className="absolute inset-x-0 top-2/4 h-px bg-navy/15" />
+                      <div className="absolute inset-x-0 top-3/4 h-px bg-navy/15" />
+                      <div className="absolute inset-y-0 left-1/3 w-px bg-navy/15" />
+                      <div className="absolute inset-y-0 left-2/3 w-px bg-navy/15" />
+                    </div>
+
+                    {/* Invoice ID styled like card numbers */}
+                    <div className="font-mono text-sm font-bold tracking-widest text-white/90">
+                      {inv.invoiceNumber.replace("-", " ").replace("-", " ")}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between md:justify-end gap-5 shrink-0">
-                    <div className="text-left md:text-right">
-                      <span className="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">
-                        Total
-                      </span>
-                      <span className="font-sans text-lg font-bold text-navy">
+                  {/* Description text row */}
+                  {inv.items?.length > 0 && (
+                    <div className="text-[10px] text-white/60 truncate italic max-w-full z-10 border-t border-white/5 pt-1.5 leading-snug">
+                      {inv.items.map((it) => it.description).join(" · ")}
+                    </div>
+                  )}
+
+                  {/* Bottom details: Issued, Due, Price */}
+                  <div className="flex justify-between items-end z-10">
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[9px] leading-normal text-white/60">
+                      <div>
+                        <span className="block text-[7px] text-white/40 uppercase tracking-wider">Issued</span>
+                        <span className="font-bold text-white">{formatDate(inv.issueDate)}</span>
+                      </div>
+                      <div>
+                        {inv.status === "paid" ? (
+                          <>
+                            <span className="block text-[7px] text-white/40 uppercase tracking-wider">Cleared</span>
+                            <span className="font-bold text-emerald-400">{inv.paidAt ? formatDate(inv.paidAt) : "Yes"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="block text-[7px] text-white/40 uppercase tracking-wider">Good Thru</span>
+                            <span className="font-bold text-amber-400">{formatDate(inv.dueDate)}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="block text-[7px] text-white/40 uppercase tracking-wider">Total Charges</span>
+                      <span className="font-serif text-base font-bold text-white leading-none">
                         €{total.toFixed(2)}
                       </span>
                     </div>
-                    <ChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform ${
-                        isOpen ? "rotate-180 text-gold" : ""
-                      }`}
-                    />
                   </div>
-                </button>
 
-                {isOpen && (
-                  <div className="border-t border-gray-100 bg-gray-50/60 p-5 space-y-4 animate-fade-up">
-                    <div className="overflow-x-auto rounded-lg border border-gray-100 bg-white">
-                      <table className="w-full text-xs text-left">
-                        <thead className="bg-gray-50 text-navy uppercase tracking-wider font-bold text-[10px]">
-                          <tr>
-                            <th className="p-3">Description</th>
-                            <th className="p-3 text-center">Qty</th>
-                            <th className="p-3 text-right">Unit price</th>
-                            <th className="p-3 text-right">Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {(inv.items || []).map((it, i) => {
-                            const price = Number(it.price || 0);
-                            const qty = Number(it.quantity || 1);
-                            return (
-                              <tr key={i} className="text-navy">
-                                <td className="p-3 font-medium">
-                                  {it.description}
-                                </td>
-                                <td className="p-3 text-center text-gray-500">
-                                  {qty}
-                                </td>
-                                <td className="p-3 text-right text-gray-500">
-                                  €{price.toFixed(2)}
-                                </td>
-                                <td className="p-3 text-right font-bold">
-                                  €{(price * qty).toFixed(2)}
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="ml-auto max-w-xs space-y-1.5 text-xs">
-                      <div className="flex justify-between text-gray-500">
-                        <span>Subtotal</span>
-                        <span>€{subtotal.toFixed(2)}</span>
-                      </div>
-                      {vat > 0 && (
-                        <div className="flex justify-between text-gray-500">
-                          <span>VAT</span>
-                          <span>€{vat.toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between border-t border-gray-200 pt-1.5 font-bold text-navy">
-                        <span>Total</span>
-                        <span>€{total.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => handleDownloadPdf(inv.id)}
-                        className="bg-navy hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg text-xs flex items-center gap-1.5 focus:outline-none transition-colors"
-                      >
-                        <Download className="w-3.5 h-3.5" /> Download PDF
-                      </button>
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* 🚀 3. Stunning, Fully-Aesthetic Invoice Popup Modal (Popup Modal) */}
+      {selectedInvoice && (
+        <div 
+          className="fixed inset-0 z-50 bg-navy/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-fade-in"
+          onClick={() => setSelectedInvoice(null)}
+        >
+          <div 
+            className="bg-white rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden border border-gray-100 animate-scale-in flex flex-col my-8 max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="bg-navy p-5 text-white flex items-center justify-between border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-gold animate-bounce" />
+                <span className="font-serif text-sm font-bold tracking-wider">STATEMENT & INVOICE DETAILS</span>
+              </div>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors focus:outline-none cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body (Scrollable) */}
+            <div className="p-6 space-y-6 overflow-y-auto min-h-0 text-xs">
+              
+              {/* Clinic Letterhead */}
+              <div className="border-b border-gray-100 pb-4 flex justify-between items-start gap-4">
+                <div className="space-y-1">
+                  <h4 className="font-serif text-sm font-bold text-navy uppercase tracking-wider">Hollyhill Dental Clinic</h4>
+                  <p className="text-gray-400 text-[10px] leading-relaxed max-w-xs">
+                    Unit 6 Hollyhill Shopping Centre, Co. Cork, T23 E030, Ireland
+                  </p>
+                  <p className="text-gray-400 text-[10px]">Phone: +353 21 430 3072</p>
+                </div>
+                
+                <span
+                  className={`text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 border ${getStatusStyles(
+                    selectedInvoice.status
+                  )}`}
+                >
+                  {selectedInvoice.status}
+                </span>
+              </div>
+
+              {/* Invoice Date Details */}
+              <div className="grid grid-cols-2 gap-4 bg-gray-50/50 p-3.5 rounded-2xl border border-gray-100 text-[11px] leading-normal">
+                <div>
+                  <span className="text-gray-400 block font-semibold text-[9px] uppercase tracking-wider mb-0.5">Invoice Number</span>
+                  <span className="font-mono font-bold text-navy">{selectedInvoice.invoiceNumber}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block font-semibold text-[9px] uppercase tracking-wider mb-0.5">Issued To</span>
+                  <span className="font-bold text-navy">Patient Profile</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block font-semibold text-[9px] uppercase tracking-wider mb-0.5">Issue Date</span>
+                  <span className="font-semibold text-navy">{formatDate(selectedInvoice.issueDate)}</span>
+                </div>
+                <div>
+                  {selectedInvoice.status === "paid" && selectedInvoice.paidAt ? (
+                    <>
+                      <span className="text-gray-400 block font-semibold text-[9px] uppercase tracking-wider mb-0.5">Payment Date</span>
+                      <span className="font-bold text-emerald-600">{formatDate(selectedInvoice.paidAt)}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-gray-400 block font-semibold text-[9px] uppercase tracking-wider mb-0.5">Payment Due Date</span>
+                      <span className="font-bold text-amber-700">{formatDate(selectedInvoice.dueDate)}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Itemized Table */}
+              <div className="space-y-2">
+                <h5 className="text-[10px] uppercase font-bold text-navy tracking-wider">Itemized treatments</h5>
+                
+                <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-gray-50 text-navy font-bold text-[9px] uppercase tracking-wider border-b border-gray-100">
+                      <tr>
+                        <th className="p-3">Description</th>
+                        <th className="p-3 text-center">Qty</th>
+                        <th className="p-3 text-right">Unit Price</th>
+                        <th className="p-3 text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {(selectedInvoice.items || []).map((it, i) => {
+                        const price = Number(it.price || 0);
+                        const qty = Number(it.quantity || 1);
+                        return (
+                          <tr key={i} className="text-navy font-medium">
+                            <td className="p-3 leading-relaxed">{it.description}</td>
+                            <td className="p-3 text-center text-gray-500">{qty}</td>
+                            <td className="p-3 text-right text-gray-500">€{price.toFixed(2)}</td>
+                            <td className="p-3 text-right font-bold">€{(price * qty).toFixed(2)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Subtotals */}
+              <div className="border-t border-gray-100 pt-3.5 ml-auto max-w-xs space-y-1.5 text-xs">
+                <div className="flex justify-between text-gray-500">
+                  <span>Subtotal</span>
+                  <span>€{Number(selectedInvoice.subtotal || selectedInvoice.totalAmount).toFixed(2)}</span>
+                </div>
+                {Number(selectedInvoice.vatAmount || 0) > 0 && (
+                  <div className="flex justify-between text-gray-500">
+                    <span>Tax / VAT (0%)</span>
+                    <span>€{Number(selectedInvoice.vatAmount).toFixed(2)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between border-t border-gray-200 pt-2 font-bold text-navy text-sm items-baseline">
+                  <span className="uppercase text-[10px] tracking-widest">Total Statement</span>
+                  <span className="font-serif text-lg font-bold">€{Number(selectedInvoice.totalAmount).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {/* 💳 DYNAMIC PAYMENT GATEWAY MODULE (ONLY FOR UNPAID/PENDING INVOICES) */}
+              {selectedInvoice.status !== "paid" && selectedInvoice.status !== "cancelled" && (
+                <div className="border-t border-gray-150 pt-5 space-y-4 bg-gray-50/50 p-5 rounded-2xl border border-gray-200 animate-scale-in text-center">
+                  
+                  <div className="w-12 h-12 bg-navy/5 rounded-full flex items-center justify-center mx-auto text-navy">
+                    <Lock className="w-6 h-6 text-gold animate-pulse" />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <h4 className="font-serif text-sm font-bold text-navy uppercase tracking-wider">🔒 Online Payments Coming Soon</h4>
+                    <p className="text-gray-400 text-[10px] leading-relaxed max-w-xs mx-auto">
+                      Online bill pay options via **Credit/Debit Card, UPI QR, & Counter Cashier** checkouts are currently <span className="font-bold text-gold">Under Active Development</span>.
+                    </p>
+                  </div>
+
+                  <div className="bg-amber-50 text-amber-700 border border-amber-100 p-3.5 rounded-xl text-[10px] font-semibold text-left flex items-start gap-2.5 max-w-sm mx-auto leading-relaxed">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <span>
+                      Hollyhill clinical billing gateways are being structured in sandbox developer preview. Active real-time bank reconciliation and clearing connections will go live shortly. 
+                    </span>
+                  </div>
+
+                  <div className="pt-1 flex flex-wrap items-center justify-center gap-3 text-[9px] text-gray-400 uppercase tracking-wider font-bold">
+                    <span className="flex items-center gap-1 bg-white border border-gray-200 px-2.5 py-1 rounded-full"><CreditCard className="w-3 h-3 text-gray-400" /> Cards (Soon)</span>
+                    <span className="flex items-center gap-1 bg-white border border-gray-200 px-2.5 py-1 rounded-full"><QrCode className="w-3 h-3 text-gray-400" /> UPI QR (Soon)</span>
+                    <span className="flex items-center gap-1 bg-white border border-gray-200 px-2.5 py-1 rounded-full"><CheckCircle2 className="w-3 h-3 text-gray-400" /> Cash counter (Soon)</span>
+                  </div>
+
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions Footer */}
+            <div className="bg-gray-50 p-5 border-t border-gray-100 flex items-center justify-between gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setSelectedInvoice(null)}
+                className="text-xs font-bold text-gray-500 hover:text-navy transition-colors focus:outline-none"
+              >
+                Close View
+              </button>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleDownloadPdf(selectedInvoice)}
+                  className="bg-navy hover:bg-gray-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center gap-1.5 focus:outline-none transition-colors shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5 text-gold" />
+                  <span>Download PDF</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+      
     </div>
   );
 }

@@ -19,6 +19,7 @@ export interface UserProfile {
   mustChangePassword?: boolean;
   patientProfile?: PatientProfile | null;
   profilePicUrl?: string | null;
+  displayName?: string | null;
 }
 
 interface AuthState {

@@ -18,6 +18,7 @@ import {
   AlertCircle,
   ChevronRight,
 } from "lucide-react";
+import { generateInvoicePDF } from "@/lib/pdf";
 
 interface PatientLite {
   id: string;
@@ -173,15 +174,19 @@ export default function AdminBillingPage() {
     }
   };
 
-  const handleDownloadPdf = async (id: string) => {
-    try {
-      const res = await apiRequest(`/billing/invoices/${id}/pdf`);
-      const url: string | undefined = res?.url || res?.pdfUrl;
-      if (url) { window.open(url, "_blank", "noopener,noreferrer"); return; }
-      throw new Error("No PDF URL returned");
-    } catch {
-      toast.warning("PDF receipt is not available yet for this invoice.");
-    }
+  const handleDownloadPdf = (inv: Invoice) => {
+    generateInvoicePDF({
+      invoiceNumber: inv.invoiceNumber,
+      issueDate:     inv.issueDate,
+      dueDate:       inv.dueDate,
+      paidAt:        undefined,
+      status:        inv.status,
+      patientName:   patientName(inv.patientId),
+      items:         Array.isArray(inv.items) ? inv.items : [],
+      subtotal:      inv.totalAmount,
+      vatAmount:     0,
+      totalAmount:   inv.totalAmount,
+    });
   };
 
   const totalCollected = invoices
@@ -248,98 +253,62 @@ export default function AdminBillingPage() {
           <p className="text-gray-500 text-xs leading-relaxed">No invoices have been generated yet.</p>
         </div>
       ) : (
-        <>
-          {/* Desktop Table */}
-          <div className="hidden lg:block border border-gray-200 bg-white rounded-2xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-navy text-white">
-                  <tr>
-                    <th className="p-4">Invoice #</th>
-                    <th className="p-4">Patient</th>
-                    <th className="p-4">Date</th>
-                    <th className="p-4">Total</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoices.map((inv) => {
-                    const sc = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
-                    return (
-                      <tr key={inv.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-mono font-semibold text-navy">{inv.invoiceNumber}</td>
-                        <td className="p-4 text-gray-600">{patientName(inv.patientId)}</td>
-                        <td className="p-4 text-gray-500">{new Date(inv.issueDate).toLocaleDateString()}</td>
-                        <td className="p-4 font-bold text-navy">€{Number(inv.totalAmount || 0).toFixed(2)}</td>
-                        <td className="p-4">
-                          <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border ${sc.color}`}>
-                            {sc.label}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => setViewInvoice(inv)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => handleEditOpen(inv)} className="p-1.5 rounded-lg hover:bg-gold/10 text-gold transition-colors" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => handleDownloadPdf(inv.id)} className="p-1.5 rounded-lg hover:bg-navy/10 text-navy transition-colors" title="Download PDF"><Download className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => handleDelete(inv.id, inv.invoiceNumber)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Mobile Card List */}
-          <div className="lg:hidden space-y-3">
-            {invoices.map((inv) => {
-              const sc = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
-              const Icon = sc.icon;
-              return (
-                <div key={inv.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-                  {/* Top row */}
-                  <div className="flex items-start justify-between gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {invoices.map((inv) => {
+            const sc = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
+            const Icon = sc.icon;
+            return (
+              <div key={inv.id} className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group">
+                <div className="space-y-4">
+                  {/* Header info */}
+                  <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-3">
                     <div className="min-w-0">
-                      <span className="font-mono font-bold text-navy text-xs">{inv.invoiceNumber}</span>
-                      <p className="text-[10px] text-gray-500 mt-0.5">{patientName(inv.patientId)}</p>
+                      <span className="font-mono font-bold text-navy text-xs group-hover:text-gold transition-colors">{inv.invoiceNumber}</span>
+                      <p className="text-[10px] text-gray-400 font-medium truncate mt-0.5" title={patientName(inv.patientId)}>
+                        Patient: {patientName(inv.patientId)}
+                      </p>
                     </div>
-                    <span className={`inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border shrink-0 ${sc.color}`}>
+                    <span className={`inline-flex items-center gap-1 text-[8px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border shrink-0 ${sc.color}`}>
                       <Icon className="w-2.5 h-2.5" />
                       {sc.label}
                     </span>
                   </div>
 
-                  {/* Meta row */}
-                  <div className="flex items-center justify-between text-[10px] text-gray-500 border-t border-gray-50 pt-2">
-                    <span>{new Date(inv.issueDate).toLocaleDateString()}</span>
-                    <span className="font-serif font-bold text-navy text-base">€{Number(inv.totalAmount || 0).toFixed(2)}</span>
+                  {/* Pricing / Details */}
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Total Amount</span>
+                      <span className="font-serif font-bold text-navy text-base block mt-0.5">€{Number(inv.totalAmount || 0).toFixed(2)}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Issued Date</span>
+                      <span className="text-[10px] text-gray-500 font-medium block mt-0.5">{new Date(inv.issueDate).toLocaleDateString()}</span>
+                    </div>
                   </div>
+                </div>
 
-                  {/* Action buttons */}
-                  <div className="flex items-center gap-2 pt-1">
-                    <button onClick={() => setViewInvoice(inv)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-blue-100 text-blue-500 text-[10px] font-bold hover:bg-blue-50 transition-colors">
+                {/* Actions */}
+                <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 w-full">
+                    <button onClick={() => setViewInvoice(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-blue-100 text-blue-500 text-[10px] font-bold hover:bg-blue-50 transition-colors active:scale-95">
                       <Eye className="w-3.5 h-3.5" /> View
                     </button>
-                    <button onClick={() => handleEditOpen(inv)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors">
+                    <button onClick={() => handleEditOpen(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors active:scale-95">
                       <Edit3 className="w-3.5 h-3.5" /> Edit
                     </button>
-                    <button onClick={() => handleDownloadPdf(inv.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-navy/20 text-navy text-[10px] font-bold hover:bg-navy/5 transition-colors">
+                    <button onClick={() => handleDownloadPdf(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-navy/20 text-navy text-[10px] font-bold hover:bg-navy/5 transition-colors active:scale-95" title="PDF">
                       <Download className="w-3.5 h-3.5" /> PDF
                     </button>
-                    <button onClick={() => handleDelete(inv.id, inv.invoiceNumber)} className="p-2 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors">
+                    <button onClick={() => handleDelete(inv.id, inv.invoiceNumber)} className="p-2 rounded-xl border border-red-100 text-red-500 hover:bg-red-50 transition-colors active:scale-95" title="Delete">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-
+              </div>
+            );
+          })}
+        </div>
+      ) }
       {/* ─── View Modal ─── */}
       {viewInvoice && (
         <Modal title={`Invoice ${viewInvoice.invoiceNumber}`} onClose={() => setViewInvoice(null)}>
@@ -367,7 +336,7 @@ export default function AdminBillingPage() {
             )}
             <div className="flex gap-2 pt-2">
               <button
-                onClick={() => handleDownloadPdf(viewInvoice.id)}
+                onClick={() => handleDownloadPdf(viewInvoice)}
                 className="flex-1 bg-navy text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center gap-1.5"
               >
                 <Download className="w-3.5 h-3.5" /> Download PDF

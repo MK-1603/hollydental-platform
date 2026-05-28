@@ -855,7 +855,7 @@ export default function HomeClient() {
             <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
                 <img
-                  src="https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=600"
+                  src="/products/image.png"
                   alt="Dental Bonding Treatment"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
@@ -871,7 +871,7 @@ export default function HomeClient() {
                     Dental Bonding
                   </h3>
                   <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    With dental bonding we can repair chips, stains and fluorosis as well as change the shape and size of the tooth to improve your smile. We do this by adding composite carefully to the teeth.
+                    With dental bonding we can repair chips, stains and fluorosis as well as change the shape and size of the tooth to improve your smile. We do this by adding composite (white tooth filling) carefully to the teeth. Book an appointment with us and our amazing dental team who will walk you through the process and put your mind at ease!! Contact 0214303072 for bookings
                   </p>
                 </div>
                 <div className="pt-2">
@@ -892,7 +892,7 @@ export default function HomeClient() {
             <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
                 <img
-                  src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=600"
+                  src="/products/image copy.png"
                   alt="Black Is White Teeth Whitening Toothpaste"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
@@ -908,7 +908,7 @@ export default function HomeClient() {
                     Black Is White Whitening Toothpaste
                   </h3>
                   <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    Fresh lime mint toothpaste from Curaprox with NEW activated carbon to bring up the whiteness of a patient's teeth. Provides clean, advanced daily whitening care.
+                    Fresh lime mint toothpaste from Curaprox with activated carbon to gently lift surface stains and brighten the natural whiteness of teeth. Daily use, fluoride formula, suitable for sensitive teeth.
                   </p>
                 </div>
                 <div className="pt-2">
@@ -929,12 +929,12 @@ export default function HomeClient() {
             <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
                 <img
-                  src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=600"
+                  src="/products/image copy 2.png"
                   alt="Pola Light Teeth Whitening Kits"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute top-4 right-4 bg-navy/95 border border-gold/30 text-gold font-serif font-bold text-xs px-4 py-2 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] [transform:translateZ(30px)]">
-                  €199.00
+                  €250.00
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
@@ -945,7 +945,7 @@ export default function HomeClient() {
                     Pola Light Whitening Kits
                   </h3>
                   <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    Advanced teeth whitening system. Enjoy a brighter more confident smile in 5 days. Pola Light combines Pola's award winning formula with an LED mouthpiece.
+                    Advanced teeth whitening system. Enjoy a brighter more confident smile in 5 days. Pola Light is an advanced tooth whitening system that combines Pola's award winning whitening formula, with an LED mouthpiece, for a faster whitening treatment. Buy Now
                   </p>
                 </div>
                 <div className="pt-2">

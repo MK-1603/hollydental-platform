@@ -13,6 +13,12 @@ import {
   ShieldCheck,
   ClipboardList,
   Receipt,
+  Sparkles,
+  Clock,
+  Calendar,
+  AlertTriangle,
+  ArrowRight,
+  Stethoscope
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -85,242 +91,199 @@ export default function PatientDashboardPage() {
   const firstName = user?.patientProfile?.firstName || "there";
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-        <div>
-          <h1 className="font-serif text-2xl md:text-3xl font-bold text-navy">
-            {getGreeting()}, {firstName}
-          </h1>
-          <p className="text-gray-500 text-xs mt-1">
-            Welcome back. Here&apos;s a quick view of your dental care.
-          </p>
+    <div className="space-y-6 pb-12 select-none max-w-7xl mx-auto px-1">
+      
+      {/* ── Welcome Premium Header ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-slate-900 to-blue-950 p-6 md:p-8 text-white shadow-xl border border-white/5">
+        {/* Glowing glassmorphism accent shapes */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gold/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
+        <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -ml-16 -mb-16" />
+
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] font-extrabold uppercase tracking-widest">
+              <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Patient Dental Workspace
+            </div>
+            <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">
+              {getGreeting()}, {firstName}
+            </h1>
+            <p className="text-gray-300 text-xs md:text-sm font-medium max-w-2xl leading-relaxed">
+              Welcome back to your Hollyhill Dental portal. Explore checkup diagnostics, manage slots, and secure chat logs directly.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Live Clock / Calendar module */}
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-xs font-semibold flex flex-col items-start gap-1">
+              <span className="text-gray-400 text-[9px] uppercase font-bold tracking-wider">Clinic Calendar</span>
+              <div className="text-white font-bold flex items-center gap-1.5 mt-0.5">
+                <Clock className="w-3.5 h-3.5 text-gold animate-pulse" />
+                <span>{new Date().toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <span className="text-[10px] text-gold/80 font-bold uppercase tracking-wider">
+                {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+              </span>
+            </div>
+            
+            {/* Notifications Hub */}
+            <Link
+              href="/portal/notifications"
+              className="relative w-12 h-12 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex items-center justify-center transition-colors group shrink-0"
+              title="Notifications"
+            >
+              <Bell className="w-5 h-5 text-gray-300 group-hover:text-gold transition-colors" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-navy animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
-        <Link href="/portal/notifications" className="relative" title="Notifications">
-          <Bell className="w-5 h-5 text-navy hover:text-gold cursor-pointer" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </Link>
       </div>
 
+      {/* ── Visual Navigation Dashboard Grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6">
-        <Link
-          href="/portal/chart"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
-              <ClipboardList className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                Dental Chart
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                Teeth health & notes
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
-
-        <Link
-          href="/portal/booking"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gold/10 text-gold flex items-center justify-center shrink-0">
-              <CalendarDays className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                Request Visit
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                Submit booking request
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
-
-        <Link
-          href="/portal/messages"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-navy/5 text-navy flex items-center justify-center shrink-0">
-              <MessageSquare className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                Message Clinic
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                Direct chat with doctor
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
-
-        <Link
-          href="/portal/appointments"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <ClipboardCheck className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                My Requests
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                {pendingCount > 0
-                  ? `${pendingCount} awaiting approval`
-                  : "All approved"}
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
-
-        <Link
-          href="/portal/prescriptions"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gold/10 text-gold flex items-center justify-center shrink-0">
-              <ClipboardList className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                Prescriptions
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                View issued scripts
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
-
-        <Link
-          href="/portal/invoices"
-          className="border border-gray-100 bg-white hover:border-gold hover:shadow-sm rounded-xl p-5 transition-all flex items-center justify-between"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-navy/5 text-navy flex items-center justify-center shrink-0">
-              <Receipt className="w-5 h-5" />
-            </div>
-            <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                Billing Statements
-              </span>
-              <span className="block text-[9px] text-gray-400 truncate">
-                Invoices & receipts
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
-        </Link>
+        {[
+          { name: "Dental Chart", href: "/portal/chart", desc: "Teeth health & diagnostic files", icon: ClipboardList, bg: "bg-teal-50 text-teal-600 border-teal-100" },
+          { name: "Request Visit", href: "/portal/booking", desc: "Submit slot check-in requests", icon: CalendarDays, bg: "bg-gold/10 text-gold-dark border-gold/25" },
+          { name: "Message Clinic", href: "/portal/messages", desc: "Direct chat with dentist", icon: MessageSquare, bg: "bg-navy/5 text-navy border-navy/10" },
+          { name: "My Bookings", href: "/portal/appointments", desc: pendingCount > 0 ? `${pendingCount} awaiting approval` : "All slots approved", icon: ClipboardCheck, bg: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+          { name: "Prescriptions", href: "/portal/prescriptions", desc: "View medical script files", icon: ClipboardList, bg: "bg-amber-50 text-amber-600 border-amber-100" },
+          { name: "Invoices", href: "/portal/invoices", desc: "Receipt & billing balance", icon: Receipt, bg: "bg-violet-50 text-violet-600 border-violet-100" }
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="group border border-gray-250/50 bg-white hover:border-gold hover:shadow-md rounded-2xl p-4.5 transition-all duration-300 flex items-center justify-between hover:-translate-y-0.5"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className={`w-9.5 h-9.5 rounded-xl flex items-center justify-center shrink-0 border ${item.bg}`}>
+                  <Icon className="w-4.5 h-4.5" />
+                </div>
+                <div className="truncate">
+                  <span className="block text-xs font-bold text-navy truncate group-hover:text-gold transition-colors">
+                    {item.name}
+                  </span>
+                  <span className="block text-[9px] text-gray-400 mt-0.5 truncate">
+                    {item.desc}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0" />
+            </Link>
+          );
+        })}
       </div>
 
+      {/* ── Main Workspace split ── */}
       {loading && appointments.length === 0 ? (
-        <div className="h-[200px] shimmer rounded-xl w-full" />
+        <div className="h-[240px] shimmer rounded-3xl w-full bg-white border border-gray-100" />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          {/* Main Workspace Workspace (Columns 1 & 2) */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="border border-gray-100 bg-white rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="font-serif text-base font-bold text-navy">
-                Next Scheduled Visit
-              </h3>
+            
+            {/* Scheduled Visit card */}
+            <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full pointer-events-none" />
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+                  <h3 className="font-serif text-base font-extrabold text-navy">
+                    Next Scheduled Visit
+                  </h3>
+                  <Calendar className="w-4.5 h-4.5 text-gold" />
+                </div>
 
-              {nextAppt ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-gold bg-gold/10 px-2 py-0.5 rounded">
-                        {String(nextAppt.serviceId || "appointment").replace(
-                          /-/g,
-                          " "
-                        )}
+                {nextAppt ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-1.5">
+                        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-widest text-gold bg-gold/10 px-2.5 py-0.5 rounded-full border border-gold/15">
+                          <Stethoscope className="w-3 h-3 text-gold" />
+                          {String(nextAppt.serviceId || "appointment").replace(/-/g, " ")}
+                        </span>
+                        <h4 className="font-serif text-xl sm:text-2xl font-bold text-navy tracking-tight mt-1">
+                          {formatDate(nextAppt.appointmentDate)} &bull; {nextAppt.appointmentTime}
+                        </h4>
+                        <p className="text-[11px] text-gray-400 font-semibold mt-0.5">
+                          Assigned Dentist: <span className="text-navy font-bold">Dr. Roghay Alizadeh</span>
+                        </p>
+                      </div>
+                      
+                      <span
+                        className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider shrink-0 ${
+                          nextAppt.status === "confirmed"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-150"
+                            : "bg-amber-50 text-amber-700 border-amber-150"
+                        }`}
+                      >
+                        {nextAppt.status === "pending"
+                          ? "Awaiting confirmation"
+                          : nextAppt.status}
                       </span>
-                      <h4 className="font-serif text-lg font-bold text-navy mt-1.5">
-                        {formatDate(nextAppt.appointmentDate)} at{" "}
-                        {nextAppt.appointmentTime}
-                      </h4>
-                      <p className="text-[11px] text-gray-500 mt-0.5">
-                        Dentist: Dr. Roghay Alizadeh
-                      </p>
                     </div>
-                    <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                        nextAppt.status === "confirmed"
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-amber-50 text-amber-600"
-                      }`}
-                    >
-                      {nextAppt.status === "pending"
-                        ? "Awaiting confirmation"
-                        : nextAppt.status}
-                    </span>
-                  </div>
 
-                  <div className="flex gap-4 border-t border-gray-50 pt-4 text-xs font-semibold">
-                    <a
-                      href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-                        (nextAppt.serviceId || "Dental visit") + " - Hollyhill"
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-navy hover:text-gold flex items-center gap-1"
-                    >
-                      Add to Calendar
-                    </a>
+                    <div className="flex gap-4 border-t border-gray-50 pt-4 text-xs font-bold">
+                      <a
+                        href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+                          (nextAppt.serviceId || "Dental checkup") + " - Hollyhill Shopping Centre"
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-navy hover:text-gold flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        Add to Google Calendar
+                      </a>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-6 space-y-3">
-                  <p className="text-xs text-gray-400">
-                    You don&apos;t have any upcoming appointments yet.
-                  </p>
-                  <Link
-                    href="/portal/booking"
-                    className="bg-gold hover:bg-gold-dark text-navy text-xs font-bold py-2 px-5 rounded-lg inline-block shadow"
-                  >
-                    Request a visit
-                  </Link>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-8 space-y-4 max-w-sm mx-auto">
+                    <p className="text-xs text-gray-400 font-medium">
+                      You don't have any upcoming diagnostic checkups or appointments scheduled yet.
+                    </p>
+                    <Link
+                      href="/portal/booking"
+                      className="bg-gold hover:bg-yellow-400 text-navy text-xs font-bold py-2.5 px-6 rounded-xl inline-flex items-center gap-1.5 shadow transition-colors"
+                    >
+                      Book A Treatment <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Recent Visit Ledger */}
             {appointments.length > 1 && (
-              <div className="border border-gray-100 bg-white rounded-2xl p-6 shadow-sm space-y-4">
-                <h3 className="font-serif text-xs font-bold text-navy">
-                  Recent Requests
+              <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs space-y-4">
+                <h3 className="font-serif text-sm font-extrabold text-navy border-b border-gray-50 pb-2">
+                  Recent Request Ledger
                 </h3>
-                <div className="space-y-2.5 text-xs text-navy font-semibold">
+                <div className="space-y-3.5 text-xs text-navy font-bold">
                   {appointments.slice(0, 3).map((appt) => (
                     <div
                       key={appt.id}
-                      className="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0"
+                      className="flex justify-between items-center border-b border-gray-50 pb-2.5 last:border-0 last:pb-0"
                     >
-                      <div>
-                        <span className="block">
-                          {String(appt.serviceId || "appointment").replace(
-                            /-/g,
-                            " "
-                          )}
+                      <div className="space-y-0.5">
+                        <span className="block text-navy uppercase text-[10px] tracking-wide">
+                          {String(appt.serviceId || "appointment").replace(/-/g, " ")}
                         </span>
-                        <span className="block text-[10px] text-gray-400 font-normal">
+                        <span className="block text-[9px] text-gray-400 font-medium">
                           {formatDate(appt.appointmentDate)}
                         </span>
                       </div>
-                      <span className="text-[10px] capitalize text-gray-400">
+                      <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded border ${
+                        appt.status === "confirmed"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-150"
+                          : appt.status === "pending"
+                          ? "bg-amber-50 text-amber-700 border-amber-150"
+                          : "bg-gray-50 text-gray-500 border-gray-150"
+                      }`}>
                         {appt.status}
                       </span>
                     </div>
@@ -330,78 +293,91 @@ export default function PatientDashboardPage() {
             )}
           </div>
 
+          {/* Right Column (Clinical Telemetry & Alerts) */}
           <div className="space-y-6">
-            <div className="border border-gray-100 bg-white rounded-2xl p-6 shadow-sm space-y-4">
-              <h3 className="font-serif text-base font-bold text-navy">
-                Request status
-              </h3>
-              {pendingCount > 0 ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                      <ClipboardCheck className="w-5 h-5" />
+            
+            {/* Status overview */}
+            <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs space-y-4 flex flex-col justify-between min-h-[220px]">
+              <div className="border-b border-gray-50 pb-2 shrink-0">
+                <h3 className="font-serif text-base font-extrabold text-navy">
+                  Booking Status
+                </h3>
+              </div>
+              
+              <div className="flex-1 flex flex-col justify-center my-3">
+                {pendingCount > 0 ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100/50">
+                        <ClipboardCheck className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-sm font-extrabold text-navy">
+                          {pendingCount} Pending Requests
+                        </span>
+                        <span className="block text-[10px] text-gray-400 font-medium leading-relaxed mt-0.5">
+                          Dr. Roghay is reviewing your requested time slot. An confirmation alert will arrive shortly.
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="block text-sm font-bold text-navy">
-                        {pendingCount} pending
-                      </span>
-                      <span className="block text-[11px] text-gray-500">
-                        The clinic will email you once approved.
-                      </span>
-                    </div>
+                    
+                    <Link
+                      href="/portal/appointments"
+                      className="w-full bg-navy hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs shadow-md block text-center uppercase tracking-wider transition-colors"
+                    >
+                      View requested slots
+                    </Link>
                   </div>
-                  <Link
-                    href="/portal/appointments"
-                    className="w-full bg-navy hover:bg-gray-800 text-white font-bold py-2.5 rounded-lg text-xs shadow-md block text-center uppercase tracking-wider"
-                  >
-                    View my requests
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                      <ShieldCheck className="w-5 h-5" />
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/50">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <span className="block text-sm font-extrabold text-navy">
+                          Operations Synced
+                        </span>
+                        <span className="block text-[10px] text-gray-400 font-medium leading-relaxed mt-0.5">
+                          You have no pending visit requests currently. All files are fully updated.
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="block text-sm font-bold text-navy">
-                        You&apos;re all set
-                      </span>
-                      <span className="block text-[11px] text-gray-500">
-                        No pending requests right now.
-                      </span>
-                    </div>
+                    
+                    <Link
+                      href="/portal/booking"
+                      className="w-full border border-navy/20 hover:border-navy text-navy font-bold py-2.5 rounded-xl text-xs block text-center transition-all cursor-pointer"
+                    >
+                      Request visit slot
+                    </Link>
                   </div>
-                  <Link
-                    href="/portal/booking"
-                    className="text-[11px] font-bold text-gold hover:underline"
-                  >
-                    Request a new visit →
-                  </Link>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
+            {/* Doctor alerts */}
             {unreadCount > 0 && (
-              <div className="border border-red-100 bg-red-50/20 rounded-2xl p-6 shadow-sm space-y-2">
-                <h4 className="font-serif text-xs font-bold text-red-600 flex items-center gap-1.5">
-                  <MessageSquare className="w-4 h-4" /> Message from Dr. Roghay
+              <div className="border border-red-150 bg-red-50/20 rounded-3xl p-5 shadow-2xs space-y-3 relative overflow-hidden animate-fade-up">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-red-500/5 rounded-bl-full pointer-events-none" />
+                <h4 className="font-serif text-xs font-bold text-red-700 flex items-center gap-1.5 relative">
+                  <AlertTriangle className="w-4 h-4 text-red-500" /> Clinic Telemetry Alert
                 </h4>
-                <p className="text-gray-600 text-[11px] leading-relaxed">
-                  You have {unreadCount} unread message
-                  {unreadCount > 1 ? "s" : ""}. View the clinical thread to reply.
+                <p className="text-gray-500 text-[11px] leading-relaxed font-semibold relative">
+                  You have <span className="text-red-600 font-extrabold">{unreadCount} unread message{unreadCount > 1 ? "s" : ""}</span> from Dr. Roghay Alizadeh awaiting your clinical review.
                 </p>
                 <Link
                   href="/portal/messages"
-                  className="text-[10px] font-bold text-gold hover:underline block pt-1"
+                  className="text-[10px] font-extrabold text-gold hover:text-gold-dark hover:underline flex items-center gap-0.5 uppercase tracking-wider relative pt-1"
                 >
-                  Go to messages →
+                  Open Secure chat <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             )}
           </div>
+
         </div>
       )}
+
     </div>
   );
 }

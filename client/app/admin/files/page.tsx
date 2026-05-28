@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { apiRequest, apiUpload } from "@/lib/api";
 import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
-import { FolderLock, Upload, Download, Trash, RefreshCw } from "lucide-react";
+import { FolderLock, Upload, Download, Trash, RefreshCw, Pencil, Check, X as XIcon } from "lucide-react";
 
 interface PatientLite {
   id: string;
@@ -45,8 +45,13 @@ export default function AdminFilesPage() {
   const [showUpload, setShowUpload] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [category, setCategory] = useState("xray");
+  const [customCategory, setCustomCategory] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [customFileName, setCustomFileName] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editCategory, setEditCategory] = useState("");
 
   // Auto-select the first patient once we have the list
   useEffect(() => {
@@ -74,23 +79,21 @@ export default function AdminFilesPage() {
 
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!pendingFile) {
-      toast.warning("Please choose a file to upload.");
-      return;
-    }
-    if (!selectedPatientId) {
-      toast.warning("Please select a patient first.");
-      return;
-    }
+    if (!pendingFile) { toast.warning("Please choose a file to upload."); return; }
+    if (!selectedPatientId) { toast.warning("Please select a patient first."); return; }
+    const finalCategory = category === "__custom__" ? customCategory.trim() || "other" : category;
+    const finalName = customFileName.trim() || pendingFile.name;
+    // Rename the file object if custom name provided
+    const fileToUpload = customFileName.trim()
+      ? new (globalThis as any).File([pendingFile], finalName, { type: pendingFile.type })
+      : pendingFile;
     setUploading(true);
     try {
-      await apiUpload("/files/upload", {
-        patientId: selectedPatientId,
-        category,
-        file: pendingFile,
-      });
+      await apiUpload("/files/upload", { patientId: selectedPatientId, category: finalCategory, file: fileToUpload });
       setShowUpload(false);
       setPendingFile(null);
+      setCustomFileName("");
+      setCustomCategory("");
       if (fileInputRef.current) fileInputRef.current.value = "";
       refetch();
       toast.success("File uploaded.");
@@ -98,6 +101,21 @@ export default function AdminFilesPage() {
       toast.error(`Upload failed: ${error?.message || "Please try again."}`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleRename = async (id: string) => {
+    if (!editName.trim()) return;
+    try {
+      await apiRequest(`/files/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ fileName: editName.trim(), category: editCategory.trim() || undefined }),
+      });
+      refetch();
+      setEditingId(null);
+      toast.success("File updated.");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update file.");
     }
   };
 
@@ -181,47 +199,81 @@ export default function AdminFilesPage() {
             >
               <div className="aspect-video bg-gray-50 border-b border-gray-100 flex items-center justify-center relative">
                 {(file.fileType || "").startsWith("image/") ? (
-                  <img
-                    src={file.cloudinaryUrl}
-                    alt={file.fileName}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={file.cloudinaryUrl} alt={file.fileName} className="w-full h-full object-cover" />
                 ) : (
                   <FolderLock className="w-8 h-8 text-gold" />
                 )}
+                {/* Format badge */}
+                <span className="absolute top-2 right-2 text-[8px] font-bold uppercase tracking-wider bg-navy/80 text-white px-1.5 py-0.5 rounded">
+                  {file.fileName.split(".").pop() || file.fileType.split("/").pop()}
+                </span>
               </div>
 
               <div className="p-4 space-y-3">
                 <div>
-                  {file.category && (
-                    <span className="text-[8px] font-bold text-gold uppercase tracking-wider bg-gold/10 px-2 py-0.5 rounded">
-                      {file.category}
-                    </span>
+                  {editingId === file.id ? (
+                    <div className="space-y-2">
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full border border-gold rounded-lg px-2.5 py-1.5 text-xs text-navy focus:outline-none"
+                        placeholder="File name"
+                      />
+                      <input
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        className="w-full border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs text-navy focus:outline-none"
+                        placeholder="Category (e.g. xray, report)"
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={() => handleRename(file.id)} className="flex-1 bg-gold text-navy font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1">
+                          <Check className="w-3.5 h-3.5" /> Save
+                        </button>
+                        <button onClick={() => setEditingId(null)} className="flex-1 border border-gray-200 text-navy font-bold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1">
+                          <XIcon className="w-3.5 h-3.5" /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {file.category && (
+                        <span className="text-[8px] font-bold text-gold uppercase tracking-wider bg-gold/10 px-2 py-0.5 rounded">
+                          {file.category}
+                        </span>
+                      )}
+                      <h4 className="font-serif text-xs font-bold text-navy mt-1.5 truncate">{file.fileName}</h4>
+                      <span className="block text-[10px] text-gray-400 mt-0.5">
+                        Uploaded: {new Date(file.createdAt).toLocaleDateString()}
+                      </span>
+                    </>
                   )}
-                  <h4 className="font-serif text-xs font-bold text-navy mt-1.5 truncate">
-                    {file.fileName}
-                  </h4>
-                  <span className="block text-[10px] text-gray-400 mt-0.5">
-                    Uploaded: {new Date(file.createdAt).toLocaleDateString()}
-                  </span>
                 </div>
 
-                <div className="flex gap-2">
-                  <a
-                    href={file.cloudinaryUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 border border-gray-200 hover:border-gold hover:text-gold text-navy font-semibold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 focus:outline-none"
-                  >
-                    <Download className="w-3.5 h-3.5" /> Download
-                  </a>
-                  <button
-                    onClick={() => handleDelete(file.id)}
-                    className="border border-red-100 hover:bg-red-50 text-red-500 p-1.5 rounded-lg focus:outline-none"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
-                </div>
+                {editingId !== file.id && (
+                  <div className="flex gap-2">
+                    <a
+                      href={file.cloudinaryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 border border-gray-200 hover:border-gold hover:text-gold text-navy font-semibold py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 focus:outline-none"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Download
+                    </a>
+                    <button
+                      onClick={() => { setEditingId(file.id); setEditName(file.fileName); setEditCategory(file.category || ""); }}
+                      className="border border-gray-200 hover:border-gold hover:text-gold text-navy p-1.5 rounded-lg focus:outline-none"
+                      title="Rename"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(file.id)}
+                      className="border border-red-100 hover:bg-red-50 text-red-500 p-1.5 rounded-lg focus:outline-none"
+                    >
+                      <Trash className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -268,7 +320,29 @@ export default function AdminFilesPage() {
                     <option value="document">Consent Paperwork</option>
                     <option value="photo">Aesthetic Smile Photo</option>
                     <option value="report">Clinical Report</option>
+                    <option value="__custom__">Custom category…</option>
                   </select>
+                  {category === "__custom__" && (
+                    <input
+                      type="text"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="Enter custom category name"
+                      className="w-full bg-gray-50 border border-gold/40 rounded-lg p-2.5 text-xs focus:outline-none mt-1"
+                    />
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-semibold text-navy">Custom File Name (optional)</label>
+                  <input
+                    type="text"
+                    value={customFileName}
+                    onChange={(e) => setCustomFileName(e.target.value)}
+                    placeholder="e.g. John_Smith_Xray_2025.jpg"
+                    className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none"
+                  />
+                  <p className="text-[9px] text-gray-400">Leave blank to use the original file name.</p>
                 </div>
 
                 <div className="space-y-1">
@@ -277,7 +351,7 @@ export default function AdminFilesPage() {
                     ref={fileInputRef}
                     type="file"
                     required
-                    accept="image/*,application/pdf"
+                    accept="image/*,application/pdf,.docx,.doc,.txt,.dcm,.tiff"
                     onChange={(e) => setPendingFile(e.target.files?.[0] || null)}
                     className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-navy file:text-white"
                   />

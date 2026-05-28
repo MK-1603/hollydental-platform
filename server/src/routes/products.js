@@ -1,12 +1,37 @@
 import express from "express";
+import multer from "multer";
 import { db } from "../config/db.js";
 import { products } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
 import { logActivity } from "../lib/auditLog.js";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 
 const router = express.Router();
+
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.post("/upload", verifyToken, requireRole("admin"), upload.single("file"), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ message: "No file provided." });
+  }
+  try {
+    const uploadResult = await uploadToCloudinary(file.buffer, file.originalname);
+    return res.status(200).json({
+      message: "Image uploaded successfully.",
+      imageUrl: uploadResult.secure_url,
+    });
+  } catch (error) {
+    console.error("[product-image-upload] failed", error);
+    return res.status(500).json({ message: "Failed to upload image." });
+  }
+});
 
 function requireDb(res) {
   if (!process.env.DATABASE_URL) {

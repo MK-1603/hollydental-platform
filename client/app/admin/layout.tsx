@@ -33,9 +33,14 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (window.innerWidth >= 1280) {
-      setSidebarOpen(true);
-    }
+    const handleResize = () => {
+      if (window.innerWidth >= 1280) {
+        setSidebarOpen(true);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const [showNotifDropdown, setShowNotifDropdown] = useState<boolean>(false);
@@ -131,13 +136,12 @@ export default function AdminLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 h-full">
-        
-        {/* Header bar */}
-        <header className="h-[64px] bg-white border-b border-gray-200 flex items-center justify-between gap-3 px-4 sm:px-6 xl:px-8 shrink-0">
+                {/* Header bar */}
+        <header className="sticky top-0 z-30 h-[64px] bg-white border-b border-gray-200 flex items-center justify-between gap-3 px-4 sm:px-6 xl:px-8 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-navy transition-colors focus:outline-none cursor-pointer"
+              className="xl:hidden p-1.5 rounded-lg hover:bg-gray-100 text-navy transition-colors focus:outline-none cursor-pointer"
               aria-label="Toggle Sidebar"
             >
               <Menu className="w-5 h-5" />
@@ -167,30 +171,30 @@ export default function AdminLayout({
 
               {/* Dropdown Menu */}
               {showNotifDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-2xl shadow-xl py-3 z-50 animate-fade-in text-xs text-navy font-sans font-semibold">
-                  <div className="px-4 pb-2 border-b border-gray-100 flex items-center justify-between gap-2">
-                    <span className="font-sans text-sm font-bold text-navy">
+                <div className="absolute right-0 top-full mt-2 w-80 bg-white/95 backdrop-blur-lg border border-gray-100 rounded-3xl shadow-[0_20px_40px_rgba(5,38,78,0.12)] py-4.5 z-50 animate-fade-in text-xs text-navy font-sans font-semibold">
+                  <div className="px-5 pb-3 border-b border-gray-100 flex items-center justify-between gap-2">
+                    <span className="font-sans text-sm font-extrabold text-navy">
                       Notifications
                     </span>
                     {pendingAppts + unreadMsgs > 0 && (
-                      <span className="text-[10px] text-gold uppercase tracking-wider font-bold whitespace-nowrap">
+                      <span className="text-[9px] bg-gold/10 text-gold-dark px-2.5 py-0.5 rounded-full uppercase tracking-wider font-extrabold whitespace-nowrap">
                         New alerts
                       </span>
                     )}
                   </div>
-                  <div className="divide-y divide-gray-50 max-h-60 overflow-y-auto">
+                  <div className="divide-y divide-gray-50 max-h-72 overflow-y-auto px-2 mt-2">
                     {pendingAppts > 0 && (
                       <Link
                         href="/admin/approvals"
                         onClick={() => setShowNotifDropdown(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3.5 px-3 py-3 hover:bg-gray-50/80 rounded-2xl transition-all duration-200"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                          <CalendarClock className="w-4 h-4" />
+                        <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100/50">
+                          <CalendarClock className="w-5 h-5" />
                         </div>
-                        <div className="text-left">
-                          <span className="block text-navy font-bold">{pendingAppts} pending approvals</span>
-                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5">Click to approve or reschedule visits</span>
+                        <div className="text-left flex-1 min-w-0">
+                          <span className="block text-navy font-bold text-xs">{pendingAppts} pending approvals</span>
+                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5 truncate">Click to approve or reschedule visits</span>
                         </div>
                       </Link>
                     )}
@@ -199,22 +203,25 @@ export default function AdminLayout({
                       <Link
                         href="/admin/messages"
                         onClick={() => setShowNotifDropdown(false)}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-center gap-3.5 px-3 py-3 hover:bg-gray-50/80 rounded-2xl transition-all duration-200"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-navy/5 text-navy flex items-center justify-center shrink-0">
-                          <MessageSquare className="w-4 h-4" />
+                        <div className="w-10 h-10 rounded-xl bg-navy/5 text-navy flex items-center justify-center shrink-0 border border-navy/5">
+                          <MessageSquare className="w-5 h-5" />
                         </div>
-                        <div className="text-left">
-                          <span className="block text-navy font-bold">{unreadMsgs} unread messages</span>
-                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5">Direct chat logs awaiting reply</span>
+                        <div className="text-left flex-1 min-w-0">
+                          <span className="block text-navy font-bold text-xs">{unreadMsgs} unread messages</span>
+                          <span className="block text-[10px] text-gray-400 font-normal mt-0.5 truncate">Direct chat logs awaiting reply</span>
                         </div>
                       </Link>
                     )}
 
                     {pendingAppts === 0 && unreadMsgs === 0 && (
-                      <div className="py-8 text-center text-gray-400 flex flex-col items-center gap-1.5 font-normal">
-                        <span className="text-sm">✨</span>
-                        <span>All caught up! No alerts.</span>
+                      <div className="py-10 text-center text-gray-400 flex flex-col items-center justify-center gap-2 font-normal">
+                        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-sm font-medium">
+                          ✨
+                        </div>
+                        <span className="text-[11px] text-navy font-bold mt-1">All Caught Up!</span>
+                        <span className="text-[10px] text-gray-400">No new alerts to review.</span>
                       </div>
                     )}
                   </div>
@@ -257,8 +264,11 @@ export default function AdminLayout({
 
         {/* Dynamic pages */}
         <main className={`flex-1 ${
-          pathname.endsWith("/messages")
-            ? "overflow-hidden p-0 xl:p-8"
+          pathname.startsWith("/admin/messages") ||
+          pathname.startsWith("/admin/ai") ||
+          pathname.startsWith("/admin/appointments") ||
+          pathname.startsWith("/admin/activity")
+            ? "overflow-hidden p-0 h-full flex flex-col"
             : "overflow-y-auto p-4 xl:p-8 pb-24 xl:pb-8"
         }`}>
           {children}
@@ -298,6 +308,8 @@ export default function AdminLayout({
           );
         })}
       </nav>
+
+      {/* Floating AI Assistant Chatbot removed to use direct Sidebar link */}
 
     </div>
   );

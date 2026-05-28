@@ -43,6 +43,27 @@
       "when": 1748332800000,
       "tag": "0005_product_categories",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1748332800001,
+      "tag": "0006_add_profile_pic_url",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1748332800002,
+      "tag": "0007_add_display_name",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1748332800003,
+      "tag": "0008_wellness_logs",
+      "breakpoints": true
     }
   ]
 }

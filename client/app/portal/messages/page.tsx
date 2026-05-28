@@ -7,74 +7,47 @@ import { useChatThread } from "@/lib/useChatThread";
 import { CLINIC } from "@/lib/constants";
 import { toast } from "@/lib/toast";
 import {
-  Send,
-  ChevronLeft,
-  RefreshCw,
-  AlertCircle,
-  Trash2,
-  Check,
-  CheckCheck,
+  Send, ChevronLeft, RefreshCw, AlertCircle,
+  Check, CheckCheck, Phone, MoreVertical, Smile,
+  Paperclip, Shield,
 } from "lucide-react";
 
 export default function PortalMessagesPage() {
   const { user } = useAuthStore();
   const patientId = user?.patientProfile?.id || null;
-
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  const {
-    messages,
-    loading,
-    error,
-    refetch,
-    sendMessage,
-    deleteMessage,
-    markRead,
-  } = useChatThread({ patientId, selfRole: "patient" });
+  const { messages, loading, error, refetch, sendMessage, markRead } = useChatThread({ patientId, selfRole: "patient" });
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [stickToBottom, setStickToBottom] = useState(true);
   const [unseenCount, setUnseenCount] = useState(0);
+  const lastCountRef = useRef(0);
 
   const scrollToBottom = (smooth = true) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: smooth ? "smooth" : "auto",
-    });
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: smooth ? "smooth" : "auto" });
   };
 
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
-    const distanceFromBottom =
-      el.scrollHeight - el.scrollTop - el.clientHeight;
-    const atBottom = distanceFromBottom < 80;
+    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
     setStickToBottom(atBottom);
     if (atBottom) setUnseenCount(0);
   };
 
-  // Scroll the inner thread to the bottom when new messages arrive — only
-  // when the patient is already at the bottom; otherwise show a pill.
-  const lastCountRef = useRef(0);
   useEffect(() => {
     const prev = lastCountRef.current;
     const next = messages.length;
     lastCountRef.current = next;
     if (next === 0) return;
-    if (stickToBottom) {
-      requestAnimationFrame(() => scrollToBottom(true));
-      setUnseenCount(0);
-    } else if (next > prev) {
-      setUnseenCount((c) => c + (next - prev));
-    }
+    if (stickToBottom) { requestAnimationFrame(() => scrollToBottom(true)); setUnseenCount(0); }
+    else if (next > prev) setUnseenCount((c) => c + (next - prev));
   }, [messages.length, stickToBottom]);
 
-  // Mark the thread read when the page becomes visible.
   useEffect(() => {
     if (!patientId) return;
     markRead();
@@ -92,6 +65,7 @@ export default function PortalMessagesPage() {
     try {
       await sendMessage(body);
       setInput("");
+      inputRef.current?.focus();
     } catch (err: any) {
       setSendError(err?.message || "Failed to send. Please try again.");
     } finally {
@@ -99,292 +73,217 @@ export default function PortalMessagesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    const ok = await toast.confirm({
-      title: "Delete message?",
-      message: "This can't be undone.",
-      confirmText: "Delete",
-      danger: true,
-    });
-    if (!ok) return;
-    try {
-      await deleteMessage(id);
-    } catch (err: any) {
-      toast.error(err?.message || "Couldn't delete the message.");
-    }
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e as any); }
   };
+
+  // Group messages by date
+  const grouped: { date: string; msgs: typeof messages }[] = [];
+  messages.forEach((msg) => {
+    const d = new Date(msg.createdAt).toLocaleDateString("en-IE", { weekday: "long", day: "numeric", month: "long" });
+    const last = grouped[grouped.length - 1];
+    if (last && last.date === d) last.msgs.push(msg);
+    else grouped.push({ date: d, msgs: [msg] });
+  });
 
   const lastMessage = messages[messages.length - 1];
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border border-gray-100 bg-white rounded-2xl overflow-hidden shadow-card grid grid-cols-1 lg:grid-cols-12 flex-1 min-h-0">
-        <aside className="hidden lg:flex lg:col-span-4 border-r border-gray-100 p-4 space-y-4 flex-col h-full min-h-0 overflow-y-auto overscroll-contain shrink-0">
-          <h3 className="font-serif text-sm font-bold text-navy shrink-0">Conversations</h3>
-          <div className="border border-gold bg-gold/5 rounded-xl p-3 flex gap-3 cursor-pointer shrink-0">
-            <div className="w-10 h-10 rounded-full bg-navy text-gold flex items-center justify-center font-bold text-xs shrink-0">
-              RA
-            </div>
-            <div className="truncate flex-1">
-              <span className="block text-xs font-bold text-navy truncate">
-                {CLINIC.name} Support
-              </span>
-              <span className="block text-[10px] text-gray-400 truncate mt-0.5">
-                {lastMessage
-                  ? lastMessage.deleted
-                    ? "Message deleted"
-                    : lastMessage.body
-                  : "Clinic responds within 24h"}
-              </span>
-            </div>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0 animate-pulse" />
-          </div>
-        </aside>
+    <div className="flex flex-col h-[calc(100vh-120px)] min-h-[500px] max-h-[800px]">
+      <div className="flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-        <section className="col-span-1 lg:col-span-8 flex flex-col h-full min-h-0 bg-gray-50/50 overflow-hidden">
-        <header className="bg-white border-b border-gray-100 p-4 flex items-center gap-3 shrink-0">
-          <Link
-            href="/portal/dashboard"
-            className="lg:hidden text-navy hover:text-gold mr-1 focus:outline-none"
-          >
+        {/* ── Chat header ── */}
+        <header className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-3 shrink-0 z-10">
+          <Link href="/portal/dashboard" className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 text-navy transition-colors">
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <div className="w-9 h-9 rounded-full bg-navy text-gold flex items-center justify-center font-bold text-xs">
-            RA
-          </div>
-          <div className="flex-1 min-w-0">
-            <h4 className="text-xs font-bold text-navy truncate">
-              {CLINIC.name} Clinical Office
-            </h4>
-            <div className="flex items-center gap-1 mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[9px] text-gray-400 font-semibold">
-                {loading
-                  ? "Refreshing…"
-                  : error
-                  ? "Connection issue"
-                  : "Live · auto-refresh every 5s"}
-              </span>
+
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className="w-10 h-10 rounded-full bg-navy flex items-center justify-center font-bold text-gold text-sm">
+              RA
             </div>
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
           </div>
-          <button
-            type="button"
-            onClick={refetch}
-            className="text-[11px] inline-flex items-center gap-1.5 text-gold hover:text-gold-dark transition-colors"
-            title="Refresh"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-navy truncate">{CLINIC.name}</p>
+            <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+              {loading ? "Refreshing…" : error ? "Connection issue" : "Online · replies within 24h"}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0">
+            <a href={CLINIC.phoneHref} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-navy transition-colors">
+              <Phone className="w-4 h-4" />
+            </a>
+            <button onClick={refetch} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-navy transition-colors" title="Refresh">
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
         </header>
 
+        {/* ── Wallpaper / message area ── */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="relative flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-3"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4 py-4 space-y-1"
+          style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }}
         >
           {loading && messages.length === 0 ? (
-            <div className="text-center text-xs text-gray-400 py-10">
-              Loading messages thread…
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-3">
+                <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin mx-auto" />
+                <p className="text-xs text-gray-400">Loading messages…</p>
+              </div>
             </div>
           ) : messages.length === 0 ? (
-            <div className="text-center text-xs text-gray-400 py-10 max-w-sm mx-auto leading-relaxed">
-              No messages yet. Send your first note to the clinic below — Dr. Roghay
-              and the team typically respond within 24 hours.
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4 max-w-xs">
+                <div className="w-16 h-16 rounded-2xl bg-navy/5 flex items-center justify-center mx-auto">
+                  <Shield className="w-8 h-8 text-navy/20" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-navy font-serif">Secure Clinical Messaging</p>
+                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                    Send a message to Dr. Roghay and the Hollyhill team. All messages are private and encrypted.
+                  </p>
+                </div>
+                <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 text-[10px] text-gray-500 text-left space-y-1">
+                  <p className="font-bold text-navy">💡 You can ask about:</p>
+                  <p>• Appointment queries & rescheduling</p>
+                  <p>• Post-treatment concerns</p>
+                  <p>• Prescription questions</p>
+                  <p>• General dental advice</p>
+                </div>
+              </div>
             </div>
           ) : (
-            messages.map((msg) => {
-              const isPatient = msg.senderRole === "patient";
-              const isPending = msg.id.startsWith("temp-");
-              const isFailed = (msg as any).failed === true;
-              const initial =
-                (user?.patientProfile?.firstName?.[0] || "P").toUpperCase();
-              return (
-                <ChatBubble
-                  key={msg.id}
-                  side={isPatient ? "right" : "left"}
-                  avatar={isPatient ? initial : "RA"}
-                  pending={isPending}
-                  failed={isFailed}
-                  message={msg}
-                  canDelete={false}
-                />
-              );
-            })
+            <>
+              {grouped.map(({ date, msgs }) => (
+                <div key={date} className="space-y-1">
+                  {/* Date divider */}
+                  <div className="flex items-center gap-3 py-3">
+                    <div className="flex-1 h-px bg-gray-200/60" />
+                    <span className="text-[10px] font-semibold text-gray-400 bg-white/80 px-3 py-1 rounded-full border border-gray-100 shadow-sm">{date}</span>
+                    <div className="flex-1 h-px bg-gray-200/60" />
+                  </div>
+                  {msgs.map((msg) => {
+                    const isPatient = msg.senderRole === "patient";
+                    const isPending = msg.id.startsWith("temp-");
+                    const isFailed = (msg as any).failed === true;
+                    const initial = (user?.patientProfile?.firstName?.[0] || "P").toUpperCase();
+                    return (
+                      <Bubble
+                        key={msg.id}
+                        side={isPatient ? "right" : "left"}
+                        avatar={isPatient ? initial : "RA"}
+                        pending={isPending}
+                        failed={isFailed}
+                        message={msg}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            </>
           )}
-
-          <div ref={messagesEndRef} />
         </div>
 
+        {/* ── Jump to latest pill ── */}
         {!stickToBottom && (
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
-              type="button"
-              onClick={() => {
-                scrollToBottom(true);
-                setStickToBottom(true);
-                setUnseenCount(0);
-              }}
-              className="absolute -top-12 left-1/2 -translate-x-1/2 bg-navy text-white text-[11px] font-semibold px-3 py-1.5 rounded-full shadow-lg hover:bg-navy/90 transition-colors flex items-center gap-1.5"
+              onClick={() => { scrollToBottom(true); setStickToBottom(true); setUnseenCount(0); }}
+              className="absolute -top-12 left-1/2 -translate-x-1/2 bg-navy text-white text-[11px] font-semibold px-4 py-1.5 rounded-full shadow-lg hover:bg-navy/90 transition-colors flex items-center gap-1.5 z-10"
             >
-              {unseenCount > 0
-                ? `${unseenCount} new ${
-                    unseenCount === 1 ? "message" : "messages"
-                  }`
-                : "Jump to latest"}
-              <span aria-hidden>↓</span>
+              {unseenCount > 0 ? `${unseenCount} new message${unseenCount > 1 ? "s" : ""}` : "Jump to latest"} ↓
             </button>
           </div>
         )}
 
-        <form
-          onSubmit={handleSend}
-          className="bg-white border-t border-gray-100 p-3 space-y-2 shrink-0"
-        >
+        {/* ── Input bar ── */}
+        <div className="bg-white border-t border-gray-100 px-3 py-3 shrink-0">
           {sendError && (
-            <div className="text-[11px] text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 flex items-center gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              <span>{sendError}</span>
+            <div className="mb-2 text-[11px] text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2 flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" /> {sendError}
             </div>
           )}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              required
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message to Dr. Roghay…"
-              className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3.5 py-2.5 text-xs text-navy focus:outline-none focus:border-gold focus:bg-white transition-colors"
-              disabled={sending}
-            />
+          <form onSubmit={handleSend} className="flex items-end gap-2">
+            <div className="flex-1 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 focus-within:border-gold focus-within:bg-white transition-colors">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                value={input}
+                onChange={(e) => { setInput(e.target.value); e.target.style.height = "auto"; e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px"; }}
+                onKeyDown={handleKeyDown}
+                placeholder="Message Dr. Roghay…"
+                disabled={sending}
+                className="w-full bg-transparent text-xs text-navy placeholder-gray-400 focus:outline-none resize-none leading-relaxed max-h-[120px] overflow-y-auto"
+                style={{ height: "20px" }}
+              />
+            </div>
             <button
               type="submit"
               disabled={sending || !input.trim()}
-              className="bg-gold hover:bg-gold-dark text-navy p-2.5 rounded-lg transition-colors focus:outline-none disabled:opacity-50"
-              aria-label="Send"
+              className="w-10 h-10 rounded-2xl bg-gold hover:bg-yellow-400 text-navy flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm hover:shadow-md shrink-0"
             >
-              <Send className="w-4 h-4" />
+              {sending ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
-          </div>
-        </form>
-      </section>
+          </form>
+          <p className="text-[9px] text-gray-300 text-center mt-2">End-to-end encrypted · Press Enter to send</p>
+        </div>
       </div>
     </div>
   );
 }
 
-/* -------------------- Bubble -------------------- */
-
+/* ── Bubble ── */
 interface BubbleProps {
   side: "left" | "right";
   avatar: string;
   pending?: boolean;
   failed?: boolean;
-  canDelete?: boolean;
-  onDelete?: () => void;
-  message: {
-    id: string;
-    body: string;
-    deleted?: boolean;
-    createdAt: string;
-    isRead?: boolean;
-    readAt?: string | null;
-  };
+  message: { id: string; body: string; deleted?: boolean; createdAt: string; isRead?: boolean; readAt?: string | null };
 }
 
-function ChatBubble({
-  side,
-  avatar,
-  pending,
-  failed,
-  message,
-  canDelete,
-  onDelete,
-}: BubbleProps) {
+function Bubble({ side, avatar, pending, failed, message }: BubbleProps) {
   const isRight = side === "right";
+  const time = pending ? "Sending…" : failed ? "Failed" : new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div
-      className={`group flex gap-2.5 max-w-[85%] ${
-        isRight ? "ml-auto flex-row-reverse" : "mr-auto"
-      }`}
-    >
-      <div
-        className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] font-bold ${
-          isRight ? "bg-gold text-navy" : "bg-navy text-gold"
-        }`}
-      >
-        {avatar}
-      </div>
-      <div className="flex flex-col items-end gap-1">
-        <div
-          className={`relative rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-sm ${
-            isRight
-              ? `bg-gold text-navy ${
-                  isRight ? "rounded-tr-none" : ""
-                } font-medium ${pending ? "opacity-70" : ""} ${
-                  failed ? "ring-1 ring-red-300" : ""
-                }`
-              : "bg-white text-navy border border-gray-100 rounded-tl-none"
-          } ${message.deleted ? "italic text-gray-400" : ""}`}
-        >
-          {canDelete && onDelete && (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-2 -left-2 w-6 h-6 rounded-full bg-white border border-gray-200 shadow-sm text-red-500 flex items-center justify-center hover:bg-red-50"
-              aria-label="Delete message"
-              title="Delete message"
-            >
-              <Trash2 className="w-3 h-3" />
-            </button>
-          )}
+    <div className={`flex gap-2 mb-1 ${isRight ? "flex-row-reverse" : "flex-row"}`}>
+      {/* Avatar — only show for left (clinic) */}
+      {!isRight && (
+        <div className="w-7 h-7 rounded-full bg-navy flex items-center justify-center text-[10px] font-bold text-gold shrink-0 mt-auto mb-1">
+          {avatar}
+        </div>
+      )}
+
+      <div className={`max-w-[72%] flex flex-col ${isRight ? "items-end" : "items-start"}`}>
+        <div className={`relative px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
+          isRight
+            ? `bg-gold text-navy rounded-br-sm ${pending ? "opacity-70" : ""} ${failed ? "ring-1 ring-red-300" : ""}`
+            : "bg-white text-navy border border-gray-100 rounded-bl-sm"
+        } ${message.deleted ? "italic opacity-60" : ""}`}>
           <p className="whitespace-pre-line break-words">
-            {message.deleted
-              ? "Message deleted"
-              : message.body || "Message deleted"}
+            {message.deleted ? "This message was deleted" : message.body}
           </p>
-          <div className="flex items-center justify-end gap-1 mt-1 text-[8px] font-semibold text-gray-400">
-            <span>
-              {pending
-                ? "Sending…"
-                : failed
-                ? "Failed to send"
-                : new Date(message.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-            </span>
-            {isRight && !message.deleted && (
-              <ReadReceipt
-                isRead={!!message.isRead}
-                pending={!!pending}
-                failed={!!failed}
-              />
-            )}
-          </div>
+        </div>
+
+        {/* Time + read receipt */}
+        <div className={`flex items-center gap-1 mt-0.5 px-1 ${isRight ? "flex-row-reverse" : ""}`}>
+          <span className="text-[9px] text-gray-400">{time}</span>
+          {isRight && !message.deleted && !pending && !failed && (
+            message.isRead
+              ? <CheckCheck className="w-3 h-3 text-blue-500" />
+              : <CheckCheck className="w-3 h-3 text-gray-400" />
+          )}
+          {isRight && pending && <Check className="w-3 h-3 text-gray-400" />}
+          {isRight && failed && <AlertCircle className="w-3 h-3 text-red-400" />}
         </div>
       </div>
     </div>
-  );
-}
-
-function ReadReceipt({
-  isRead,
-  pending,
-  failed,
-}: {
-  isRead: boolean;
-  pending: boolean;
-  failed: boolean;
-}) {
-  if (failed) return null;
-  if (pending) {
-    return <Check className="w-3 h-3 text-gray-400" aria-label="Sending" />;
-  }
-  return isRead ? (
-    <CheckCheck className="w-3 h-3 text-emerald-600" aria-label="Read" />
-  ) : (
-    <CheckCheck className="w-3 h-3 text-gray-400" aria-label="Delivered" />
   );
 }

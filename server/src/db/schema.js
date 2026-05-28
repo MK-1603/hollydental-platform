@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   isActive: boolean("is_active").notNull().default(true),
   mustChangePassword: boolean("must_change_password").notNull().default(false),
   profilePicUrl: text("profile_pic_url"),
+  displayName: varchar("display_name", { length: 150 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
@@ -22,6 +23,8 @@ export const patients = pgTable("patients", {
   lastName: varchar("last_name", { length: 100 }).notNull(),
   dateOfBirth: varchar("date_of_birth", { length: 50 }),
   gender: varchar("gender", { length: 20 }),
+  bloodGroup: varchar("blood_group", { length: 20 }),
+  age: integer("age"),
   phone: varchar("phone", { length: 50 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   address: text("address"),
@@ -257,7 +260,7 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
   messages: many(messages),
 }));
 
-// 16. Products Table
+// 16. Products Table — oral care retail items and dental procedures.
 export const products = pgTable("products", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -280,6 +283,20 @@ export const products = pgTable("products", {
   /** Soft sort key for the storefront — lower numbers appear first. */
   displayOrder: integer("display_order").notNull().default(0),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 18. Wellness Logs — patient daily habit tracking synced to server
+export const wellnessLogs = pgTable("wellness_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  patientId: uuid("patient_id").references(() => patients.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  date: varchar("date", { length: 10 }).notNull(),
+  morningBrush: boolean("morning_brush").notNull().default(false),
+  nightBrush: boolean("night_brush").notNull().default(false),
+  floss: boolean("floss").notNull().default(false),
+  streak: integer("streak").notNull().default(0),
+  longestStreak: integer("longest_streak").notNull().default(0),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 

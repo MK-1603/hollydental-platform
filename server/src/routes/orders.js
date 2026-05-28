@@ -1,4 +1,6 @@
 import express from "express";
+import multer from "multer";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 import { db } from "../config/db.js";
 import { orders, products, users, patients } from "../db/schema.js";
 import { and, desc, eq } from "drizzle-orm";
@@ -9,6 +11,29 @@ import { sendPush } from "../lib/push.js";
 
 const router = express.Router();
 
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.post("/upload-receipt", verifyToken, upload.single("file"), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ message: "No file provided." });
+  }
+  try {
+    const uploadResult = await uploadToCloudinary(file.buffer, file.originalname);
+    return res.status(200).json({
+      message: "Receipt uploaded successfully.",
+      imageUrl: uploadResult.secure_url,
+    });
+  } catch (error) {
+    console.error("[receipt-upload] failed", error);
+    return res.status(500).json({ message: "Failed to upload receipt." });
+  }
+});
+
 function requireDb(res) {
   if (!process.env.DATABASE_URL) {
     res.status(503).json({ message: "Orders service is not configured." });
@@ -17,7 +42,7 @@ function requireDb(res) {
   return true;
 }
 
-const ALLOWED_PAYMENT_METHODS = new Set(["cash", "upi"]);
+const ALLOWED_PAYMENT_METHODS = new Set(["cash", "upi", "card"]);
 const ALLOWED_STATUSES = new Set([
   "pending",
   "paid",
@@ -191,7 +216,8 @@ router.post("/", verifyToken, async (req, res) => {
         paymentMethod,
         upiReference:
           paymentMethod === "upi" ? String(upiReference).trim() : null,
-        status: "pending",
+        status: paymentMethod === "card" ? "paid" : "pending",
+        paidAt: paymentMethod === "card" ? new Date() : null,
         customerName: profile
           ? `${profile.firstName} ${profile.lastName}`.trim()
           : null,
@@ -239,6 +265,44 @@ router.post("/", verifyToken, async (req, res) => {
 });
 
 /**
+ * GET /api/orders/:id — single order detail (patient owns it or admin).
+ */
+router.get("/:id", verifyToken, async (req, res) => {
+  if (!requireDb(res)) return;
+  try {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, req.params.id))
+      .limit(1);
+    if (!order) return res.status(404).json({ message: "Order not found." });
+    if (req.user.role !== "admin" && order.userId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden." });
+    }
+
+    let patientProfile = null;
+    if (order.patientId) {
+      const [patient] = await db
+        .select()
+        .from(patients)
+        .where(eq(patients.id, order.patientId))
+        .limit(1);
+      if (patient) {
+        patientProfile = patient;
+      }
+    }
+
+    res.status(200).json({
+      ...order,
+      patientProfile,
+    });
+  } catch (error) {
+    console.error("[orders] GET /:id failed", error);
+    res.status(500).json({ message: "Failed to retrieve order." });
+  }
+});
+
+/**
  * PATCH /api/orders/:id — admin updates the order status.
  *
  * Body: { status, notes? }
@@ -265,6 +329,17 @@ router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
       .returning();
     if (!updated) {
       return res.status(404).json({ message: "Order not found." });
+    }
+
+    // Restock on admin cancel
+    if (status === "cancelled" && updated.productId) {
+      const [p] = await db.select().from(products).where(eq(products.id, updated.productId)).limit(1);
+      if (p) {
+        await db.update(products).set({
+          stockCount: (p.stockCount || 0) + (updated.quantity || 1),
+          updatedAt: new Date(),
+        }).where(eq(products.id, p.id));
+      }
     }
 
     if (updated.userId) {
@@ -352,6 +427,44 @@ router.delete("/:id", verifyToken, async (req, res) => {
   } catch (error) {
     console.error("[orders] DELETE failed", error);
     res.status(500).json({ message: "Failed to cancel order." });
+  }
+});
+
+/**
+ * PATCH /api/orders/:id/submit-receipt — patients submit payment receipt screenshot url or text reference.
+ */
+router.patch("/:id/submit-receipt", verifyToken, async (req, res) => {
+  if (!requireDb(res)) return;
+  const { upiReference } = req.body || {};
+  if (!upiReference) {
+    return res.status(400).json({ message: "upiReference or receipt photo is required." });
+  }
+  try {
+    const [order] = await db.select().from(orders).where(eq(orders.id, req.params.id)).limit(1);
+    if (!order) return res.status(404).json({ message: "Order not found." });
+    if (order.userId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden. This is not your order." });
+    }
+    if (order.status !== "pending") {
+      return res.status(400).json({ message: "Only pending orders can have their payment updated." });
+    }
+
+    const [updated] = await db
+      .update(orders)
+      .set({
+        upiReference,
+        updatedAt: new Date(),
+      })
+      .where(eq(orders.id, order.id))
+      .returning();
+
+    return res.status(200).json({
+      message: "Payment proof submitted successfully.",
+      order: updated,
+    });
+  } catch (error) {
+    console.error("[orders] submit-receipt failed", error);
+    return res.status(500).json({ message: "Failed to submit receipt." });
   }
 });
 

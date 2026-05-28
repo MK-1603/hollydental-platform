@@ -223,87 +223,66 @@ export default function AdminPrescriptionsPage() {
           <p className="text-gray-500 text-xs leading-relaxed">No prescriptions have been issued yet.</p>
         </div>
       ) : (
-        <>
-          {/* Desktop Table */}
-          <div className="hidden lg:block border border-gray-200 bg-white rounded-2xl overflow-hidden shadow-sm">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-navy text-white">
-                <tr>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Patient</th>
-                  <th className="p-4">Drug</th>
-                  <th className="p-4">Dosage</th>
-                  <th className="p-4">Instructions</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prescriptions.map((rx) => (
-                  <tr key={rx.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="p-4 text-gray-500">{new Date(rx.createdAt).toLocaleDateString()}</td>
-                    <td className="p-4 text-navy">{patientName(rx.patientId)}</td>
-                    <td className="p-4 font-bold text-navy">{rx.drugName}</td>
-                    <td className="p-4">{rx.dosage} · {rx.frequency}</td>
-                    <td className="p-4 max-w-[200px] truncate text-gray-500">{rx.instructions}</td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => setViewRx(rx)} className="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => openEdit(rx)} className="p-1.5 rounded-lg hover:bg-gold/10 text-gold transition-colors" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
-                        <button onClick={() => handleDelete(rx)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-colors" title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile Card List */}
-          <div className="lg:hidden space-y-3">
-            {prescriptions.map((rx) => (
-              <div key={rx.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
-                {/* Top */}
-                <div className="flex items-start justify-between gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {prescriptions.map((rx) => (
+            <div key={rx.id} className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group">
+              <div className="space-y-4">
+                {/* Top Header */}
+                <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-3">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-9 h-9 rounded-lg bg-gold/10 text-gold flex items-center justify-center shrink-0">
-                      <Pill className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-xl bg-gold/10 text-gold flex items-center justify-center shrink-0">
+                      <Pill className="w-4.5 h-4.5" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-navy text-xs">{rx.drugName}</p>
-                      <p className="text-[10px] text-gray-500 truncate">{patientName(rx.patientId)}</p>
+                      <h4 className="font-serif text-sm font-bold text-navy group-hover:text-gold transition-colors truncate" title={rx.drugName}>
+                        {rx.drugName}
+                      </h4>
+                      <p className="text-[10px] text-gray-400 font-medium truncate mt-0.5" title={patientName(rx.patientId)}>
+                        Patient: {patientName(rx.patientId)}
+                      </p>
                     </div>
                   </div>
-                  <span className="text-[9px] font-bold bg-gold/10 text-navy px-2 py-0.5 rounded-full shrink-0">{rx.duration}</span>
+                  <span className="text-[9px] font-bold bg-navy text-white px-2.5 py-1 rounded-lg shrink-0 uppercase tracking-wider shadow-sm">
+                    {rx.duration}
+                  </span>
                 </div>
 
                 {/* Details */}
-                <div className="bg-gray-50 rounded-lg px-3 py-2 text-[10px] text-gray-600 space-y-0.5">
-                  <p><span className="font-bold text-navy">Dosage:</span> {rx.dosage} · {rx.frequency}</p>
-                  <p className="truncate"><span className="font-bold text-navy">Instructions:</span> {rx.instructions}</p>
-                </div>
-
-                {/* Date + Actions */}
-                <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                    <Calendar className="w-3 h-3" />
-                    {new Date(rx.createdAt).toLocaleDateString()}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button onClick={() => setViewRx(rx)} className="flex items-center gap-1 py-1.5 px-2.5 rounded-lg border border-blue-100 text-blue-500 text-[10px] font-bold hover:bg-blue-50 transition-colors">
-                      <Eye className="w-3 h-3" /> View
-                    </button>
-                    <button onClick={() => openEdit(rx)} className="flex items-center gap-1 py-1.5 px-2.5 rounded-lg border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors">
-                      <Edit3 className="w-3 h-3" /> Edit
-                    </button>
-                    <button onClick={() => handleDelete(rx)} className="p-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-gray-50/80 rounded-xl p-3 space-y-1.5 border border-gray-100">
+                    <div>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Dosage & Frequency</span>
+                      <span className="text-navy font-semibold block mt-0.5">{rx.dosage} · {rx.frequency}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Instructions</span>
+                      <span className="text-gray-600 block mt-0.5 line-clamp-2" title={rx.instructions}>{rx.instructions}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </>
+
+              {/* Footer Actions */}
+              <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
+                  <Calendar className="w-3.5 h-3.5 text-gold" />
+                  <span>{new Date(rx.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setViewRx(rx)} className="flex items-center gap-1.5 py-2 px-3 rounded-xl border border-blue-100 text-blue-500 text-[10px] font-bold hover:bg-blue-50 transition-colors active:scale-95">
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </button>
+                  <button onClick={() => openEdit(rx)} className="flex items-center gap-1.5 py-2 px-3 rounded-xl border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors active:scale-95">
+                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                  </button>
+                  <button onClick={() => handleDelete(rx)} className="p-2 rounded-xl border border-red-100 text-red-500 hover:bg-red-50 transition-colors active:scale-95" title="Delete">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* ─── View Modal ─── */}

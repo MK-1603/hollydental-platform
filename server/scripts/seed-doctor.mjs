@@ -63,6 +63,7 @@ async function main() {
       role: "admin",
       isActive: true,
       mustChangePassword: true,
+      displayName: "Dr. Roghay Alizadeh",
     });
     console.log(`[seed:doctor] Created admin account: ${email}`);
   } else {
@@ -73,6 +74,7 @@ async function main() {
         role: "admin",
         isActive: true,
         mustChangePassword: true,
+        displayName: "Dr. Roghay Alizadeh",
         updatedAt: new Date(),
       })
       .where(eq(users.id, existing[0].id));

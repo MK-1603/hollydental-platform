@@ -167,7 +167,7 @@ export default function LoginModal() {
         onClick={loginModalView === "force-change-password" ? undefined : closeLoginModal}
       />
 
-      <div className="relative w-full h-full md:h-auto min-h-screen md:min-h-0 md:max-w-[880px] md:max-h-[92vh] md:overflow-hidden bg-white md:rounded-3xl md:shadow-2xl md:border md:border-gray-100 grid grid-cols-1 md:grid-cols-12 z-10 animate-fade-up">
+      <div className="relative w-full h-auto md:h-auto min-h-screen md:min-h-0 md:max-w-[880px] md:max-h-[92vh] md:overflow-hidden bg-white md:rounded-3xl md:shadow-2xl md:border md:border-gray-100 grid grid-cols-1 md:grid-cols-12 z-10 animate-fade-up">
         {loginModalView !== "force-change-password" && (
           <>
             {/* Mobile Top Bar with Back Button */}
@@ -247,7 +247,7 @@ export default function LoginModal() {
         </aside>
 
         {/* Right panel */}
-        <div className="col-span-1 md:col-span-7 p-7 sm:p-10 flex flex-col justify-center bg-white">
+        <div className="col-span-1 md:col-span-7 p-6 sm:p-10 flex flex-col justify-center bg-white">
           <div className="space-y-6 max-w-md mx-auto w-full">
             {loginModalView === "forgot" ? (
               <ForgotView

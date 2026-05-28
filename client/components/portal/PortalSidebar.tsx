@@ -20,6 +20,8 @@ import {
   ShoppingBag,
   PackageCheck,
   X,
+  Heart,
+  Sparkles,
 } from "lucide-react";
 
 interface PortalSidebarProps {
@@ -115,6 +117,7 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
     { name: "My Appointments", href: "/portal/appointments", icon: CalendarDays },
     { name: "Dental Chart", href: "/portal/chart", icon: ClipboardList },
     { name: "Treatment History", href: "/portal/treatments", icon: History },
+    { name: "Wellness Hub", href: "/portal/wellness", icon: Heart },
     { name: "Prescriptions", href: "/portal/prescriptions", icon: ClipboardList },
     { name: "Invoices & Billing", href: "/portal/invoices", icon: Receipt },
     { name: "My Files", href: "/portal/files", icon: FolderOpen },
@@ -135,11 +138,10 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
       )}
 
       <aside
-        className={`fixed xl:sticky top-0 left-0 h-screen bg-white border-r border-gray-100 p-6 z-50 xl:z-30 flex flex-col w-[240px] transition-all duration-300 overflow-hidden ${
-          isOpen
-            ? "translate-x-0"
-            : "-translate-x-full xl:translate-x-0 xl:w-0 xl:p-0 xl:border-r-0"
-        }`}
+        className={`bg-white border-r border-gray-100 p-6 flex flex-col transition-transform duration-300 overflow-hidden h-screen z-50
+          fixed top-0 left-0 w-full sm:w-[300px]
+          xl:sticky xl:top-0 xl:left-auto xl:w-[260px] xl:!translate-x-0 xl:shrink-0
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         
         {/* Brand logo */}
@@ -161,6 +163,26 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
             </button>
           )}
         </div>
+
+        {/* AI Chat CTA button */}
+        <Link
+          href="/portal/ai"
+          onClick={(e) => handleNavClick(e, "/portal/ai")}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 border transition-all shrink-0 ${
+            pathname.startsWith("/portal/ai")
+              ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20"
+              : "bg-gold/10 hover:bg-gold/20 text-navy border-gold/20 hover:border-gold/40"
+          }`}
+        >
+          <div className="w-7 h-7 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-navy truncate">AI Assistant</p>
+            <p className="text-[9px] text-gray-500 truncate">Ask about your care</p>
+          </div>
+          <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+        </Link>
 
         {/* Nav List */}
         <nav className="flex-1 space-y-1 overflow-y-auto pr-1 no-scrollbar mb-6">
@@ -235,7 +257,6 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
               </span>
             </div>
           </div>
-
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3.5 px-4 py-3 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors focus:outline-none"

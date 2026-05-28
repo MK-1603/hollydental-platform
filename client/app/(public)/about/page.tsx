@@ -204,7 +204,7 @@ export default function AboutPage() {
             <div className="relative w-full max-w-[540px] aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-navy">
               <img
                 src="/dentist-mirror.png"
-                alt="Hollyhill Dental Clinic dentist mirror"
+                alt="Hollyhill Dental treatment room"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-navy via-navy/80 to-transparent">
@@ -275,8 +275,8 @@ export default function AboutPage() {
               <div className="relative">
                 <div className="rounded-3xl overflow-hidden border border-gray-100 shadow-card aspect-[4/5]">
                   <img
-                    src="/dentist-mirror.png"
-                    alt="Hollyhill Dental treatment room"
+                    src="/clinic-storefront.png"
+                    alt="Hollyhill Dental Clinic Storefront"
                     className="w-full h-full object-cover"
                   />
                 </div>

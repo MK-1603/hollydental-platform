@@ -1,7 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import { db } from "../config/db.js";
-import { patients, treatments } from "../db/schema.js";
+import { patients, treatments, users } from "../db/schema.js";
 import { eq, ilike, or } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
@@ -20,7 +20,56 @@ function requireDb(res) {
   return true;
 }
 
-/* 1. GET ALL — admin search/filter. */
+/* 0. GET /me — patient retrieve their own profile. Must be first to avoid /:id matching "me". */
+router.get("/me", verifyToken, async (req, res) => {
+  if (!requireDb(res)) return;
+  try {
+    const pRows = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (pRows.length === 0) {
+      return res.status(404).json({ message: "Patient profile not found." });
+    }
+    return res.status(200).json(pRows[0]);
+  } catch (err) {
+    console.error("[patients] GET /me failed", err);
+    return res.status(500).json({ message: "Failed to retrieve profile." });
+  }
+});
+
+/* 0.1 PATCH /me — patient self-update their own profile. */
+router.patch("/me", verifyToken, async (req, res) => {
+  if (!requireDb(res)) return;
+  const { firstName, lastName, phone, address, bloodGroup, age, gender, dateOfBirth } = req.body || {};
+  if (!firstName || !lastName || !phone) {
+    return res.status(400).json({ message: "First name, last name and phone are required." });
+  }
+  try {
+    const pRows = await db.select().from(patients).where(eq(patients.userId, req.user.id)).limit(1);
+    if (pRows.length === 0) {
+      return res.status(404).json({ message: "Patient profile not found." });
+    }
+    const [updated] = await db
+      .update(patients)
+      .set({
+        firstName,
+        lastName,
+        phone,
+        address: address || null,
+        bloodGroup: bloodGroup || null,
+        age: age ? Number(age) : null,
+        gender: gender || null,
+        dateOfBirth: dateOfBirth || null,
+        updatedAt: new Date()
+      })
+      .where(eq(patients.userId, req.user.id))
+      .returning();
+    return res.status(200).json({ message: "Profile updated.", patientProfile: updated });
+  } catch (err) {
+    console.error("[patients] PATCH /me failed", err);
+    return res.status(500).json({ message: "Failed to update profile." });
+  }
+});
+
+
 router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
   if (!requireDb(res)) return;
   const { search } = req.query;
@@ -79,6 +128,8 @@ router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
     lastName,
     dateOfBirth,
     gender,
+    bloodGroup,
+    age,
     phone,
     email,
     address,
@@ -104,6 +155,8 @@ router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
         lastName,
         dateOfBirth,
         gender,
+        bloodGroup: bloodGroup || null,
+        age: age ? Number(age) : null,
         phone,
         email,
         address,

@@ -256,7 +256,6 @@ export const seedDatabase = async () => {
     // We now automatically seed a default admin user if none exists so that the
     // blog posts can be seeded automatically on startup.
     const defaultEmail = "doctor@hollyhilldental.ie";
-    const passwordHash = await bcrypt.hash("Admin1234!", 10);
 
     let admin = await db
       .select({ id: users.id })
@@ -265,26 +264,19 @@ export const seedDatabase = async () => {
       .limit(1);
 
     if (admin.length === 0) {
-      console.log("[seed] No admin account found. Automatically provisioning default doctor admin...");
+      const passwordHash = await bcrypt.hash("Admin1234!", 10);
       const [newAdmin] = await db.insert(users).values({
         email: defaultEmail,
         passwordHash,
         role: "admin",
         isActive: true,
         mustChangePassword: true,
+        displayName: "Dr. Roghay Alizadeh",
       }).returning({ id: users.id });
       console.log(`[seed] Created default admin account: ${defaultEmail}`);
       admin = [newAdmin];
-    } else {
-      console.log("[seed] Resetting default doctor admin account credentials and password change status...");
-      await db.update(users).set({
-        email: defaultEmail,
-        passwordHash,
-        isActive: true,
-        mustChangePassword: true,
-        updatedAt: new Date(),
-      }).where(eq(users.id, admin[0].id));
     }
+    // Existing admin — credentials left untouched. Use `npm run seed:doctor` to reset.
 
     if (admin.length > 0) {
       const adminId = admin[0].id;

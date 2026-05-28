@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Banknote,
   QrCode,
+  CreditCard,
+  Check,
 } from "lucide-react";
 
 interface PaymentConfig {
@@ -32,17 +34,28 @@ export default function CartCheckoutPage() {
   const clear = useCartStore((s) => s.clear);
 
   const [config, setConfig] = useState<PaymentConfig | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "upi">("cash");
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "upi" | "card">("cash");
   const [upiReference, setUpiReference] = useState("");
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Simulated Card Payment states
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
+  const [isProcessingCard, setIsProcessingCard] = useState(false);
+  const [processingStep, setProcessingStep] = useState(0);
+
+  // Simulated UPI Payment states
+  const [isProcessingUpi, setIsProcessingUpi] = useState(false);
+  const [upiProcessingStep, setUpiProcessingStep] = useState(0);
+
   useEffect(() => {
     apiRequest("/orders/payment-config")
       .then((cfg: any) => {
         setConfig(cfg);
-        if (!cfg?.upi?.enabled) setPaymentMethod("cash");
       })
       .catch(() => {
         setConfig({
@@ -54,6 +67,9 @@ export default function CartCheckoutPage() {
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
+    
+    setError(null);
+
     if (paymentMethod === "upi") {
       const ref = upiReference.trim();
       if (ref.length < 6) {
@@ -62,8 +78,37 @@ export default function CartCheckoutPage() {
         );
         return;
       }
+
+      // Immersive Simulator loading sequence for UPI
+      setIsProcessingUpi(true);
+      setUpiProcessingStep(0);
+      await new Promise((r) => setTimeout(r, 1100));
+      setUpiProcessingStep(1);
+      await new Promise((r) => setTimeout(r, 1100));
+      setUpiProcessingStep(2);
+      await new Promise((r) => setTimeout(r, 1100));
+      setUpiProcessingStep(3);
+      await new Promise((r) => setTimeout(r, 800));
     }
-    setError(null);
+
+    if (paymentMethod === "card") {
+      if (!cardHolder.trim() || cardNumber.replace(/\s/g, "").length !== 16 || cardExpiry.length < 5 || cardCvc.length !== 3) {
+        setError("Please complete all credit card fields with valid information.");
+        return;
+      }
+
+      // Immersive Simulator loading sequence for Card
+      setIsProcessingCard(true);
+      setProcessingStep(0);
+      await new Promise((r) => setTimeout(r, 1100));
+      setProcessingStep(1);
+      await new Promise((r) => setTimeout(r, 1100));
+      setProcessingStep(2);
+      await new Promise((r) => setTimeout(r, 1100));
+      setProcessingStep(3);
+      await new Promise((r) => setTimeout(r, 800));
+    }
+
     setSubmitting(true);
 
     const placedIds: string[] = [];
@@ -93,7 +138,9 @@ export default function CartCheckoutPage() {
 
       if (placedIds.length > 0) {
         toast.success(
-          `Placed ${placedIds.length} order${placedIds.length === 1 ? "" : "s"}. The clinic will confirm shortly.`
+          `Placed ${placedIds.length} order${placedIds.length === 1 ? "" : "s"}. ${
+            paymentMethod === "card" ? "Payment received." : "The clinic will confirm shortly."
+          }`
         );
         clear();
       }
@@ -108,6 +155,8 @@ export default function CartCheckoutPage() {
         router.push("/portal/orders");
       }
     } finally {
+      setIsProcessingCard(false);
+      setIsProcessingUpi(false);
       setSubmitting(false);
     }
   };
@@ -124,7 +173,103 @@ export default function CartCheckoutPage() {
       : "";
 
   return (
-    <div className="space-y-6 font-sans pb-12">
+    <div className="space-y-6 font-sans pb-12 relative">
+      {/* Immersive Processing Screen for Card payment */}
+      {isProcessingCard && (
+        <div className="fixed inset-0 z-50 bg-navy/70 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 space-y-6 animate-scale-in">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
+              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+              <CreditCard className="w-8 h-8 text-gold animate-pulse" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-sans text-xl font-bold text-navy">Securing Card Transaction</h3>
+              <p className="text-gray-500 text-xs leading-relaxed">Please do not refresh the page or click back.</p>
+            </div>
+            
+            <div className="space-y-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 0 ? <Check className="w-3 h-3 text-navy font-bold" /> : "1"}
+                </div>
+                <span className={processingStep === 0 ? "font-bold text-navy" : "text-gray-400"}>Connecting to Irish banking gateway...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 1 ? <Check className="w-3 h-3 text-navy font-bold" /> : "2"}
+                </div>
+                <span className={processingStep === 1 ? "font-bold text-navy" : "text-gray-400"}>Authorizing €{subtotal.toFixed(2)} secure transfer...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep > 2 ? <Check className="w-3 h-3 text-navy font-bold" /> : "3"}
+                </div>
+                <span className={processingStep === 2 ? "font-bold text-navy" : "text-gray-400"}>Verifying CVC authorization & bank limits...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 3 ? "bg-emerald-500 text-white animate-bounce" : "bg-gray-200 text-gray-400"}`}>
+                  {processingStep >= 3 ? <Check className="w-3 h-3 text-white font-bold" /> : "4"}
+                </div>
+                <span className={processingStep === 3 ? "font-bold text-emerald-600" : "text-gray-400"}>Transaction Approved & Handshaked!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Immersive Processing Screen for UPI payment */}
+      {isProcessingUpi && (
+        <div className="fixed inset-0 z-50 bg-navy/70 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 space-y-6 animate-scale-in">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
+              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
+              <QrCode className="w-8 h-8 text-gold animate-pulse" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="font-sans text-xl font-bold text-navy">Verifying UPI Transaction</h3>
+              <p className="text-gray-500 text-xs leading-relaxed">Please do not refresh the page or click back.</p>
+            </div>
+            
+            <div className="space-y-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {upiProcessingStep > 0 ? <Check className="w-3 h-3 text-navy font-bold" /> : "1"}
+                </div>
+                <span className={upiProcessingStep === 0 ? "font-bold text-navy" : "text-gray-400"}>Resolving clinic virtual payment address...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {upiProcessingStep > 1 ? <Check className="w-3 h-3 text-navy font-bold" /> : "2"}
+                </div>
+                <span className={upiProcessingStep === 1 ? "font-bold text-navy" : "text-gray-400"}>Transmitting €{subtotal.toFixed(2)} reference to registry...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
+                  {upiProcessingStep > 2 ? <Check className="w-3 h-3 text-navy font-bold" /> : "3"}
+                </div>
+                <span className={upiProcessingStep === 2 ? "font-bold text-navy" : "text-gray-400"}>Verifying reference format: {upiReference.slice(0, 12)}...</span>
+              </div>
+              
+              <div className="flex items-center gap-2.5">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 3 ? "bg-emerald-500 text-white animate-bounce" : "bg-gray-200 text-gray-400"}`}>
+                  {upiProcessingStep >= 3 ? <Check className="w-3 h-3 text-white font-bold" /> : "4"}
+                </div>
+                <span className={upiProcessingStep === 3 ? "font-bold text-emerald-600" : "text-gray-400"}>Reference Logged! Awaiting Clinic Approval...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="flex items-center justify-between border-b border-gray-100 pb-4 gap-3">
         <div className="space-y-1">
           <Link
@@ -262,13 +407,13 @@ export default function CartCheckoutPage() {
               <span className="block text-[10px] uppercase tracking-wider font-bold text-gold">
                 Payment method
               </span>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <PaymentOption
                   active={paymentMethod === "cash"}
                   onClick={() => setPaymentMethod("cash")}
                   icon={<Banknote className="w-4 h-4" />}
-                  label="Cash on pickup"
-                  hint="Pay at the clinic"
+                  label="Cash"
+                  hint="Pay on pickup"
                 />
                 <PaymentOption
                   active={paymentMethod === "upi"}
@@ -278,17 +423,21 @@ export default function CartCheckoutPage() {
                   disabled={!config?.upi?.enabled}
                   icon={<QrCode className="w-4 h-4" />}
                   label="UPI"
-                  hint={
-                    config?.upi?.enabled
-                      ? "Pay now with any UPI app"
-                      : "Not configured"
-                  }
+                  hint={config?.upi?.enabled ? "Simulated VPA" : "Disabled"}
+                />
+                <PaymentOption
+                  active={paymentMethod === "card"}
+                  onClick={() => setPaymentMethod("card")}
+                  icon={<CreditCard className="w-4 h-4" />}
+                  label="Card"
+                  hint="Simulated pay"
                 />
               </div>
             </div>
 
+            {/* UPI Payment Info Block */}
             {paymentMethod === "upi" && config?.upi?.enabled && (
-              <div className="space-y-3 bg-gold/5 border border-gold/20 rounded-xl p-4">
+              <div className="space-y-3 bg-gold/5 border border-gold/20 rounded-xl p-4 animate-fade-in">
                 <div>
                   <span className="block text-[10px] uppercase tracking-wider font-bold text-gold">
                     Pay to
@@ -318,9 +467,91 @@ export default function CartCheckoutPage() {
                     className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
                   />
                   <p className="text-[10px] text-gray-500">
-                    Paste the reference from your UPI app so the clinic can
-                    reconcile the payment.
+                    Paste the reference from your UPI app so the clinic can verify payment.
                   </p>
+                </div>
+              </div>
+            )}
+
+            {/* Card Details Input Block */}
+            {paymentMethod === "card" && (
+              <div className="space-y-3 bg-gray-50 border border-gray-200 rounded-xl p-4 animate-fade-in">
+                <div className="flex items-center justify-between border-b border-gray-200 pb-2 mb-2">
+                  <span className="text-[10px] uppercase tracking-wider font-bold text-navy flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5 text-gold animate-pulse" />
+                    Secure Card Details
+                  </span>
+                  <span className="text-[9px] font-bold bg-gold/20 text-gold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Simulated Pay
+                  </span>
+                </div>
+                
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Cardholder Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={cardHolder}
+                      onChange={(e) => setCardHolder(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-navy focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Card Number</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={19}
+                      value={cardNumber}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+                        const parts = [];
+                        for (let i = 0, len = val.length; i < len; i += 4) {
+                          parts.push(val.substring(i, i + 4));
+                        }
+                        setCardNumber(parts.join(" "));
+                      }}
+                      placeholder="4111 2222 3333 4444"
+                      className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-navy font-mono tracking-wider focus:outline-none focus:border-gold"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="col-span-2">
+                      <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">Expiry Date</label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={5}
+                        value={cardExpiry}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\//g, "").replace(/[^0-9]/gi, "");
+                          if (val.length >= 2) {
+                            setCardExpiry(`${val.substring(0, 2)}/${val.substring(2, 4)}`);
+                          } else {
+                            setCardExpiry(val);
+                          }
+                        }}
+                        placeholder="MM/YY"
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-navy text-center focus:outline-none focus:border-gold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">CVC</label>
+                      <input
+                        type="password"
+                        required
+                        maxLength={3}
+                        value={cardCvc}
+                        onChange={(e) => setCardCvc(e.target.value.replace(/[^0-9]/gi, ""))}
+                        placeholder="•••"
+                        className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-navy text-center font-mono focus:outline-none focus:border-gold"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -356,8 +587,7 @@ export default function CartCheckoutPage() {
             </button>
 
             <p className="text-[10px] text-gray-400 text-center leading-relaxed">
-              Orders go to the clinic for confirmation. You'll get a notification
-              when items are ready for pickup.
+              Orders go to the clinic for confirmation. You'll get a notification when items are ready for pickup.
             </p>
           </aside>
         </div>
@@ -386,23 +616,23 @@ function PaymentOption({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`text-left p-3 rounded-xl border transition-colors ${
+      className={`text-left p-2.5 rounded-xl border transition-colors flex flex-col justify-between h-[82px] ${
         active
           ? "border-gold bg-gold/10"
           : "border-gray-200 hover:border-gold/40 disabled:opacity-50 disabled:hover:border-gray-200"
       }`}
     >
-      <div className="flex items-center gap-2 mb-1 text-navy">
+      <div className="flex items-center gap-1.5 text-navy">
         <span
-          className={`w-7 h-7 rounded-lg flex items-center justify-center ${
+          className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${
             active ? "bg-gold text-navy" : "bg-gray-100 text-navy"
           }`}
         >
           {icon}
         </span>
-        <span className="text-xs font-bold">{label}</span>
+        <span className="text-[11px] font-bold leading-none">{label}</span>
       </div>
-      <span className="block text-[10px] text-gray-500 leading-tight">
+      <span className="block text-[9px] text-gray-500 leading-tight">
         {hint}
       </span>
     </button>

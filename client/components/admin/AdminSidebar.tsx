@@ -12,7 +12,7 @@ import {
   Users,
   FileText,
   ClipboardList,
-  Cpu,
+  Sparkles,
   NotebookPen,
   TrendingUp,
   FolderLock,
@@ -24,6 +24,8 @@ import {
   ShoppingBag,
   PackageCheck,
   X,
+  User,
+  Heart,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -34,7 +36,7 @@ interface AdminSidebarProps {
 export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, performLogoutTransition } = useAuthStore();
+  const { logout, performLogoutTransition, user } = useAuthStore();
   const [isPending, startTransition] = useTransition();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 
@@ -111,12 +113,13 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
     { name: "Prescriptions", href: "/admin/prescriptions", icon: ClipboardList },
     { name: "Products Manager", href: "/admin/products", icon: ShoppingBag },
     { name: "Orders", href: "/admin/orders", icon: PackageCheck },
-    { name: "AI Panel", href: "/admin/ai", icon: Cpu },
     { name: "Blog CMS", href: "/admin/blog", icon: NotebookPen },
     { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
     { name: "Activity Log", href: "/admin/activity", icon: Activity },
+    { name: "Wellness Monitor", href: "/admin/wellness", icon: Heart },
     { name: "File Manager", href: "/admin/files", icon: FolderLock },
     { name: "System Settings", href: "/admin/settings", icon: Settings },
+    { name: "My Profile", href: "/admin/profile", icon: User },
   ];
 
   return (
@@ -130,11 +133,10 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       )}
 
       <aside
-        className={`fixed xl:sticky top-0 left-0 h-screen bg-navy border-r border-white/5 p-6 z-50 xl:z-30 flex flex-col w-[240px] text-white transition-all duration-300 overflow-hidden ${
-          isOpen
-            ? "translate-x-0"
-            : "-translate-x-full xl:translate-x-0 xl:w-0 xl:p-0 xl:border-r-0"
-        }`}
+        className={`bg-navy border-r border-white/5 p-6 flex flex-col text-white transition-transform duration-300 overflow-hidden h-screen z-50
+          fixed top-0 left-0 w-full sm:w-[300px]
+          xl:sticky xl:top-0 xl:left-auto xl:w-[280px] xl:!translate-x-0 xl:shrink-0
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
       >
         
         {/* Brand logo */}
@@ -156,6 +158,26 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             </button>
           )}
         </div>
+
+        {/* AI Chat CTA button */}
+        <Link
+          href="/admin/ai"
+          onClick={(e) => handleNavClick(e, "/admin/ai")}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 border transition-all shrink-0 ${
+            pathname.startsWith("/admin/ai")
+              ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20"
+              : "bg-gold/10 hover:bg-gold/20 text-gold border-gold/20 hover:border-gold/40"
+          }`}
+        >
+          <div className="w-7 h-7 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-xs font-bold truncate ${pathname.startsWith("/admin/ai") ? "text-navy" : "text-gold"}`}>AI Assistant</p>
+            <p className={`text-[9px] truncate ${pathname.startsWith("/admin/ai") ? "text-navy/60" : "text-gold/60"}`}>Clinical chat · Gemini</p>
+          </div>
+          <Sparkles className={`w-3.5 h-3.5 shrink-0 ${pathname.startsWith("/admin/ai") ? "text-navy/60" : "text-gold/60"}`} />
+        </Link>
 
         {/* Nav List */}
         <nav className="flex-1 space-y-1 overflow-y-auto pr-1 no-scrollbar mb-6">
@@ -217,19 +239,23 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
         {/* User profile & Logout */}
         <div className="border-t border-white/10 pt-6 mt-auto space-y-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-bold text-gold text-xs">
-              RA
-            </div>
+          <Link href="/admin/profile" onClick={onClose} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            {user?.profilePicUrl ? (
+              <img src={user.profilePicUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-gold/40 shrink-0" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-bold text-gold text-xs shrink-0">
+                {(user?.displayName || user?.email || "D")[0].toUpperCase()}
+              </div>
+            )}
             <div className="truncate">
               <span className="block text-xs font-bold text-white truncate">
-                Dr. Roghay Alizadeh
+                {user?.displayName || (user?.email === "doctor@hollyhilldental.ie" ? "Dr. Roghay Alizadeh" : user?.email?.split("@")[0]) || "Doctor"}
               </span>
               <span className="inline-block bg-gold/25 text-gold text-[9px] font-bold px-2 py-0.5 rounded-full mt-0.5 uppercase tracking-wider">
-                Principal Dentist
+                {user?.role === "admin" ? "Principal Dentist" : "Staff"}
               </span>
             </div>
-          </div>
+          </Link>
 
           <button
             onClick={handleLogout}

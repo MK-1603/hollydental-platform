@@ -49,7 +49,7 @@ function generateResetCode() {
 
 // 1. Patient Register
 router.post("/register", async (req, res) => {
-  const { email, password, firstName, lastName, phone, dateOfBirth, gender, address } = req.body;
+  const { email, password, firstName, lastName, phone, dateOfBirth, gender, address, bloodGroup, age } = req.body;
 
   if (!email || !password || !firstName || !lastName || !phone) {
     return res.status(400).json({ message: "Missing required registration fields." });
@@ -92,6 +92,8 @@ router.post("/register", async (req, res) => {
       dateOfBirth,
       gender,
       address,
+      bloodGroup: bloodGroup || null,
+      age: age ? Number(age) : null,
       gdprConsent: true,
       consentDate: new Date(),
     });
@@ -119,6 +121,9 @@ router.post("/register", async (req, res) => {
           phone,
           email,
           dateOfBirth,
+          gender,
+          bloodGroup,
+          age,
         }
       },
     });
@@ -188,6 +193,7 @@ router.post("/login", authLimiter, async (req, res) => {
         mustChangePassword: !!user.mustChangePassword,
         patientProfile,
         profilePicUrl: user.profilePicUrl,
+        displayName: user.displayName || null,
       },
     });
   } catch (error) {
@@ -230,6 +236,7 @@ router.get("/me", verifyToken, async (req, res) => {
         mustChangePassword: !!user.mustChangePassword,
         patientProfile,
         profilePicUrl: user.profilePicUrl,
+        displayName: user.displayName || null,
       },
     });
   } catch (error) {
@@ -546,10 +553,17 @@ router.delete("/me", verifyToken, async (req, res) => {
     }
 
     // Soft-delete inbound messages so threads collapse to "Message removed".
+    // Disassociate senderId and deletedBy from the user row to prevent foreign key errors on user deletion.
     await db
       .update(messages)
-      .set({ deletedAt: new Date(), deletedBy: user.id })
+      .set({ deletedAt: new Date(), deletedBy: null, senderId: null })
       .where(eq(messages.senderId, user.id));
+
+    // Also nullify any other references where this user is the deleter (just in case)
+    await db
+      .update(messages)
+      .set({ deletedBy: null })
+      .where(eq(messages.deletedBy, user.id));
 
     // Finally, remove the auth user. Foreign keys with `on delete cascade`
     // (push subscriptions, audit log actorId becomes null) handle the rest.
@@ -577,6 +591,37 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+/**
+ * 9. PATCH /profile — update display name for any authenticated user.
+ */
+router.patch("/profile", verifyToken, async (req, res) => {
+  const { displayName } = req.body || {};
+  if (!displayName || !String(displayName).trim()) {
+    return res.status(400).json({ message: "Display name is required." });
+  }
+  try {
+    const [updated] = await db
+      .update(users)
+      .set({ displayName: String(displayName).trim(), updatedAt: new Date() })
+      .where(eq(users.id, req.user.id))
+      .returning();
+    return res.status(200).json({
+      message: "Profile updated.",
+      user: {
+        id: updated.id,
+        email: updated.email,
+        role: updated.role,
+        displayName: updated.displayName,
+        profilePicUrl: updated.profilePicUrl,
+        mustChangePassword: !!updated.mustChangePassword,
+      },
+    });
+  } catch (err) {
+    console.error("[profile] patch failed", err);
+    return res.status(500).json({ message: "Failed to update profile." });
+  }
 });
 
 router.patch("/profile-pic", verifyToken, upload.single("file"), async (req, res) => {

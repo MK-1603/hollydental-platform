@@ -80,25 +80,25 @@ export default function PortalAIChatbot() {
       className="fixed bottom-20 xl:bottom-6 right-4 xl:right-6 z-40 flex flex-col items-end pointer-events-none"
     >
       {open && (
-        <div className="hidden lg:flex pointer-events-auto bg-white rounded-2xl border border-gray-100 shadow-2xl flex-col overflow-hidden w-[92vw] sm:w-[380px] h-[70vh] md:h-[520px] mb-3">
-          <header className="bg-navy text-white p-4 flex items-center justify-between border-b border-gold/20">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full border-2 border-gold bg-navy/40 flex items-center justify-center text-gold font-bold text-xs">
+        <div className="flex pointer-events-auto bg-white rounded-2xl border border-gray-100 shadow-2xl flex-col overflow-hidden w-[88vw] max-w-[360px] h-[55vh] max-h-[480px] mb-3 transition-all duration-300">
+          <header className="bg-navy text-white p-3 flex items-center justify-between border-b border-gold/20 shrink-0">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full border border-gold bg-navy/40 flex items-center justify-center text-gold font-bold text-[10px]">
                 RA
               </div>
               <div>
-                <h4 className="text-sm font-serif font-semibold">
+                <h4 className="text-xs font-serif font-semibold">
                   Hollyhill Assistant
                 </h4>
-                <span className="text-[10px] text-gray-400 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-gold" /> Powered by Gemini
+                <span className="text-[9px] text-gray-400 flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 text-gold" /> Powered by Gemini
                 </span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-white transition-colors cursor-pointer"
               aria-label="Close assistant"
             >
               <X className="w-5 h-5" />
@@ -170,7 +170,7 @@ export default function PortalAIChatbot() {
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="bg-gold hover:bg-gold-dark text-navy p-2 rounded-lg transition-colors disabled:opacity-50"
+              className="bg-gold hover:bg-gold-dark text-navy p-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
               aria-label="Send"
             >
               <Send className="w-4 h-4" />
@@ -183,11 +183,11 @@ export default function PortalAIChatbot() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="hidden lg:flex pointer-events-auto w-14 h-14 rounded-full bg-gold hover:bg-gold-dark text-navy items-center justify-center shadow-2xl relative transition-all duration-200 hover:scale-105 active:scale-95 group"
+          className="flex pointer-events-auto w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gold hover:bg-gold-dark text-navy items-center justify-center shadow-2xl relative transition-all duration-200 hover:scale-105 active:scale-95 group cursor-pointer"
           aria-label="Open assistant"
         >
           <span className="absolute -inset-0.5 rounded-full bg-gold/50 animate-ping opacity-60 pointer-events-none group-hover:hidden" />
-          <MessageSquare className="w-6 h-6 text-white" />
+          <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6 text-white" />
         </button>
       )}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, apiUpload } from "@/lib/api";
 import {
   ShoppingBag,
   Plus,
@@ -56,6 +56,26 @@ export default function AdminProductsPage() {
   const [formStock, setFormStock] = useState("0");
   const [formDisplayOrder, setFormDisplayOrder] = useState("0");
   const [btnLoading, setBtnLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const data = await apiUpload("/products/upload", { file });
+      if (data?.imageUrl) {
+        setFormImageUrl(data.imageUrl);
+        toast.success("Image uploaded successfully.");
+      } else {
+        throw new Error("Invalid response payload");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to upload image.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -106,12 +126,13 @@ export default function AdminProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this product? This action is permanent."
-      )
-    )
-      return;
+    const ok = await toast.confirm({
+      title: "Delete Product?",
+      message: "Are you sure you want to delete this product? This action is permanent.",
+      confirmText: "Delete",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await apiRequest(`/products/${id}`, { method: "DELETE" });
       setProducts((prev) => prev.filter((p) => p.id !== id));
@@ -309,18 +330,10 @@ export default function AdminProductsPage() {
                 />
               </div>
             </div>
-
             <div className="space-y-1.5">
-              <label>Photo URL</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={formImageUrl}
-                  onChange={(e) => setFormImageUrl(e.target.value)}
-                  placeholder="https://…"
-                  className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs text-navy focus:outline-none focus:bg-white focus:border-gold"
-                />
-                <div className="w-12 h-12 border border-gray-200 bg-gray-50 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+              <label>Product Image</label>
+              <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+                <div className="w-16 h-16 border border-gray-200 bg-white rounded-xl flex items-center justify-center shrink-0 overflow-hidden relative shadow-sm">
                   {formImageUrl ? (
                     <img
                       src={formImageUrl}
@@ -328,12 +341,50 @@ export default function AdminProductsPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <ImageIcon className="w-4 h-4 text-gray-400" />
+                    <ImageIcon className="w-6 h-6 text-gray-300" />
                   )}
+                  {uploadingImage && (
+                    <div className="absolute inset-0 bg-navy/60 flex items-center justify-center">
+                      <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-1.5 min-w-0">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="hidden"
+                      id="product-image-file"
+                    />
+                    <label
+                      htmlFor="product-image-file"
+                      className="cursor-pointer bg-white hover:bg-gray-50 text-navy border border-gray-200 hover:border-gold font-bold px-3 py-1.5 rounded-lg text-[10px] shadow-xs flex items-center gap-1 shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-gold" /> Upload Image
+                    </label>
+                    {formImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setFormImageUrl("")}
+                        className="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg text-[10px] border border-red-100 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={formImageUrl}
+                    onChange={(e) => setFormImageUrl(e.target.value)}
+                    placeholder="Or enter image URL manually..."
+                    className="w-full bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-[10px] text-navy focus:outline-none focus:border-gold placeholder:text-gray-400"
+                  />
                 </div>
               </div>
             </div>
-
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
               <button
                 type="button"
@@ -380,126 +431,68 @@ export default function AdminProductsPage() {
               No products yet. Add the clinic's first item to get started.
             </div>
           ) : (
-            <>
-              {/* Desktop Table */}
-              <div className="hidden md:block border border-gray-200 bg-white rounded-2xl overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse text-left text-xs">
-                    <thead className="bg-gray-50 border-b border-gray-100 text-navy uppercase tracking-wider font-bold text-[10px]">
-                      <tr>
-                        <th className="p-4">Product</th>
-                        <th className="p-4">Category</th>
-                        <th className="p-4">Price</th>
-                        <th className="p-4">Stock</th>
-                        <th className="p-4 text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 text-navy font-medium">
-                      {filteredProducts.map((product) => (
-                        <tr key={product.id} className="hover:bg-gray-50/40 transition-colors">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center shrink-0">
-                                {product.imageUrl ? (
-                                  <img src={product.imageUrl} alt={product.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-                                ) : (
-                                  <ShoppingBag className="w-4 h-4 text-gray-400" />
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <span className="font-bold block truncate max-w-[260px]">{product.name}</span>
-                                <span className="text-[10px] text-gray-400 font-normal truncate block max-w-[260px]">{product.description || "—"}</span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider ${
-                              product.category === "procedure" ? "bg-navy/5 text-navy" : "bg-gold/10 text-gold"
-                            }`}>
-                              {product.category === "procedure" ? "Procedure" : "Extra"}
-                            </span>
-                          </td>
-                          <td className="p-4 font-bold font-serif text-gold">{formatPrice(product.price, product.priceTo)}</td>
-                          <td className="p-4">
-                            {product.category === "procedure" ? (
-                              <span className="text-[10px] text-gray-400 italic">n/a</span>
-                            ) : (
-                              <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] ${
-                                product.stockCount === 0 ? "bg-red-50 text-red-600"
-                                : product.stockCount <= 5 ? "bg-amber-50 text-amber-600"
-                                : "bg-emerald-50 text-emerald-600"
-                              }`}>
-                                {product.stockCount} in stock
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-4">
-                            <div className="flex items-center justify-center gap-3">
-                              <button onClick={() => handleEdit(product)} className="p-1.5 rounded-lg hover:bg-gold/10 text-gray-400 hover:text-gold transition-colors" title="Edit product"><Edit3 className="w-4 h-4" /></button>
-                              <button onClick={() => handleDelete(product.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors" title="Delete product"><Trash2 className="w-4 h-4" /></button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Mobile Card Grid */}
-              <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {filteredProducts.map((product) => (
-                  <div key={product.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-                    {/* Image + Name */}
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center shrink-0">
-                        {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-                        ) : (
-                          <ShoppingBag className="w-5 h-5 text-gray-400" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-bold text-navy text-xs truncate">{product.name}</p>
-                        <p className="text-[10px] text-gray-400 truncate mt-0.5">{product.description || "—"}</p>
-                      </div>
-                    </div>
-
-                    {/* Meta */}
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className={`px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                        product.category === "procedure" ? "bg-navy/5 text-navy" : "bg-gold/10 text-gold"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredProducts.map((product) => (
+                <div key={product.id} className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group">
+                  <div>
+                    {/* Product Image and Category */}
+                    <div className="relative aspect-video w-full rounded-xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center mb-4">
+                      {product.imageUrl ? (
+                        <img src={product.imageUrl} alt={product.name} referrerPolicy="no-referrer" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      ) : (
+                        <ShoppingBag className="w-8 h-8 text-gray-300" />
+                      )}
+                      <span className={`absolute top-2.5 right-2.5 px-2.5 py-1 rounded-lg font-bold text-[9px] uppercase tracking-wider shadow-sm ${
+                        product.category === "procedure" ? "bg-navy text-white" : "bg-gold text-navy"
                       }`}>
-                        {product.category === "procedure" ? "Procedure" : "Extra"}
+                        {product.category === "procedure" ? "Procedure" : "Retail Extra"}
                       </span>
-                      <span className="font-serif font-bold text-gold text-sm">{formatPrice(product.price, product.priceTo)}</span>
                     </div>
 
-                    {product.category !== "procedure" && (
-                      <div className="text-[10px]">
-                        <span className={`px-2 py-0.5 rounded-full font-bold ${
-                          product.stockCount === 0 ? "bg-red-50 text-red-600"
-                          : product.stockCount <= 5 ? "bg-amber-50 text-amber-600"
-                          : "bg-emerald-50 text-emerald-600"
-                        }`}>
-                          {product.stockCount} in stock
-                        </span>
-                      </div>
-                    )}
+                    {/* Details */}
+                    <div className="space-y-1.5 min-w-0">
+                      <h4 className="font-serif text-sm font-bold text-navy group-hover:text-gold transition-colors truncate" title={product.name}>
+                        {product.name}
+                      </h4>
+                      <p className="text-[11px] text-gray-400 font-normal line-clamp-2 h-8 leading-relaxed" title={product.description || ""}>
+                        {product.description || "No description provided."}
+                      </p>
+                    </div>
+                  </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-2 pt-1 border-t border-gray-50">
-                      <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors">
+                  {/* Footer Info & Actions */}
+                  <div className="mt-4 pt-3 border-t border-gray-50 space-y-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Price</span>
+                        <span className="font-serif font-bold text-navy text-sm mt-0.5">{formatPrice(product.price, product.priceTo)}</span>
+                      </div>
+                      {product.category !== "procedure" && (
+                        <div className="flex flex-col items-end">
+                          <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Stock</span>
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[9px] mt-0.5 ${
+                            product.stockCount === 0 ? "bg-red-50 text-red-600"
+                            : product.stockCount <= 5 ? "bg-amber-50 text-amber-600"
+                            : "bg-emerald-50 text-emerald-600"
+                          }`}>
+                            {product.stockCount} left
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEdit(product)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 active:scale-[0.98] transition-all duration-150">
                         <Edit3 className="w-3.5 h-3.5" /> Edit
                       </button>
-                      <button onClick={() => handleDelete(product.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-red-100 text-red-500 text-[10px] font-bold hover:bg-red-50 transition-colors">
+                      <button onClick={() => handleDelete(product.id)} className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-red-100 text-red-500 text-[10px] font-bold hover:bg-red-50 active:scale-[0.98] transition-all duration-150">
                         <Trash2 className="w-3.5 h-3.5" /> Delete
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </>
+                </div>
+              ))}
+            </div>
           )}
         </>
       )}

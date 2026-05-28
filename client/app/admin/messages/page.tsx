@@ -196,39 +196,25 @@ export default function AdminMessagesPage() {
 
   return (
     <div className="flex flex-col h-full xl:p-0">
-      {/* Page header — hidden on mobile when chat is open */}
-      <header className={`shrink-0 px-4 pt-4 pb-4 xl:px-0 xl:pt-0 border-b border-gray-100 flex items-center justify-between gap-4 ${
-        mobileView === "chat" ? "hidden lg:flex" : "flex"
-      }`}>
-        <div>
-          <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded-full mb-1">
-            <MessageSquare className="w-3 h-3" /> Live Messaging
-          </span>
-          <h1 className="font-serif text-2xl font-bold text-navy">Patient Messages</h1>
-          <p className="text-gray-400 text-xs mt-0.5">Real-time clinical chat. Auto-refreshes every 10s.</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => { refetchThreads(); refetchMessages(); }}
-          className="border border-gray-200 hover:border-gold hover:text-gold text-navy font-semibold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${tLoading || mLoading ? "animate-spin" : ""}`} />
-          <span className="hidden sm:inline">Refresh</span>
-        </button>
-      </header>
-
       {/* Chat Shell — responsive: stacked on mobile, side-by-side on lg+ */}
-      <div className={`flex-1 min-h-0 overflow-hidden flex shadow-xl ${
-        mobileView === "chat"
-          ? "border-0 rounded-none"
-          : "mt-4 mx-4 xl:mx-0 rounded-2xl border border-gray-100"
-      } lg:mt-4 lg:rounded-2xl lg:mx-0 lg:border lg:border-gray-100`}>
+      <div className="flex-1 min-h-0 overflow-hidden flex bg-white">
         {/* ── Left: Thread list ── */}
         <aside className={`flex-col border-r border-gray-100 bg-white h-full min-h-0 overflow-hidden flex-shrink-0 ${
           // On mobile: show threads panel only when mobileView==='threads'
           // On lg+: always show as a fixed 300px sidebar
           mobileView === "threads" ? "flex w-full" : "hidden"
         } lg:flex lg:w-[300px] lg:max-w-[300px]`}>
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-gray-100 flex items-center gap-2.5 bg-white shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-gold/10 flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-gold" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-navy">Patient Chats</p>
+              <p className="text-[9px] text-gray-400">Live Clinical Messaging</p>
+            </div>
+          </div>
+
           {/* Search */}
           <div className="p-3 bg-[#f0f2f5] border-b border-gray-100 shrink-0">
             <div className="relative">

@@ -35,6 +35,7 @@ import pushRoutes from "./routes/push.js";
 import notificationRoutes from "./routes/notifications.js";
 import productRoutes from "./routes/products.js";
 import orderRoutes from "./routes/orders.js";
+import wellnessRoutes from "./routes/wellness.js";
 
 const app = express();
 
@@ -185,6 +186,7 @@ app.use("/api/push", pushRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/wellness", wellnessRoutes);
 
 // SEO routes are mounted at the root so crawlers can find them at the
 // canonical /sitemap.xml and /robots.txt paths without an /api prefix.

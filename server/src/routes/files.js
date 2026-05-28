@@ -16,8 +16,14 @@ const ALLOWED_MIMES = new Set([
   "image/jpeg",
   "image/webp",
   "application/pdf",
+  "image/gif",
+  "image/tiff",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain",
+  "application/dicom",
 ]);
-const ALLOWED_EXTS = /\.(png|jpe?g|webp|pdf)$/i;
+const ALLOWED_EXTS = /\.(png|jpe?g|webp|pdf|gif|tiff?|docx?|txt|dcm)$/i;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const storage = multer.memoryStorage();
@@ -155,6 +161,32 @@ router.get("/patient/:id", verifyToken, async (req, res) => {
     return res
       .status(500)
       .json({ message: "Failed to retrieve patient files." });
+  }
+});
+
+/**
+ * 3a. PATCH /:id — rename file or change category (Admin only).
+ */
+router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+  if (!requireDb(res)) return;
+  if (!UUID_RE.test(req.params.id)) {
+    return res.status(400).json({ message: "Invalid file identifier." });
+  }
+  const { fileName, category } = req.body || {};
+  if (!fileName && !category) {
+    return res.status(400).json({ message: "Provide fileName or category to update." });
+  }
+  try {
+    const target = await db.select().from(files).where(eq(files.id, req.params.id)).limit(1);
+    if (target.length === 0) return res.status(404).json({ message: "File not found." });
+    const updates = {};
+    if (fileName) updates.fileName = String(fileName).trim();
+    if (category) updates.category = String(category).trim();
+    const [updated] = await db.update(files).set(updates).where(eq(files.id, req.params.id)).returning();
+    return res.status(200).json({ message: "File updated.", file: updated });
+  } catch (err) {
+    console.error("[files] patch failed", err);
+    return res.status(500).json({ message: "Failed to update file." });
   }
 });
 
