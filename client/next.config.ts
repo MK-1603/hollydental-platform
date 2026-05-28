@@ -1,6 +1,4 @@
 import type { NextConfig } from "next";
-import path from "path";
-
 const nextConfig: NextConfig = {
   // Hide the floating dev indicator that ships with Next.js dev mode.
   // The `appIsrStatus` flag was renamed in Next 15+ and removed entirely
@@ -13,9 +11,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
     ],
-  },
-  turbopack: {
-    root: path.resolve(__dirname, ".."),
   },
 };
 
