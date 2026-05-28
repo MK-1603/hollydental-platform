@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   FileText,
   UserCheck,
+  Calendar,
   Activity as DiagnosticIcon
 } from "lucide-react";
 

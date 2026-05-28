@@ -10,6 +10,9 @@ export interface PatientProfile {
   email: string;
   dateOfBirth?: string;
   address?: string;
+  bloodGroup?: string;
+  age?: number | string;
+  gender?: string;
 }
 
 export interface UserProfile {

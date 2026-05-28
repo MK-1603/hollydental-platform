@@ -45,7 +45,7 @@ export default function PortalProfilePage() {
     return () => clearInterval(timer);
   }, []);
 
-  const patient = user?.patientProfile || {};
+  const patient = (user?.patientProfile ?? {}) as NonNullable<typeof user>["patientProfile"] & {};
 
   return (
     <div className="space-y-6 pb-12 font-sans relative">

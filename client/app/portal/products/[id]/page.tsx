@@ -98,6 +98,7 @@ export default function ProductDetailPage({ params }: PageProps) {
   };
 
   const handleBuyNow = () => {
+    if (!product) return;
     router.push(`/portal/products/checkout?productId=${product.id}&quantity=${quantity}`);
   };
 

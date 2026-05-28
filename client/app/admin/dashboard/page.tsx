@@ -325,7 +325,7 @@ export default function AdminDashboardPage() {
                       <YAxis fontSize={10} stroke="#9CA3AF" tickLine={false} axisLine={false} />
                       <Tooltip contentStyle={{ background: "#0A1628", borderRadius: "12px", border: "none", color: "#FFF", fontSize: "11px", fontWeight: "bold" }} />
                       <Bar dataKey="count" fill="#0A1628" radius={[6, 6, 0, 0]} barSize={36}>
-                        {appointmentHistory.map((_entry: unknown, index) => (
+                        {appointmentHistory.map((_entry: unknown, index: number) => (
                           <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#0A1628" : "#C9A96E"} />
                         ))}
                       </Bar>
