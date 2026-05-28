@@ -85,8 +85,8 @@ export default function AIChatbot() {
                 {/* Logo Avatar */}
                 <div className="w-10 h-10 rounded-full border border-gold/45 bg-white flex items-center justify-center p-1.5 shrink-0 overflow-hidden shadow-inner">
                   <img
-                    src="/logo-premium.png"
-                    alt="Hollyhill Dental logo"
+                    src="/logo-mark.png"
+                    alt={`${CLINIC.name} logo`}
                     className="w-full h-full object-contain"
                   />
                 </div>
