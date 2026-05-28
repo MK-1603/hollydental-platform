@@ -48,9 +48,9 @@ export default function Logo({
   const tagColor = theme === "light" ? "text-white/75" : "text-gray-500";
 
   // Wordmark scales with the mark for a balanced lockup at every size.
-  const nameSize = Math.max(size * 0.46, 16);
-  const tagSize = Math.max(size * 0.2, 9);
-  const wordmarkGap = Math.max(size * 0.18, 6);
+  const nameSize = Math.max(size * 0.5, 13);
+  const tagSize = Math.max(size * 0.22, 8);
+  const wordmarkGap = Math.max(size * 0.18, 4);
 
   const inner = (
     <span className="inline-flex items-center gap-2.5 sm:gap-3 select-none">

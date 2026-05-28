@@ -171,15 +171,15 @@ export default function LoginModal() {
         {loginModalView !== "force-change-password" && (
           <>
             {/* Mobile Top Bar with Back Button */}
-            <div className="md:hidden px-6 pt-6 flex items-center justify-between border-b border-gray-50 bg-white z-20">
+            <div className="md:hidden px-5 pt-5 pb-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-20">
               <button
                 onClick={closeLoginModal}
-                className="flex items-center gap-1.5 text-gray-600 hover:text-navy font-semibold text-sm transition-colors py-2 focus:outline-none"
+                className="flex items-center gap-1.5 text-gray-600 hover:text-navy font-semibold text-sm transition-colors py-1.5 focus:outline-none"
               >
                 <ArrowLeft className="w-4 h-4 text-gold" />
                 <span>Back</span>
               </button>
-              <Logo variant="icon" theme="dark" size={32} asLink={false} />
+              <Logo variant="full" theme="dark" size={28} asLink={false} />
             </div>
             {/* Desktop Close Button */}
             <button
@@ -379,7 +379,7 @@ function SignInView({
             <button
               type="button"
               onClick={onToggleShow}
-              className="absolute right-3 top-3 text-gray-400 hover:text-navy transition-colors focus:outline-none"
+              className="absolute right-1 top-1/2 -translate-y-1/2 p-2.5 text-gray-400 hover:text-navy transition-colors focus:outline-none rounded-md"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

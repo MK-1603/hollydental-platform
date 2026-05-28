@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ShieldAlert,
   ArrowLeft,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import LoginOverlay from "@/components/common/LoginOverlay";
 
@@ -35,6 +37,7 @@ export default function RegisterModal() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -126,15 +129,15 @@ export default function RegisterModal() {
       {/* Light Modal Container */}
       <div className="relative w-full h-full md:h-auto min-h-screen md:min-h-0 md:max-w-[880px] md:max-h-[92vh] md:overflow-hidden bg-white md:rounded-3xl md:shadow-2xl md:border md:border-gray-100 grid grid-cols-1 md:grid-cols-12 z-10 animate-fade-up">
         {/* Mobile Top Bar with Back Button */}
-        <div className="md:hidden px-6 pt-6 flex items-center justify-between border-b border-gray-50 bg-white z-20">
+        <div className="md:hidden px-5 pt-5 pb-4 flex items-center justify-between border-b border-gray-100 bg-white sticky top-0 z-20">
           <button
             onClick={closeRegisterModal}
-            className="flex items-center gap-1.5 text-gray-600 hover:text-navy font-semibold text-sm transition-colors py-2 focus:outline-none"
+            className="flex items-center gap-1.5 text-gray-600 hover:text-navy font-semibold text-sm transition-colors py-1.5 focus:outline-none"
           >
             <ArrowLeft className="w-4 h-4 text-gold" />
             <span>Back</span>
           </button>
-          <Logo variant="icon" theme="dark" size={32} asLink={false} />
+          <Logo variant="full" theme="dark" size={28} asLink={false} />
         </div>
         
         {/* Desktop Close Button */}
@@ -238,16 +241,30 @@ export default function RegisterModal() {
               </Field>
 
               <Field label="Choose Password" icon={<Lock className="w-3.5 h-3.5 text-gold" />}>
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  placeholder="••••••••"
-                  className={inputClass}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    placeholder="••••••••"
+                    className={`${inputClass} pr-11`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 p-2.5 text-gray-400 hover:text-navy transition-colors focus:outline-none rounded-md"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
                 {formData.password && (
                   <div className="space-y-1 mt-2">
                     <div className="h-1 bg-gray-100 rounded-full w-full overflow-hidden">

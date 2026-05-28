@@ -78,6 +78,7 @@ export default function BeforeAfterSlider({
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onTouchMove={handleTouchMove}
+      style={{ touchAction: "pan-y" }}
       className="relative w-full aspect-[4/3] md:aspect-[16/10] rounded-3xl overflow-hidden select-none border border-gray-100 shadow-[0_20px_60px_-20px_rgba(10,22,40,0.35)] bg-navy/5 group"
     >
       {/* Before image — base layer */}
