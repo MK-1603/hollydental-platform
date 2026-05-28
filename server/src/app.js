@@ -73,24 +73,87 @@ app.use(
 );
 
 /* -------------------- CORS allow-list -------------------- */
-const allowList = (process.env.CORS_ORIGINS || ENV.CLIENT_URL || "")
+/**
+ * The client URL and any extra origins are configured via env. We support:
+ *   - CLIENT_URL          (single primary origin, also used elsewhere)
+ *   - CORS_ORIGINS        (comma-separated list, exact origins)
+ *   - CORS_ORIGIN_PATTERNS (comma-separated list of regex patterns)
+ *
+ * Vercel preview deployments live on `*.vercel.app`, so we ship a default
+ * pattern that allows them automatically. The match is performed with the
+ * trailing slash stripped so the request `Origin` header matches whatever
+ * the operator typed in the dashboard.
+ */
+function normaliseOrigin(value) {
+  return String(value || "")
+    .trim()
+    .replace(/\/$/, "")
+    .toLowerCase();
+}
+
+const allowExact = new Set(
+  (process.env.CORS_ORIGINS || ENV.CLIENT_URL || "")
+    .split(",")
+    .map(normaliseOrigin)
+    .filter(Boolean)
+);
+
+const defaultPatterns = [
+  /^https:\/\/[a-z0-9-]+\.vercel\.app$/i,
+  /^http:\/\/localhost(:\d+)?$/i,
+];
+const allowPatterns = (process.env.CORS_ORIGIN_PATTERNS || "")
   .split(",")
   .map((s) => s.trim())
+  .filter(Boolean)
+  .map((pattern) => {
+    try {
+      return new RegExp(pattern, "i");
+    } catch {
+      console.warn("[cors] ignoring invalid pattern:", pattern);
+      return null;
+    }
+  })
   .filter(Boolean);
+const patternMatchers = [...defaultPatterns, ...allowPatterns];
+
+function isOriginAllowed(origin) {
+  if (!origin) return true; // server-to-server / curl / health checks
+  const norm = normaliseOrigin(origin);
+  if (allowExact.has(norm)) return true;
+  return patternMatchers.some((re) => re.test(norm));
+}
+
+console.log(
+  "[cors] allow-list:",
+  Array.from(allowExact).join(", ") || "(none)",
+  "+ patterns:",
+  patternMatchers.length
+);
 
 app.use(
   cors({
     origin: (origin, cb) => {
-      // Same-origin requests + server-to-server have no Origin header
-      if (!origin) return cb(null, true);
-      if (allowList.includes(origin)) return cb(null, true);
-      return cb(new Error(`Origin not allowed by CORS: ${origin}`));
+      if (isOriginAllowed(origin)) {
+        return cb(null, true);
+      }
+      // Important: do NOT throw — the cors middleware would suppress all
+      // headers and the browser would see a generic "no Allow-Origin"
+      // failure. Instead we explicitly disable CORS for this request,
+      // which still lets the response complete with a clear status.
+      console.warn(`[cors] blocked origin: ${origin}`);
+      return cb(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
   })
 );
+
+// Make sure preflights are always served — some load balancers strip the
+// implicit OPTIONS handler that `cors()` registers.
+app.options("*", cors());
 
 /* -------------------- Body parsing & cookies -------------------- */
 // Tighter limits for plain JSON; binary uploads have their own multer cap.
