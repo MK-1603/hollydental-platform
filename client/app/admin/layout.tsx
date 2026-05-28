@@ -224,12 +224,25 @@ export default function AdminLayout({
 
             <div className="flex items-center gap-2 sm:gap-3 border-l border-gray-100 pl-2 sm:pl-4">
               <div className="text-right hidden md:block">
-                <span className="block text-xs font-bold text-navy whitespace-nowrap">Dr. Roghay Alizadeh</span>
-                <span className="block text-[9px] text-gold font-bold uppercase tracking-wider whitespace-nowrap">Principal Dentist</span>
+                <span className="block text-xs font-bold text-navy whitespace-nowrap">
+                  {user.email === "doctor@hollyhilldental.ie" ? "Dr. Roghay Alizadeh" : user.email.split("@")[0]}
+                </span>
+                <span className="block text-[9px] text-gold font-bold uppercase tracking-wider whitespace-nowrap">
+                  {user.role === "admin" ? "Principal Dentist" : "Clinical Admin"}
+                </span>
               </div>
-              <div className="w-8 h-8 rounded-full bg-gold text-navy flex items-center justify-center font-bold text-xs shrink-0 select-none">
-                RA
-              </div>
+              {user.profilePicUrl ? (
+                <img
+                  src={user.profilePicUrl}
+                  alt="Doctor Avatar"
+                  className="w-8 h-8 rounded-full object-cover shrink-0 border border-gold/30 shadow-inner"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gold text-navy flex items-center justify-center font-bold text-xs shrink-0 select-none">
+                  {user.email[0]?.toUpperCase() || "D"}
+                </div>
+              )}
               <button
                 onClick={() => performLogoutTransition(router)}
                 className="p-1.5 rounded-full hover:bg-red-50 text-red-500 transition-colors focus:outline-none cursor-pointer flex items-center justify-center border border-red-100 hover:border-red-200 shrink-0"

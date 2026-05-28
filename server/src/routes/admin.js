@@ -210,6 +210,7 @@ router.get(
           email: users.email,
           isActive: users.isActive,
           mustChangePassword: users.mustChangePassword,
+          profilePicUrl: users.profilePicUrl,
           createdAt: users.createdAt,
         })
         .from(users)

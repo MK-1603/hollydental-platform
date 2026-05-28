@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   role: varchar("role", { length: 50 }).notNull().default("patient"), // "admin" | "patient"
   isActive: boolean("is_active").notNull().default(true),
   mustChangePassword: boolean("must_change_password").notNull().default(false),
+  profilePicUrl: text("profile_pic_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

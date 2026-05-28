@@ -18,6 +18,7 @@ export interface UserProfile {
   role: "admin" | "patient";
   mustChangePassword?: boolean;
   patientProfile?: PatientProfile | null;
+  profilePicUrl?: string | null;
 }
 
 interface AuthState {

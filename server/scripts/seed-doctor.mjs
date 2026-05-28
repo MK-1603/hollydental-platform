@@ -54,13 +54,6 @@ async function main() {
     .where(eq(users.email, email))
     .limit(1);
 
-  if (existing.length > 0 && !args.force) {
-    console.log(
-      `[seed:doctor] Doctor account ${email} already exists. Re-run with --force to reset its password.`
-    );
-    process.exit(0);
-  }
-
   const passwordHash = await bcrypt.hash(tempPassword, 10);
 
   if (existing.length === 0) {

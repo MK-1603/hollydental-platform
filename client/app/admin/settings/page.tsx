@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CLINIC } from "@/lib/constants";
-import { apiRequest } from "@/lib/api";
+import { apiRequest, apiUpload } from "@/lib/api";
 import { useAuthStore } from "@/store/useAuthStore";
 import { toast } from "@/lib/toast";
 import {
@@ -14,6 +14,7 @@ import {
   Copy,
   AlertCircle,
   Mail,
+  Camera,
 } from "lucide-react";
 
 type Tab = "clinic" | "rules" | "team";
@@ -23,7 +24,74 @@ interface StaffMember {
   email: string;
   isActive: boolean;
   mustChangePassword: boolean;
+  profilePicUrl?: string | null;
   createdAt: string;
+}
+
+function DoctorProfilePicCard() {
+  const { user, setUser } = useAuthStore();
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const res: any = await apiUpload("/auth/profile-pic", { file }, { method: "PATCH" });
+      if (res && res.profilePicUrl) {
+        setUser({ ...user!, profilePicUrl: res.profilePicUrl });
+        toast.success("Profile picture updated successfully.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to upload profile picture.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="border border-gray-100 rounded-3xl p-6 bg-[#fdfcf9] flex flex-col items-center text-center space-y-5 shadow-sm border-b-[3px] border-b-gold/20">
+      <div className="text-left w-full border-b border-gray-100 pb-3">
+        <h3 className="font-serif text-sm font-bold text-navy">
+          Your Profile Picture
+        </h3>
+        <p className="text-[10px] text-gray-400 mt-0.5">Visible in the navigation bar and comments</p>
+      </div>
+      <div className="relative group mt-3">
+        <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white shadow-md bg-navy text-gold flex items-center justify-center font-bold text-3xl uppercase select-none">
+          {user?.profilePicUrl ? (
+            <img
+              src={user.profilePicUrl}
+              alt="Profile Pic"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span>{user?.email[0] || "D"}</span>
+          )}
+        </div>
+        <label className="absolute bottom-1 right-1 bg-gold hover:bg-gold-dark text-navy p-2.5 rounded-full cursor-pointer shadow-md transition-colors border border-white hover:scale-105">
+          <Camera className="w-4 h-4" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="hidden"
+            disabled={uploading}
+          />
+        </label>
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs font-bold text-navy truncate max-w-[200px]">{user?.email}</p>
+        <p className="text-[10px] text-gold font-bold uppercase tracking-wider">
+          {user?.role === "admin" ? "Principal Dentist" : "Staff User"}
+        </p>
+        <p className="text-[9px] text-gray-400 mt-2">
+          {uploading ? "Uploading picture..." : "Supports JPG, PNG or WEBP (Max 5MB)"}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminSettingsPage() {
@@ -96,64 +164,70 @@ export default function AdminSettingsPage() {
 
       <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
         {activeTab === "clinic" && (
-          <form onSubmit={handleSave} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field label="Clinic Name">
-                <input
-                  type="text"
-                  value={clinicDetails.name}
-                  onChange={(e) =>
-                    setClinicDetails({ ...clinicDetails, name: e.target.value })
-                  }
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Enquiry Phone">
-                <input
-                  type="text"
-                  value={clinicDetails.phone}
-                  onChange={(e) =>
-                    setClinicDetails({ ...clinicDetails, phone: e.target.value })
-                  }
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Enquiry Email">
-                <input
-                  type="email"
-                  value={clinicDetails.email}
-                  onChange={(e) =>
-                    setClinicDetails({ ...clinicDetails, email: e.target.value })
-                  }
-                  className={inputClass}
-                />
-              </Field>
-              <div className="md:col-span-2">
-                <Field label="Postal Address">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <form onSubmit={handleSave} className="lg:col-span-2 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Clinic Name">
                   <input
                     type="text"
-                    value={clinicDetails.address}
+                    value={clinicDetails.name}
                     onChange={(e) =>
-                      setClinicDetails({
-                        ...clinicDetails,
-                        address: e.target.value,
-                      })
+                      setClinicDetails({ ...clinicDetails, name: e.target.value })
                     }
                     className={inputClass}
                   />
                 </Field>
+                <Field label="Enquiry Phone">
+                  <input
+                    type="text"
+                    value={clinicDetails.phone}
+                    onChange={(e) =>
+                      setClinicDetails({ ...clinicDetails, phone: e.target.value })
+                    }
+                    className={inputClass}
+                  />
+                </Field>
+                <Field label="Enquiry Email">
+                  <input
+                    type="email"
+                    value={clinicDetails.email}
+                    onChange={(e) =>
+                      setClinicDetails({ ...clinicDetails, email: e.target.value })
+                    }
+                    className={inputClass}
+                  />
+                </Field>
+                <div className="md:col-span-2">
+                  <Field label="Postal Address">
+                    <input
+                      type="text"
+                      value={clinicDetails.address}
+                      onChange={(e) =>
+                        setClinicDetails({
+                          ...clinicDetails,
+                          address: e.target.value,
+                        })
+                      }
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
               </div>
+  
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-gold hover:bg-gold-dark text-navy font-bold py-2.5 px-6 rounded-lg text-xs shadow-md transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Save className="w-4 h-4" />
+                {loading ? "Saving…" : "Save Clinic Details"}
+              </button>
+            </form>
+            
+            <div className="lg:col-span-1">
+              <DoctorProfilePicCard />
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-gold hover:bg-gold-dark text-navy font-bold py-2.5 px-6 rounded-lg text-xs shadow-md transition-colors disabled:opacity-50 flex items-center gap-1.5"
-            >
-              <Save className="w-4 h-4" />
-              {loading ? "Saving…" : "Save Clinic Details"}
-            </button>
-          </form>
+          </div>
         )}
 
         {activeTab === "rules" && (
@@ -461,13 +535,22 @@ function TeamTab({ currentUserId }: { currentUserId: string }) {
               >
                 {/* Card top: avatar + name */}
                 <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm uppercase border-2 shrink-0 shadow-sm ${
-                    member.isActive
-                      ? "bg-navy text-gold border-navy/20"
-                      : "bg-gray-100 text-gray-400 border-gray-200"
-                  }`}>
-                    {initial}
-                  </div>
+                  {member.profilePicUrl ? (
+                    <img
+                      src={member.profilePicUrl}
+                      alt={member.email}
+                      className="w-12 h-12 rounded-full object-cover shrink-0 border-2 border-gold/30 shadow-sm"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm uppercase border-2 shrink-0 shadow-sm ${
+                      member.isActive
+                        ? "bg-navy text-gold border-navy/20"
+                        : "bg-gray-100 text-gray-400 border-gray-200"
+                    }`}>
+                      {initial}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="text-xs font-bold text-navy truncate">{member.email}</span>

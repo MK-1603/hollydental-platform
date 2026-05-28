@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import { uploadToCloudinary } from "../config/cloudinary.js";
 import { db } from "../config/db.js";
 import {
   users,
@@ -185,6 +187,7 @@ router.post("/login", authLimiter, async (req, res) => {
         role: user.role,
         mustChangePassword: !!user.mustChangePassword,
         patientProfile,
+        profilePicUrl: user.profilePicUrl,
       },
     });
   } catch (error) {
@@ -226,6 +229,7 @@ router.get("/me", verifyToken, async (req, res) => {
         role: user.role,
         mustChangePassword: !!user.mustChangePassword,
         patientProfile,
+        profilePicUrl: user.profilePicUrl,
       },
     });
   } catch (error) {
@@ -566,6 +570,37 @@ router.delete("/me", verifyToken, async (req, res) => {
   } catch (err) {
     console.error("[delete-self] failed", err);
     return res.status(500).json({ message: "Failed to delete account." });
+  }
+});
+
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+router.patch("/profile-pic", verifyToken, upload.single("file"), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ message: "No file provided." });
+  }
+
+  try {
+    const uploadResult = await uploadToCloudinary(file.buffer, file.originalname);
+    const profilePicUrl = uploadResult.secure_url;
+
+    await db
+      .update(users)
+      .set({ profilePicUrl, updatedAt: new Date() })
+      .where(eq(users.id, req.user.id));
+
+    return res.status(200).json({
+      message: "Profile picture updated successfully.",
+      profilePicUrl,
+    });
+  } catch (error) {
+    console.error("[profile-pic-upload] failed", error);
+    return res.status(500).json({ message: "Failed to upload profile picture." });
   }
 });
 

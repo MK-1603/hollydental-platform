@@ -90,6 +90,236 @@ function Scroll3D({ children, className = "" }: { children: React.ReactNode; cla
   );
 }
 
+function SmileEstimator() {
+  const [tab, setTab] = useState<"quiz" | "calculator">("quiz");
+
+  // Quiz states
+  const [quizStep, setQuizStep] = useState(1);
+  const [concern, setConcern] = useState("");
+  const [preference, setPreference] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [recommendation, setRecommendation] = useState<string | null>(null);
+
+  // Calculator states
+  const [treatment, setTreatment] = useState("cleaning");
+  const [hasPrsi, setHasPrsi] = useState(false);
+
+  const startAnalysis = () => {
+    setAnalyzing(true);
+    setTimeout(() => {
+      setAnalyzing(false);
+      if (concern === "stained") {
+        setRecommendation("We recommend Professional Teeth Whitening or Composite Veneers for a bright, stainless smile.");
+      } else if (concern === "crooked") {
+        setRecommendation("Invisalign Clear Aligners would be the perfect fit for virtually invisible teeth straightening.");
+      } else if (concern === "missing") {
+        setRecommendation("Dental Implants or Porcelain Bridges will restore your bite strength and aesthetic appeal permanently.");
+      } else if (concern === "pain") {
+        setRecommendation("Please schedule an Emergency Exam. You might require a gentle Root Canal or filling.");
+      } else {
+        setRecommendation("A routine check-up & scale and polish is perfect for maintaining your healthy gums and teeth.");
+      }
+      setQuizStep(3);
+    }, 1500);
+  };
+
+  const getCalculatorDetails = () => {
+    let basePrice = 95; // cleaning default
+    let prsiSubsidy = 0;
+
+    if (treatment === "cleaning") {
+      basePrice = 95;
+      if (hasPrsi) prsiSubsidy = 80; // pay €15
+    } else if (treatment === "whitening") {
+      basePrice = 199;
+    } else if (treatment === "bonding") {
+      basePrice = 150;
+    } else if (treatment === "veneers") {
+      basePrice = 600;
+    } else if (treatment === "invisalign") {
+      basePrice = 3200;
+    }
+
+    const finalPrice = Math.max(15, basePrice - prsiSubsidy);
+    const monthlyInstallment = finalPrice > 300 ? (finalPrice / 12).toFixed(2) : null;
+
+    return { basePrice, prsiSubsidy, finalPrice, monthlyInstallment };
+  };
+
+  const calc = getCalculatorDetails();
+
+  return (
+    <div className="space-y-4 text-white w-full">
+      {/* Tabs */}
+      <div className="flex bg-white/10 rounded-xl p-1 text-xs">
+        <button
+          onClick={() => { setTab("quiz"); setQuizStep(1); setRecommendation(null); }}
+          className={`flex-1 py-1.5 rounded-lg font-semibold transition-all ${tab === "quiz" ? "bg-gold text-navy" : "text-gray-300 hover:text-white"}`}
+        >
+          Smile Assessment
+        </button>
+        <button
+          onClick={() => setTab("calculator")}
+          className={`flex-1 py-1.5 rounded-lg font-semibold transition-all ${tab === "calculator" ? "bg-gold text-navy" : "text-gray-300 hover:text-white"}`}
+        >
+          Cost Estimator
+        </button>
+      </div>
+
+      {/* QUIZ TAB */}
+      {tab === "quiz" && (
+        <div className="space-y-4 min-h-[220px] flex flex-col justify-between">
+          {quizStep === 1 && (
+            <div className="space-y-3">
+              <p className="text-xs text-gold/90 font-bold uppercase tracking-wider">Step 1 of 2: Main Concern</p>
+              <h4 className="font-serif text-sm font-bold text-white">What would you like to improve about your smile?</h4>
+              <div className="grid grid-cols-1 gap-2 pt-2">
+                {[
+                  { key: "stained", label: "Brighten stained/yellow teeth" },
+                  { key: "crooked", label: "Straighten crooked teeth" },
+                  { key: "missing", label: "Replace missing teeth" },
+                  { key: "pain", label: "Resolve sensitivity or pain" },
+                  { key: "routine", label: "Routine cleaning & checkup" },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setConcern(opt.key); setQuizStep(2); }}
+                    className="w-full text-left text-xs bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 hover:border-gold/50 transition-colors"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {quizStep === 2 && (
+            <div className="space-y-3">
+              <p className="text-xs text-gold/90 font-bold uppercase tracking-wider">Step 2 of 2: Preference</p>
+              <h4 className="font-serif text-sm font-bold text-white">What is your primary treatment preference?</h4>
+              <div className="grid grid-cols-1 gap-2 pt-2">
+                {[
+                  { key: "fast", label: "Fastest possible results" },
+                  { key: "natural", label: "Most natural-looking outcome" },
+                  { key: "budget", label: "Most budget-friendly approach" },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => { setPreference(opt.key); startAnalysis(); }}
+                    className="w-full text-left text-xs bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 hover:border-gold/50 transition-colors"
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setQuizStep(1)}
+                className="text-[10px] text-gray-400 hover:text-gold block pt-2 text-left"
+              >
+                &larr; Back to Step 1
+              </button>
+            </div>
+          )}
+
+          {analyzing && (
+            <div className="flex-1 flex flex-col items-center justify-center space-y-3 py-10">
+              <div className="w-8 h-8 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-gray-300 animate-pulse font-medium">Analyzing your answers...</p>
+            </div>
+          )}
+
+          {quizStep === 3 && !analyzing && (
+            <div className="space-y-4">
+              <div className="bg-gold/10 border border-gold/30 rounded-2xl p-4 text-center space-y-2">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-gold block">Our Recommendation</span>
+                <p className="text-xs text-gray-200 leading-relaxed font-light">{recommendation}</p>
+              </div>
+              <div className="space-y-2">
+                <Link
+                  href="/portal/booking"
+                  className="w-full bg-gold hover:bg-gold-dark text-navy text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
+                >
+                  Book Free Consultation &rarr;
+                </Link>
+                <button
+                  onClick={() => { setQuizStep(1); setRecommendation(null); }}
+                  className="w-full text-[10px] text-gray-400 hover:text-gold py-1 text-center"
+                >
+                  Restart Assessment
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CALCULATOR TAB */}
+      {tab === "calculator" && (
+        <div className="space-y-4 min-h-[220px] flex flex-col justify-between">
+          <div className="space-y-3">
+            <label className="block text-[10px] uppercase tracking-wider font-bold text-gold text-left">Select Treatment</label>
+            <select
+              value={treatment}
+              onChange={(e) => setTreatment(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-gold/50 cursor-pointer"
+            >
+              <option value="cleaning" className="bg-[#0c1b2f]">Routine Exam & Cleaning</option>
+              <option value="whitening" className="bg-[#0c1b2f]">Professional Whitening Kit</option>
+              <option value="bonding" className="bg-[#0c1b2f]">Composite Bonding (per tooth)</option>
+              <option value="veneers" className="bg-[#0c1b2f]">Porcelain Veneers (per tooth)</option>
+              <option value="invisalign" className="bg-[#0c1b2f]">Invisalign Full Alignment</option>
+            </select>
+
+            {treatment === "cleaning" && (
+              <label className="flex items-center gap-2.5 cursor-pointer pt-2 select-none">
+                <input
+                  type="checkbox"
+                  checked={hasPrsi}
+                  onChange={(e) => setHasPrsi(e.target.checked)}
+                  className="accent-gold h-4 w-4 rounded"
+                />
+                <div className="text-left">
+                  <span className="block text-xs font-bold text-white">I qualify for PRSI Dental Benefit</span>
+                  <span className="block text-[9px] text-gray-400 font-normal">Subsidizes exam & cleaning once yearly</span>
+                </div>
+              </label>
+            )}
+          </div>
+
+          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 space-y-2 text-left">
+            <div className="flex items-center justify-between text-[11px] text-gray-400">
+              <span>Standard Cost</span>
+              <span className="font-semibold text-white">€{calc.basePrice.toFixed(2)}</span>
+            </div>
+            {calc.prsiSubsidy > 0 && (
+              <div className="flex items-center justify-between text-[11px] text-emerald-400">
+                <span>PRSI Coverage</span>
+                <span className="font-semibold">-€{calc.prsiSubsidy.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="border-t border-white/10 pt-2 flex items-center justify-between">
+              <span className="text-xs font-bold text-white">Your Estimate</span>
+              <span className="text-lg font-bold text-gold">€{calc.finalPrice.toFixed(2)}</span>
+            </div>
+            {calc.monthlyInstallment && (
+              <div className="bg-gold/15 border border-gold/25 rounded-xl p-2.5 text-center text-[10px] text-gold/90 font-medium">
+                0% Interest Plan: <strong className="text-white">€{calc.monthlyInstallment}/mo</strong> (12 months)
+              </div>
+            )}
+          </div>
+
+          <Link
+            href="/portal/booking"
+            className="w-full bg-gold hover:bg-gold-dark text-navy text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
+          >
+            Claim This Estimate &rarr;
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function HomeClient() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
@@ -159,70 +389,55 @@ export default function HomeClient() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,173,239,0.18),transparent_60%)] z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
-
-            {/* Left Column: Headline, Subtext, CTAs, Social Proof */}
-            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8">
-              {/* Tagline Badge */}
-              <div className="flex flex-col items-center lg:items-start gap-3 animate-fade-up">
-                <span className="inline-flex items-center gap-1.5 bg-white/10 text-white text-[10px] font-extrabold uppercase tracking-[0.3em] px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
-                  <Sparkles className="w-3 h-3 text-gold" />
-                  Smile with Confidence
-                </span>
-              </div>
-
-              {/* Headline */}
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6.5xl font-bold leading-[1.1] !text-white tracking-tight animate-fade-up">
-                Complete Dental Care <br />
-                <span className="text-gold">For Every Smile</span>
-              </h1>
-
-              {/* Subtext */}
-              <p className="text-gray-200 text-sm md:text-base leading-relaxed max-w-xl font-normal animate-fade-up">
-                Experience dental precision paired with a gentle touch. Our expert team utilizes state-of-the-art technology to ensure your smile remains your most confident asset.
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col gap-3.5 w-full animate-fade-up">
-                {/* Row 1: Core Bookings */}
-                <div className="flex flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full">
-                  <button
-                    onClick={goToBooking}
-                    className="bg-gold hover:bg-gold-dark text-navy text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_#987943] hover:shadow-[0_5px_0_0_#987943] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
-                  >
-                    <Calendar className="w-4 h-4" /> Schedule Your Visit
-                  </button>
-                  <Link
-                    href="/services"
-                    className="border border-white/20 hover:border-gold hover:text-gold text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.08)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.12)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1 sm:gap-1.5 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
-                  >
-                    View All Services
-                  </Link>
-                </div>
-
-                {/* Row 2: Direct Contact */}
-                <div className="flex flex-row gap-3 sm:gap-4 justify-center lg:justify-start w-full">
-                  <a
-                    href={CLINIC.phoneHref}
-                    className="border border-white/15 hover:border-white/40 hover:text-gold text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.05)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.08)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1.5 sm:gap-2 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-gold shrink-0" /> {CLINIC.phone}
-                  </a>
-                </div>
-              </div>
-
+          {/* Centered Content: Headline, Subtext, CTAs, Social Proof */}
+          <div className="flex flex-col items-center text-center space-y-6 md:space-y-8 max-w-4xl mx-auto">
+            {/* Tagline Badge */}
+            <div className="flex flex-col items-center gap-3 animate-fade-up">
+              <span className="inline-flex items-center gap-1.5 bg-white/10 text-white text-[10px] font-extrabold uppercase tracking-[0.3em] px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
+                <Sparkles className="w-3 h-3 text-gold" />
+                Smile with Confidence
+              </span>
             </div>
 
-            {/* Right Column: Timings & Direct Contact Card */}
-            <div className="lg:col-span-5 w-full flex justify-center lg:justify-end animate-fade-up [perspective:1000px] [transform-style:preserve-3d]">
-              <div className="bg-gradient-to-br from-navy/90 via-[#0c1b2f]/95 to-[#040e1a]/95 backdrop-blur-xl border border-gold/30 rounded-3xl p-6 sm:p-8 max-w-sm w-full space-y-5 shadow-[0_20px_50px_rgba(0,0,0,0.45)] border-t border-t-white/20 transition-all duration-500 hover:translate-y-[-6px] hover:[transform:rotateX(3deg)_rotateY(-3deg)] hover:shadow-[0_30px_60px_rgba(201,169,110,0.18)] hover:border-gold/50 flex flex-col justify-center items-center">
-                <div className="text-center py-4">
-                  <span className="text-[11px] uppercase font-bold tracking-[0.25em] text-gold/90 block">We Are Open</span>
-                  <span className="text-lg sm:text-xl font-bold text-white mt-1.5 block">9:00 AM – 4:00 PM</span>
-                </div>
+            {/* Headline */}
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6.5xl font-bold leading-[1.1] !text-white tracking-tight animate-fade-up">
+              Complete Dental Care <br />
+              <span className="text-gold">For Every Smile</span>
+            </h1>
+
+            {/* Subtext */}
+            <p className="text-gray-200 text-sm md:text-base leading-relaxed max-w-2xl font-normal animate-fade-up">
+              Experience dental precision paired with a gentle touch. Our expert team utilizes state-of-the-art technology to ensure your smile remains your most confident asset.
+            </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col gap-3.5 w-full items-center animate-fade-up">
+              {/* Row 1: Core Bookings */}
+              <div className="flex flex-row gap-3 sm:gap-4 justify-center w-full">
+                <button
+                  onClick={goToBooking}
+                  className="bg-gold hover:bg-gold-dark text-navy text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_#987943] hover:shadow-[0_5px_0_0_#987943] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
+                >
+                  <Calendar className="w-4 h-4" /> Schedule Your Visit
+                </button>
+                <Link
+                  href="/services"
+                  className="border border-white/20 hover:border-gold hover:text-gold text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.08)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.12)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1 sm:gap-1.5 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
+                >
+                  View All Services
+                </Link>
+              </div>
+
+              {/* Row 2: Direct Contact */}
+              <div className="flex flex-row gap-3 sm:gap-4 justify-center w-full">
+                <a
+                  href={CLINIC.phoneHref}
+                  className="border border-white/15 hover:border-white/40 hover:text-gold text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.05)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.08)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1.5 sm:gap-2 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
+                >
+                  <Phone className="w-3.5 h-3.5 text-gold shrink-0" /> {CLINIC.phone}
+                </a>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -789,8 +1004,8 @@ export default function HomeClient() {
                 <div
                   key={index}
                   className={`border rounded-2xl overflow-hidden bg-white transition-all duration-300 transform [perspective:1000px] ${isOpen
-                      ? "border-gold/45 shadow-[0_15px_35px_-5px_rgba(201,169,110,0.18)] -translate-y-1 scale-[1.01]"
-                      : "border-gray-100 shadow-[0_4px_20px_rgba(10,22,40,0.02)] hover:border-gold/25 hover:shadow-[0_12px_25px_-5px_rgba(201,169,110,0.08)] hover:-translate-y-0.5"
+                    ? "border-gold/45 shadow-[0_15px_35px_-5px_rgba(201,169,110,0.18)] -translate-y-1 scale-[1.01]"
+                    : "border-gray-100 shadow-[0_4px_20px_rgba(10,22,40,0.02)] hover:border-gold/25 hover:shadow-[0_12px_25px_-5px_rgba(201,169,110,0.08)] hover:-translate-y-0.5"
                     }`}
                 >
                   <div

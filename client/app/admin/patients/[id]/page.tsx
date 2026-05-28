@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { apiRequest } from "@/lib/api";
+import Link from "next/link";
 import DentalChart from "@/components/admin/DentalChart";
 import {
   User,
@@ -15,6 +16,7 @@ import {
   Activity,
   ShieldAlert,
   Lock,
+  ArrowLeft,
 } from "lucide-react";
 
 interface PageProps {
@@ -108,6 +110,12 @@ export default function AdminPatientProfilePage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
+      <Link
+        href="/admin/patients"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-navy transition-colors mb-2"
+      >
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to Patients
+      </Link>
       
       {/* Patient header card */}
       <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
