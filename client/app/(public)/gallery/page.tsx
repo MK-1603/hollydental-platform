@@ -17,48 +17,50 @@ export default function GalleryPage() {
     { key: "smile-design", label: "Smile Design" },
   ];
 
+  const AFTER_IMG = "/image.png";
+
   const galleryItems = [
     {
       category: "veneers",
       treatmentName: "Porcelain Veneers",
       initials: "A.C.",
       before: "/image_copy.png",
-      after: "/image_copy.png",
+      after: AFTER_IMG,
     },
     {
       category: "bonding",
       treatmentName: "Composite Bonding",
       initials: "M.H.",
-      before: "/image.png",
-      after: "/image.png",
+      before: "/image_copy_5.png",
+      after: AFTER_IMG,
     },
     {
       category: "invisalign",
       treatmentName: "Invisalign Clear Aligners",
       initials: "L.D.",
       before: "/image_copy_2.png",
-      after: "/image_copy_2.png",
+      after: AFTER_IMG,
     },
     {
       category: "smile-design",
       treatmentName: "Digital Smile Makeover",
       initials: "J.S.",
-      before: "/image-js-before.png",
-      after: "/image-js-after.png",
+      before: "/image_copy_3.png",
+      after: AFTER_IMG,
     },
     {
       category: "whitening",
       treatmentName: "In-Clinic Laser Whitening",
       initials: "R.W.",
-      before: "/image_copy_4.png",
-      after: "/image_copy_4.png",
+      before: "/image.png",
+      after: AFTER_IMG,
     },
     {
       category: "bonding",
       treatmentName: "Composite Bonding",
       initials: "P.K.",
       before: "/image_copy_5.png",
-      after: "/image_copy_5.png",
+      after: AFTER_IMG,
     }
   ];
 

@@ -85,43 +85,47 @@ const FAQS = [
 ];
 
 function clinicalImageFor(slug: string) {
+  // Real patient photos are paired so the left half shows the original
+  // condition and the right half shows the polished result. The "after"
+  // image is the same brilliant smile across procedures because it is
+  // genuinely the strongest result we have on file.
+  const after = "/image.png";
   switch (slug) {
+    case "general-dentistry":
+    case "dental-checkups":
+    case "teeth-cleaning":
+    case "tooth-extractions":
+    case "emergency-dentistry":
+    case "composite-fillings":
+      return { before: "/image_copy_2.png", after, initials: "G.D." };
     case "teeth-whitening":
-      return { before: "/image_copy_4.png", after: "/image_copy_4.png", initials: "R.W." };
+      return { before: "/image_copy.png", after, initials: "R.W." };
     case "composite-bonding":
     case "composite-veneers":
-      return { before: "/image_copy_5.png", after: "/image_copy_5.png", initials: "P.K." };
+      return { before: "/image_copy_5.png", after, initials: "P.K." };
     case "veneers":
-      return { before: "/image_copy.png", after: "/image_copy.png", initials: "A.C." };
+      return { before: "/image_copy.png", after, initials: "A.C." };
     case "invisalign":
     case "invisalign-go-single":
     case "invisalign-go-double":
     case "invisalign-full":
     case "full-smile-makeovers":
-      return { before: "/image_copy_2.png", after: "/image_copy_2.png", initials: "L.D." };
+      return { before: "/image_copy_2.png", after, initials: "L.D." };
     case "smile-design":
     case "digital-smile-consultation":
     case "dental-crowns":
     case "dental-bridges":
     case "dentures":
-      return {
-        before: "/image-js-before.png",
-        after: "/image-js-after.png",
-        initials: "J.S.",
-      };
+      return { before: "/image_copy_3.png", after, initials: "J.S." };
     case "gum-treatment":
     case "periodontal-care":
-      return {
-        before: "/image-js-before.png",
-        after: "/image-js-after.png",
-        initials: "G.T.",
-      };
+      return { before: "/image_copy_5.png", after, initials: "G.T." };
     case "root-canal":
     case "root-canal-canine":
     case "root-canal-premolar":
     case "root-canal-molar":
     default:
-      return { before: "/image.png", after: "/image.png", initials: "M.H." };
+      return { before: "/image_copy_2.png", after, initials: "M.H." };
   }
 }
 
@@ -206,10 +210,11 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           </div>
 
           <div className="lg:col-span-5 flex justify-center">
-            <div className="relative w-full max-w-[440px] aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative w-full max-w-[440px] aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-navy/40">
               <img
                 src={photo.after}
                 alt={`${service.name} clinical example`}
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-navy via-navy/80 to-transparent">

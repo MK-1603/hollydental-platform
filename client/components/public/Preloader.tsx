@@ -66,18 +66,15 @@ export default function Preloader() {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.007)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.007)_1px,transparent_1px)] bg-[size:30px_30px] opacity-30" />
 
       <div className="relative flex flex-col items-center gap-9 px-6 text-center z-10">
-        {/* Logo with subtle pulse */}
+        {/* Full logo lockup with subtle pulse */}
         <div className="relative animate-preloader-pulse py-4">
-          <Logo size={96} theme="light" asLink={false} />
+          <Logo variant="full" size={72} theme="light" asLink={false} />
         </div>
 
         <div className="space-y-3">
-          <span className="inline-block text-[9px] uppercase tracking-[0.45em] font-bold text-gold bg-gold/10 px-4 py-1.5 rounded-full border border-gold/20">
-            {CLINIC.taglineShort || "Smile Confidently"}
+          <span className="inline-block text-[10px] uppercase tracking-[0.4em] font-bold text-gold bg-gold/10 px-4 py-1.5 rounded-full border border-gold/20">
+            Premium Dental Care
           </span>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-white">
-            {CLINIC.name}
-          </h1>
           <span className="block text-[11px] text-gray-400 max-w-xs font-light leading-relaxed">
             {CLINIC.tagline || "Creating Beautiful & Confident Smiles"}
           </span>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
+import Logo from "@/components/public/Logo";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -140,17 +141,10 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         <div className="mb-10 flex items-center justify-between shrink-0">
           <Link
             href="/admin/dashboard"
-            className="flex items-center gap-2"
+            className="flex items-center min-w-0"
             onClick={onClose}
           >
-            <img
-              src="/logo.png"
-              alt="Hollyhill Dental Logo"
-              className="w-7 h-7 object-contain bg-white rounded-md p-0.5"
-            />
-            <span className="font-serif text-sm font-bold text-white tracking-wide">
-              Hollyhill Clinical
-            </span>
+            <Logo variant="full" theme="light" size={40} asLink={false} />
           </Link>
           {onClose && (
             <button

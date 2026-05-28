@@ -19,6 +19,7 @@ import {
   Check,
 } from "lucide-react";
 import LoginOverlay from "@/components/common/LoginOverlay";
+import Logo from "@/components/public/Logo";
 
 export default function LoginModal() {
   const {
@@ -178,11 +179,7 @@ export default function LoginModal() {
                 <ArrowLeft className="w-4 h-4 text-gold" />
                 <span>Back</span>
               </button>
-              <img
-                src="/logo.png"
-                alt="Logo"
-                className="w-6 h-6 object-contain"
-              />
+              <Logo variant="icon" theme="dark" size={32} asLink={false} />
             </div>
             {/* Desktop Close Button */}
             <button
@@ -200,14 +197,7 @@ export default function LoginModal() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(201,169,110,0.18),_transparent_55%)] pointer-events-none" />
 
           <div className="relative z-10 flex items-center gap-2.5">
-            <img
-              src="/logo.png"
-              alt="Hollyhill Dental Logo"
-              className="w-7 h-7 object-contain"
-            />
-            <span className="font-serif text-sm font-bold tracking-wide uppercase text-navy">
-              Hollyhill Clinic
-            </span>
+            <Logo variant="full" theme="dark" size={48} asLink={false} />
           </div>
 
           <div className="relative z-10 space-y-6 my-auto pt-8">

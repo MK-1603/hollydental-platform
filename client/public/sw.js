@@ -1,5 +1,11 @@
-/* Service worker for Web Push notifications. Receives push events and
- * displays system notifications to the user. */
+/* Service worker for Web Push notifications and PWA installability.
+ *
+ * Receives push events and displays system notifications. Also implements
+ * a minimal `fetch` handler so the browser treats the app as a PWA and
+ * surfaces the install prompt. We intentionally pass everything through
+ * to the network — the clinic dashboard depends on real-time data, so we
+ * don't want stale cached responses. The empty handler is enough to
+ * satisfy the install criterion. */
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -7,6 +13,12 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener("fetch", (event) => {
+  // No-op handler: required for installability, but we always go to the
+  // network so the clinic sees fresh data.
+  return;
 });
 
 self.addEventListener("push", (event) => {

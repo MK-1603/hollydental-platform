@@ -165,13 +165,14 @@ export default function HomeClient() {
             <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 md:space-y-8">
               {/* Tagline Badge */}
               <div className="flex flex-col items-center lg:items-start gap-3 animate-fade-up">
-                <span className="inline-flex items-center gap-2 bg-gold/15 text-gold text-xs font-bold uppercase tracking-widest px-4.5 py-2 rounded-full border border-gold/30">
-                  <Sparkles className="w-4 h-4 animate-pulse text-gold" /> Smile with your confidence
+                <span className="inline-flex items-center gap-1.5 bg-white/10 text-white text-[10px] font-extrabold uppercase tracking-[0.3em] px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
+                  <Sparkles className="w-3 h-3 text-gold" />
+                  Smile with Confidence
                 </span>
               </div>
               
               {/* Headline */}
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6.5xl font-bold leading-[1.1] text-white tracking-tight animate-fade-up">
+              <h1 className="font-serif text-4xl sm:text-5xl md:text-6.5xl font-bold leading-[1.1] !text-white tracking-tight animate-fade-up">
                 Complete Dental Care <br />
                 <span className="text-gold">For Every Smile</span>
               </h1>
@@ -400,12 +401,14 @@ export default function HomeClient() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
-                <h3 className="font-serif text-lg font-bold">Dental Implants</h3>
-                <p className="text-gray-300 text-xs leading-relaxed font-light line-clamp-1">
-                  Permanent replacement for teeth.
+                <h3 className="font-serif text-2xl md:text-3xl font-bold">
+                  Dental Implants
+                </h3>
+                <p className="text-gray-200 text-sm md:text-base leading-relaxed font-light">
+                  Permanent, natural-looking replacements for missing teeth.
                 </p>
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gold">
-                  Learn More <ArrowRight className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-gold">
+                  Learn More <ArrowRight className="w-4 h-4" />
                 </span>
               </div>
             </div>
@@ -555,7 +558,7 @@ export default function HomeClient() {
                 treatmentName="Porcelain Veneers"
                 initials="A.C."
                 beforeImage="/image_copy.png"
-                afterImage="/image_copy.png"
+                afterImage="/gem-smile-after.png"
               />
               <p className="text-[11px] text-gray-400 font-light text-center">
                 * Full smile makeover with custom porcelain veneers to restore symmetry and color.
@@ -566,8 +569,8 @@ export default function HomeClient() {
               <BeforeAfterSlider
                 treatmentName="Composite Bonding"
                 initials="M.H."
-                beforeImage="/image.png"
-                afterImage="/image.png"
+                beforeImage="/image_copy_5.png"
+                afterImage="/gem-smile-after.png"
               />
               <p className="text-[11px] text-gray-400 font-light text-center">
                 * Quick, non-invasive repair of chipped teeth using premium composite bonding materials.

@@ -1,7 +1,7 @@
 export const CLINIC = {
   name: "Hollyhill Dental",
   tagline: "Creating Beautiful & Confident Smiles",
-  taglineShort: "Smile Confidently",
+  taglineShort: "Smile with Confidence",
   address: "Unit 6 Hollyhill Shopping Centre, Co. Cork, T23 E030, Ireland",
   phone: "+353 21 430 3072",
   phoneHref: "tel:+353214303072",

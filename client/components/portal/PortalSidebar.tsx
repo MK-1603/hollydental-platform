@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
+import Logo from "@/components/public/Logo";
 import {
   LayoutDashboard,
   CalendarDays,
@@ -145,17 +146,10 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
         <div className="mb-10 flex items-center justify-between shrink-0">
           <Link
             href="/portal/dashboard"
-            className="flex items-center gap-2"
+            className="flex items-center min-w-0"
             onClick={onClose}
           >
-            <img
-              src="/logo.png"
-              alt="Hollyhill Dental Logo"
-              className="w-7 h-7 object-contain"
-            />
-            <span className="font-serif text-sm font-bold text-navy tracking-wide">
-              Hollyhill Portal
-            </span>
+            <Logo variant="full" theme="dark" size={40} asLink={false} />
           </Link>
           {onClose && (
             <button

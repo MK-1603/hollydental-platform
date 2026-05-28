@@ -136,7 +136,8 @@ const STARTER_BLOG_POSTS = [
 <p>Book your child's pediatric checkup today and let us help them build a healthy smile for life.</p>`,
     category: "Pediatric Dentistry",
     tags: "child, pediatric, checkup",
-    featuredImageUrl: "/doctor.png",
+    featuredImageUrl:
+      "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=1200",
     seoTitle: "Prepare Your Child for Their First Dentist Visit | Hollyhill Dental",
     seoDescription: "Practical advice on making your child's first dental checkup positive and stress-free at Hollyhill Dental Cork.",
   },

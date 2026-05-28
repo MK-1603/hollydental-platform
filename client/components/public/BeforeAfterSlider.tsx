@@ -20,8 +20,8 @@ interface BeforeAfterSliderProps {
  * whole component falls back gracefully when an image fails to load.
  */
 export default function BeforeAfterSlider({
-  beforeImage = "/image-js-before.png",
-  afterImage = "/image-js-after.png",
+  beforeImage = "/image_copy.png",
+  afterImage = "/image.png",
   treatmentName = "Smile Makeover",
   initials = "J.S.",
   detail,
