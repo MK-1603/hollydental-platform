@@ -152,24 +152,24 @@ export default function BookingModal() {
       {showAbortModal && (
         <div className="fixed inset-0 z-[110] bg-navy/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
           <div className="max-w-[400px] w-full bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 animate-scale-in">
-            <div className="p-8 text-center space-y-4">
+            <div className="p-6 sm:p-8 text-center space-y-4">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500 mb-2">
                 <AlertTriangle className="w-8 h-8" />
               </div>
               <h3 className="font-serif text-2xl font-bold text-navy">Cancel Booking?</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
+              <p className="text-sm text-gray-500 leading-relaxed px-2">
                 Are you sure you want to leave? All your selected dates, times, and details will be lost.
               </p>
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
                 <button 
                   onClick={confirmAbort}
-                  className="flex-1 bg-white border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-gray-500 font-bold py-3.5 rounded-xl text-sm transition-colors"
+                  className="w-full sm:flex-1 bg-white border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-gray-500 font-bold py-3.5 rounded-xl text-sm transition-colors"
                 >
                   Yes, Cancel
                 </button>
                 <button 
                   onClick={() => setShowAbortModal(false)}
-                  className="flex-[1.5] bg-navy hover:bg-[#173B6D] text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-colors"
+                  className="w-full sm:flex-[1.5] bg-navy hover:bg-[#173B6D] text-white font-bold py-3.5 rounded-xl text-sm shadow-md transition-colors"
                 >
                   Continue Booking
                 </button>
@@ -185,7 +185,7 @@ export default function BookingModal() {
           {/* Header (Desktop + Mobile) */}
           <header className="flex items-center justify-between lg:justify-end px-6 lg:px-10 py-5 shrink-0 bg-white lg:bg-transparent border-b border-[#E7ECF2] lg:border-none z-40">
              <div className="lg:hidden">
-               <Logo variant="icon" theme="dark" size={32} />
+               <Logo variant="full" theme="dark" size={32} showTagline={false} />
              </div>
              <button 
                 onClick={handleClose}
