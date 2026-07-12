@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import { ArrowRight } from "lucide-react";
 
@@ -19,23 +17,12 @@ export default function BookButton({
   serviceSlug,
   showIcon = false,
 }: BookButtonProps) {
-  const router = useRouter();
-  const { user } = useAuthStore();
-  const { openLoginModal } = useUIStore();
-
-  const target = serviceSlug
-    ? `/portal/booking?service=${encodeURIComponent(serviceSlug)}`
-    : "/portal/booking";
-
+  const { openBookingModal, setBookingServiceSlug } = useUIStore();
   const handleClick = () => {
-    if (user) {
-      router.push(target);
-      return;
+    if (serviceSlug) {
+      setBookingServiceSlug(serviceSlug);
     }
-    // Open the login modal in place; route to booking on success.
-    openLoginModal(() => {
-      router.push(target);
-    });
+    openBookingModal();
   };
 
   return (

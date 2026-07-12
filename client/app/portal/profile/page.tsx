@@ -5,26 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  User,
-  Lock,
-  Bell,
-  ShieldCheck,
-  Check,
-  AlertTriangle,
-  Trash2,
-  Eye,
-  EyeOff,
-  AlertCircle,
-  Activity,
-  Heart,
-  Laptop,
-  Calendar,
-  MapPin,
-  Sparkles,
-  Clock,
-  Fingerprint,
-} from "lucide-react";
+import { User, Lock, Bell, ShieldCheck, Check, AlertTriangle, Trash2, Eye, EyeOff, AlertCircle, Activity, Heart, Laptop, Calendar, MapPin, Clock, Fingerprint } from "lucide-react";
 
 export default function PortalProfilePage() {
   const router = useRouter();
@@ -96,7 +77,7 @@ export default function PortalProfilePage() {
                   {patient.firstName || "Patient"} {patient.lastName || ""}
                 </h3>
                 <span className="inline-flex items-center gap-1 bg-gold/15 text-gold border border-gold/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider">
-                  <Sparkles className="w-2.5 h-2.5" /> Checked In
+                  <Activity className="w-2.5 h-2.5" /> Checked In
                 </span>
               </div>
 

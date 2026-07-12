@@ -4,21 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { CLINIC } from "@/lib/constants";
 import { apiRequest } from "@/lib/api";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Clock,
-  CheckCircle2,
-  ShieldAlert,
-  ArrowRight,
-  MessageSquare,
-  Sparkles,
-  Send,
-  Car,
-  Bus,
-  Calendar,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Clock, CheckCircle2, ShieldAlert, ArrowRight, MessageSquare, Activity, Send, Car, Bus, Calendar } from "lucide-react";
 
 type FormState = {
   name: string;
@@ -93,7 +79,7 @@ export default function ContactPage() {
 
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-24 text-center space-y-5">
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-            <Sparkles className="w-3 h-3" /> Talk to the Clinic
+            <Activity className="w-3 h-3" /> Talk to the Clinic
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1]">
             We&apos;re here to help your{" "}

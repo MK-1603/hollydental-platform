@@ -17,7 +17,7 @@ function requireDb(res) {
 }
 
 /* 1. GET patient's chart (admin or own patient). */
-router.get("/:patientId", verifyToken, async (req, res) => {
+router.get("/:patientId", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { patientId } = req.params;
 
@@ -54,10 +54,7 @@ router.get("/:patientId", verifyToken, async (req, res) => {
     }
     return res.status(200).json(chart);
   } catch (error) {
-    console.error("[dental-charts] GET failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve dental chart." });
+    next(error);
   }
 });
 
@@ -66,7 +63,7 @@ router.put(
   "/:patientId/tooth/:number",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     const { patientId, number } = req.params;
     const { status, notes } = req.body || {};
@@ -130,10 +127,7 @@ router.put(
 
       return res.status(200).json(row);
     } catch (error) {
-      console.error("[dental-charts] PUT failed", error);
-      return res
-        .status(500)
-        .json({ message: "Failed to update tooth status." });
+      next(error);
     }
   }
 );

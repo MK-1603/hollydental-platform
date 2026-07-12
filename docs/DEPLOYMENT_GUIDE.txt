@@ -1,0 +1,109 @@
+========================================================================
+HOLLYHILL DENTAL PLATFORM - THE DEPLOYMENT GUIDE (Terminal to Cloud)
+========================================================================
+
+Once the app is fully built by Antigravity, we need to get it out of the IDE and onto the internet securely so patients and staff can actually use it.
+
+Because this project uses a strict, dual-repo architecture (a highly secure backend and a blazing-fast frontend), the deployment is a multi-step dance. Here is the exact workflow to push your code, configure your cloud assets, and launch the platform.
+
+THE QUAD-FOLD DEPLOYMENT STACK (Tools Used)
+------------------------------------------------------------------------
+We are utilizing four elite cloud platforms to host this medical application safely:
+
+1. GitHub: Safely stores the raw source code.
+2. Neon Postgres & Cloudinary: Neon is the serverless database storing clinical text data. Cloudinary is the secure CDN where we upload all heavy X-rays and files.
+3. Render: Hosts the Node.js Express backend. It enforces the JWT security, the strict rate limits, and acts as the secure shield.
+4. Vercel: Hosts the lightning-fast Next.js frontend UI.
+
+STEP 1: Create the GitHub Repository
+------------------------------------------------------------------------
+1. Go to GitHub (github.com).
+2. Click the green "New" button.
+3. Name it `hollydental-platform`.
+4. Leave it as "Private" (recommended for bespoke apps).
+5. Do NOT check "Add a README" or "Add .gitignore".
+6. Click "Create repository". Leave that tab open!
+
+STEP 2: Push to GitHub via the IDE Terminal
+------------------------------------------------------------------------
+In your VSCode or Antigravity IDE, open a terminal window. Ensure you are in the root `hollydental-platform` folder. Run these commands ONE BY ONE:
+
+git init
+git add .
+git commit -m "Initial commit: Hollyhill Dental Platform fully built"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/hollydental-platform.git
+git push -u origin main
+
+(CRITICAL: Replace `YOUR_USERNAME` with your actual GitHub username on the 5th command).
+
+STEP 3: The Database & CDN Secrets
+------------------------------------------------------------------------
+Before the backend can run, it needs the keys to its secure vaults:
+1. Neon Database: Go to neon.tech, create `hollydental-db`, and copy the "Pooled connection" string (`DATABASE_URL`).
+2. Cloudinary CDN: Go to cloudinary.com, log in, and copy your `CLOUDINARY_URL`.
+3. Gemini AI: Go to Google AI Studio and generate your `GEMINI_API_KEY`.
+4. JWT Secret: Generate a random long string to act as your `JWT_SECRET`.
+Keep these copied to a notepad!
+
+STEP 4: Deploying the Secure Backend on Render
+------------------------------------------------------------------------
+1. Go to Render (render.com) and click New -> "Web Service".
+2. Connect your GitHub and select the `hollydental-platform` repository.
+3. CRITICAL: In the "Root Directory" field, type exactly `server`.
+4. Build Command: `npm install`
+5. Start Command: `node server.js`
+6. Scroll down to Environment Variables and add these keys:
+   - `DATABASE_URL` (From Neon)
+   - `CLOUDINARY_URL` (From Cloudinary)
+   - `GEMINI_API_KEY` (From Google)
+   - `JWT_SECRET` (Your random string)
+   - `CLIENT_URL` (We will update this later with the Vercel URL)
+   - `PORT` (Value: `5000`)
+7. Click "Deploy Web Service". Copy the live URL (e.g., `https://hollydental-api.onrender.com`).
+
+STEP 5: Deploying the Frontend on Vercel
+------------------------------------------------------------------------
+1. Go to Vercel (vercel.com) -> "Add New..." -> "Project".
+2. Import the `hollydental-platform` repository.
+3. CRITICAL: In the "Root Directory" field, click "Edit" and type exactly `client`.
+4. Open the "Environment Variables" section.
+5. Add `NEXT_PUBLIC_SERVER_URL` and paste the Render URL from Step 4.
+6. Click "Deploy".
+7. Once deployed, copy the Vercel URL (e.g., `https://hollydental-platform.vercel.app`).
+8. CRITICAL: Go back to Render, and update the `CLIENT_URL` environment variable to match this new Vercel URL so CORS allows the secure connection!
+
+STEP 6: Share the Link with Dr. Roghay!
+------------------------------------------------------------------------
+Copy the Vercel link and send it to the clinic. Staff and patients can now securely log in from any device.
+
+========================================================================
+THE DUAL-REPO DEPLOYMENT PIPELINE (ASCII Diagram)
+========================================================================
+
+                 +-----------------------------------+
+                 | 1. Git & GitHub                   |
+                 |    (git push origin main)         |
+                 +-----------------------------------+
+                                   |
+                [ REPOSITORY WITH 2 FOLDERS (client/ & server/) ]
+                                   |
+           +-----------------------+-----------------------+
+           |                                               |
+           v                                               v
+ +-----------------------------------+           +-----------------------------------+
+ | 2. Render Build Servers           |           | 3. Vercel Build Servers           |
+ |    (Root Dir: `server`)           |           |    (Root Dir: `client`)           |
+ |    (Env: DATABASE_URL,            |           |    (Env: NEXT_PUBLIC_SERVER_URL)  |
+ |          CLOUDINARY_URL,          |           |                                   |
+ |          GEMINI_API_KEY)          |           |                                   |
+ +-----------------------------------+           +-----------------------------------+
+                   |                                               |
+       [ SECURE BACKEND API URL ]                      [ LIVE FRONTEND UI URL ]
+                   |                                               |
+                   +-----------------------+-----------------------+
+                                           |
+                                           v
+                             +-----------------------------------+
+                             | 4. Share with Dr. Roghay          |
+                             +-----------------------------------+

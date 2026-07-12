@@ -7,6 +7,7 @@ import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
 import { logActivity } from "../lib/auditLog.js";
 import { uploadToCloudinary } from "../config/cloudinary.js";
+import { invalidateCache } from "../middleware/cache.js";
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-router.post("/upload", verifyToken, requireRole("admin"), upload.single("file"), async (req, res) => {
+router.post("/upload", verifyToken, requireRole("admin"), upload.single("file"), async (req, res, next) => {
   const file = req.file;
   if (!file) {
     return res.status(400).json({ message: "No file provided." });
@@ -28,8 +29,7 @@ router.post("/upload", verifyToken, requireRole("admin"), upload.single("file"),
       imageUrl: uploadResult.secure_url,
     });
   } catch (error) {
-    console.error("[product-image-upload] failed", error);
-    return res.status(500).json({ message: "Failed to upload image." });
+    next(error);
   }
 });
 
@@ -57,8 +57,7 @@ router.get("/", async (_req, res) => {
       .orderBy(products.category, products.displayOrder, desc(products.createdAt));
     res.status(200).json(list);
   } catch (error) {
-    console.error("[products] GET failed", error);
-    res.status(500).json({ message: "Failed to load products." });
+    next(error);
   }
 });
 
@@ -66,7 +65,7 @@ router.get("/", async (_req, res) => {
  * GET /api/products/:id — single product by ID (public).
  * Used by the patient portal product detail page.
  */
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const [product] = await db
@@ -79,14 +78,13 @@ router.get("/:id", async (req, res) => {
     }
     res.status(200).json(product);
   } catch (error) {
-    console.error("[products] GET /:id failed", error);
-    res.status(500).json({ message: "Failed to load product." });
+    next(error);
   }
 });
 
 
 /* POST create — admin only. */
-router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
+router.post("/", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   const {
     name,
@@ -146,15 +144,15 @@ router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
       targetId: inserted.id,
       metadata: { name: inserted.name, category: inserted.category },
     });
+    invalidateCache("products");
     res.status(201).json(inserted);
   } catch (error) {
-    console.error("[products] POST failed", error);
-    res.status(500).json({ message: "Failed to create product." });
+    next(error);
   }
 });
 
 /* PUT update — admin only. */
-router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.put("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   const {
     name,
@@ -211,15 +209,15 @@ router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
       targetType: "product",
       targetId: updated.id,
     });
+    invalidateCache("products");
     res.status(200).json(updated);
   } catch (error) {
-    console.error("[products] PUT failed", error);
-    res.status(500).json({ message: "Failed to update product." });
+    next(error);
   }
 });
 
 /* DELETE — admin only. */
-router.delete("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.delete("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const [deleted] = await db
@@ -235,8 +233,7 @@ router.delete("/:id", verifyToken, requireRole("admin"), async (req, res) => {
     });
     res.status(200).json({ message: "Product deleted successfully." });
   } catch (error) {
-    console.error("[products] DELETE failed", error);
-    res.status(500).json({ message: "Failed to delete product." });
+    next(error);
   }
 });
 

@@ -3,27 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CLINIC } from "@/lib/constants";
-import {
-  Star,
-  ShieldCheck,
-  Award,
-  HeartHandshake,
-  HelpCircle,
-  ArrowRight,
-  Clock,
-  Smile,
-  Calendar,
-  Users,
-  Activity,
-  Heart,
-  Sparkles,
-  ChevronRight,
-  Shield,
-  Phone,
-  MessageSquare,
-  CheckCircle,
-  Quote
-} from "lucide-react";
+import { Star, ShieldCheck, Award, HeartHandshake, HelpCircle, ArrowRight, Clock, Smile, Calendar, Users, Activity, Heart, ChevronRight, Shield, Phone, MessageSquare, CheckCircle, Quote } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
@@ -91,6 +71,7 @@ function Scroll3D({ children, className = "" }: { children: React.ReactNode; cla
 }
 
 function SmileEstimator() {
+  const router = useRouter();
   const [tab, setTab] = useState<"quiz" | "calculator">("quiz");
 
   // Quiz states
@@ -235,12 +216,12 @@ function SmileEstimator() {
                 <p className="text-xs text-gray-200 leading-relaxed font-light">{recommendation}</p>
               </div>
               <div className="space-y-2">
-                <Link
-                  href="/portal/booking"
+                <button
+                  onClick={() => router.push("/booking")}
                   className="w-full bg-gold hover:bg-gold-dark text-navy text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
                 >
                   Book Free Consultation &rarr;
-                </Link>
+                </button>
                 <button
                   onClick={() => { setQuizStep(1); setRecommendation(null); }}
                   className="w-full text-[10px] text-gray-400 hover:text-gold py-1 text-center"
@@ -308,12 +289,12 @@ function SmileEstimator() {
             )}
           </div>
 
-          <Link
-            href="/portal/booking"
+          <button
+            onClick={() => router.push("/booking")}
             className="w-full bg-gold hover:bg-gold-dark text-navy text-xs font-bold uppercase tracking-wider py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
           >
             Claim This Estimate &rarr;
-          </Link>
+          </button>
         </div>
       )}
     </div>
@@ -325,17 +306,10 @@ export default function HomeClient() {
   const [isHeroVideoPlaying, setIsHeroVideoPlaying] = useState(false);
   const router = useRouter();
   const { user } = useAuthStore();
-  const { openLoginModal } = useUIStore();
+  const { openLoginModal, openBookingModal } = useUIStore();
 
   const goToBooking = () => {
-    const target = "/portal/booking";
-    if (user) {
-      router.push(target);
-      return;
-    }
-    openLoginModal(() => {
-      router.push(target);
-    });
+    router.push("/booking");
   };
 
   const faqs = [
@@ -385,8 +359,7 @@ export default function HomeClient() {
         />
 
         {/* Dark Navy Overlay to keep video visible and crisp */}
-        <div className="absolute inset-0 bg-navy/45 z-0" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,173,239,0.18),transparent_60%)] z-0" />
+        <div className="absolute inset-0 bg-navy/60 z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
           {/* Centered Content: Headline, Subtext, CTAs, Social Proof */}
@@ -394,7 +367,7 @@ export default function HomeClient() {
             {/* Tagline Badge */}
             <div className="flex flex-col items-center gap-3 animate-fade-up">
               <span className="inline-flex items-center gap-1.5 bg-white/10 text-white text-[10px] font-extrabold uppercase tracking-[0.3em] px-3 py-1.5 rounded-full border border-white/20 backdrop-blur-sm">
-                <Sparkles className="w-3 h-3 text-gold" />
+                <Activity className="w-3 h-3 text-gold" />
                 Smile with Confidence
               </span>
             </div>
@@ -411,30 +384,30 @@ export default function HomeClient() {
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col gap-3.5 w-full items-center animate-fade-up">
+            <div className="flex flex-col gap-4 w-full items-center animate-fade-up">
               {/* Row 1: Core Bookings */}
-              <div className="flex flex-row gap-3 sm:gap-4 justify-center w-full">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
                 <button
                   onClick={goToBooking}
-                  className="bg-gold hover:bg-gold-dark text-navy text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_#987943] hover:shadow-[0_5px_0_0_#987943] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer flex items-center gap-1.5 sm:gap-2 whitespace-nowrap"
+                  className="bg-white hover:bg-gray-50 text-navy text-sm font-semibold px-8 py-4 rounded-full shadow-[0_12px_40px_rgba(15,23,42,0.08)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <Calendar className="w-4 h-4" /> Schedule Your Visit
+                  <Calendar className="w-4 h-4 text-gold" /> Schedule Your Visit
                 </button>
                 <Link
                   href="/services"
-                  className="border border-white/20 hover:border-gold hover:text-gold text-white text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.08)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.12)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1 sm:gap-1.5 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
+                  className="bg-navy/60 hover:bg-navy/80 backdrop-blur-md border border-white/20 text-white text-sm font-semibold px-8 py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:-translate-y-1"
                 >
                   View All Services
                 </Link>
               </div>
 
               {/* Row 2: Direct Contact */}
-              <div className="flex flex-row gap-3 sm:gap-4 justify-center w-full">
+              <div className="flex flex-row justify-center w-full mt-2">
                 <a
                   href={CLINIC.phoneHref}
-                  className="border border-white/15 hover:border-white/40 hover:text-gold text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-5 py-3 sm:px-8 sm:py-4 rounded-full shadow-[0_4px_0_0_rgba(255,255,255,0.05)] hover:shadow-[0_5px_0_0_rgba(255,255,255,0.08)] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center gap-1.5 sm:gap-2 bg-white/5 hover:bg-white/10 backdrop-blur-md whitespace-nowrap"
+                  className="text-white/80 hover:text-white text-sm font-medium flex items-center gap-2 transition-colors"
                 >
-                  <Phone className="w-3.5 h-3.5 text-gold shrink-0" /> {CLINIC.phone}
+                  <Phone className="w-4 h-4 text-gold" /> Call {CLINIC.phone}
                 </a>
               </div>
             </div>
@@ -459,8 +432,8 @@ export default function HomeClient() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
 
             {/* Card 1 */}
-            <div className="group bg-gradient-to-b from-white to-[#fdfcf9] rounded-3xl border border-gold/15 hover:border-gold/45 p-8 shadow-[0_15px_40px_rgba(10,22,40,0.03)] hover:shadow-[0_25px_50px_rgba(10,22,40,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1.5">
-              <div className="w-12 h-12 rounded-2xl bg-navy text-gold flex items-center justify-center shrink-0 border border-gold/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <Heart className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Compassionate Care</h3>
@@ -470,8 +443,8 @@ export default function HomeClient() {
             </div>
 
             {/* Card 2 */}
-            <div className="group bg-gradient-to-b from-white to-[#fdfcf9] rounded-3xl border border-gold/15 hover:border-gold/45 p-8 shadow-[0_15px_40px_rgba(10,22,40,0.03)] hover:shadow-[0_25px_50px_rgba(10,22,40,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1.5">
-              <div className="w-12 h-12 rounded-2xl bg-navy text-gold flex items-center justify-center shrink-0 border border-gold/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <Activity className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Advanced Tech</h3>
@@ -481,8 +454,8 @@ export default function HomeClient() {
             </div>
 
             {/* Card 3 */}
-            <div className="group bg-gradient-to-b from-white to-[#fdfcf9] rounded-3xl border border-gold/15 hover:border-gold/45 p-8 shadow-[0_15px_40px_rgba(10,22,40,0.03)] hover:shadow-[0_25px_50px_rgba(10,22,40,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1.5">
-              <div className="w-12 h-12 rounded-2xl bg-navy text-gold flex items-center justify-center shrink-0 border border-gold/20 shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Tailored Plans</h3>
@@ -520,98 +493,98 @@ export default function HomeClient() {
           {/* Masonry Layout Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
 
-            {/* Card 1: General Dentistry (Landscape 2/3 width) */}
+            {/* Card 1: General Dentistry */}
             <div
               onClick={() => router.push("/services/general-dentistry")}
-              className="lg:col-span-2 group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 h-[300px] cursor-pointer"
+              className="lg:col-span-2 group relative rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2] h-[300px] cursor-pointer"
             >
               <img
-                src="https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&q=80&w=600"
+                src="https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&q=80&w=800"
                 alt="General Dentistry Room"
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/40 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
-                <span className="text-[9px] uppercase tracking-wider font-bold text-gold bg-gold/10 border border-gold/25 px-2.5 py-0.5 rounded-full inline-block">
+                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full inline-block">
                   PREVENTATIVE
                 </span>
-                <h3 className="font-serif text-xl font-bold">General Dentistry</h3>
-                <p className="text-gray-300 text-xs leading-relaxed max-w-lg font-light line-clamp-2">
+                <h3 className="font-serif text-2xl font-bold">General Dentistry</h3>
+                <p className="text-gray-200 text-sm leading-relaxed max-w-lg font-light line-clamp-2">
                   Routine check-ups, fillings, and cleanings to maintain your healthy smile.
                 </p>
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-gold group-hover:underline">
-                  Learn More <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </div>
-            </div>
-
-            {/* Card 2: Cosmetic Dentistry (Tall 1/3 width with real photo bg) */}
-            <div
-              onClick={() => router.push("/services/teeth-whitening")}
-              className="lg:col-span-1 group relative rounded-3xl overflow-hidden cursor-pointer h-[300px] shadow-sm hover:shadow-lg"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&q=80&w=600"
-                alt="Cosmetic Dentistry"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#009bde]/95 via-[#009bde]/55 to-[#009bde]/15" />
-
-              <div className="absolute inset-0 p-8 flex flex-col justify-end text-white space-y-3">
-                <div className="w-11 h-11 rounded-full bg-white/20 backdrop-blur flex items-center justify-center mb-2">
-                  <Smile className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-serif text-xl font-bold">Cosmetic Dentistry</h3>
-                <p className="text-white/90 text-xs leading-relaxed font-light">
-                  Transform your smile with veneers, whitening, and bonding for a radiant appearance.
-                </p>
-                <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white">
-                  View Transformations <ArrowRight className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Card 3: Dental Implants (Short 1/3 width) */}
-            <div
-              onClick={() => router.push("/services/dental-crowns")}
-              className="lg:col-span-1 group relative rounded-3xl overflow-hidden shadow-sm hover:shadow-lg border border-gray-100 h-[260px] cursor-pointer"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=600"
-                alt="Dental Implants"
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
-                <h3 className="font-serif text-2xl md:text-3xl font-bold">
-                  Dental Implants
-                </h3>
-                <p className="text-gray-200 text-sm md:text-base leading-relaxed font-light">
-                  Permanent, natural-looking replacements for missing teeth.
-                </p>
-                <span className="inline-flex items-center gap-1.5 text-sm font-bold text-gold">
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white group-hover:underline mt-2">
                   Learn More <ArrowRight className="w-4 h-4" />
                 </span>
               </div>
             </div>
 
-            {/* Card 4: Pediatric & Kids Dentistry (Landscape 2/3 width, light blue bg) */}
+            {/* Card 2: Cosmetic Dentistry */}
+            <div
+              onClick={() => router.push("/services/teeth-whitening")}
+              className="lg:col-span-1 group relative rounded-[28px] overflow-hidden cursor-pointer h-[300px] shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&q=80&w=600"
+                alt="Cosmetic Dentistry"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/60 to-[#102D52]/20" />
+
+              <div className="absolute inset-0 p-8 flex flex-col justify-end text-white space-y-3">
+                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mb-2 border border-white/20">
+                  <Smile className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="font-serif text-2xl font-bold">Cosmetic</h3>
+                <p className="text-white/90 text-sm leading-relaxed font-light">
+                  Veneers, whitening, and bonding for a radiant appearance.
+                </p>
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white group-hover:underline mt-2">
+                  View Treatments <ArrowRight className="w-4 h-4" />
+                </span>
+              </div>
+            </div>
+
+            {/* Card 3: Dental Implants */}
+            <div
+              onClick={() => router.push("/services/dental-crowns")}
+              className="lg:col-span-1 group relative rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2] h-[260px] cursor-pointer"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=600"
+                alt="Dental Implants"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/40 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
+                <h3 className="font-serif text-2xl font-bold">
+                  Implants
+                </h3>
+                <p className="text-gray-200 text-sm leading-relaxed font-light">
+                  Permanent, natural-looking replacements for missing teeth.
+                </p>
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white mt-1 group-hover:underline">
+                  Learn More <ArrowRight className="w-4 h-4" />
+                </span>
+              </div>
+            </div>
+
+            {/* Card 4: Pediatric & Kids Dentistry */}
             <div
               onClick={() => router.push("/childrens-dentistry")}
-              className="lg:col-span-2 group rounded-3xl p-8 bg-[#E8F5FF] grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-[260px] shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="lg:col-span-2 group rounded-[28px] p-8 bg-white border border-[#E7ECF2] grid grid-cols-1 md:grid-cols-12 gap-8 items-center h-[260px] shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 cursor-pointer"
             >
               <div className="md:col-span-8 space-y-4">
-                <h3 className="font-serif text-xl font-bold text-navy">Pediatric &amp; Kids Dentistry</h3>
-                <p className="text-gray-600 text-xs leading-relaxed font-light">
-                  A fun, fear-free environment specialized for the littlest smiles in your family. We make dental care fun and simple.
+                <h3 className="font-serif text-2xl font-bold text-navy">Pediatric Care</h3>
+                <p className="text-gray-500 text-sm leading-relaxed font-light">
+                  A calm, fear-free environment specialized for the littlest smiles in your family. We make dental care simple and comfortable.
                 </p>
-                <button className="bg-gold hover:bg-[#009bde] text-white font-bold py-2.5 px-6 rounded-full text-xs uppercase tracking-wider shadow-[0_3px_0_0_#008BCC] hover:shadow-[0_4px_0_0_#008BCC] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 cursor-pointer">
+                <button className="bg-navy hover:bg-[#173B6D] text-white font-semibold py-3 px-8 rounded-full text-sm shadow-md hover:-translate-y-1 transition-all duration-300 mt-2">
                   Schedule Child's Program
                 </button>
               </div>
 
               <div className="md:col-span-4 flex justify-center">
-                <div className="w-28 h-28 rounded-full border-4 border-white shadow-md overflow-hidden bg-white shrink-0">
+                <div className="w-32 h-32 rounded-full border border-[#E7ECF2] shadow-sm overflow-hidden bg-white shrink-0 group-hover:scale-105 transition-transform duration-500">
                   <img
                     src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400"
                     alt="Child patient smiling"
@@ -627,14 +600,14 @@ export default function HomeClient() {
 
       {/* 4. DOCTOR PROFILE SECTION */}
       <Scroll3D>
-        <section className="bg-gradient-to-b from-[#fdfcf9] to-white py-20 md:py-24 border-y border-gold/15">
-          <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <section className="bg-white py-24 border-y border-[#E7ECF2]">
+          <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
 
-            {/* Image (Left on desktop) - Wrapped in Link to bio, name overlay removed */}
+            {/* Image (Left on desktop) */}
             <div className="lg:col-span-5 relative flex justify-center">
               <Link
                 href="/dr-roghay-alizadeh"
-                className="relative w-full max-w-[360px] aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/5 bg-white group hover:scale-[1.03] transition-all duration-500 cursor-pointer block"
+                className="relative w-full max-w-[400px] aspect-[4/5] rounded-[28px] overflow-hidden shadow-[0_24px_80px_rgba(15,23,42,0.12)] border border-[#E7ECF2] bg-[#FAFBFC] group transition-transform duration-500 hover:-translate-y-2 block"
                 title="Read Dr. Roghay Alizadeh's Full Bio"
               >
                 <img
@@ -646,61 +619,65 @@ export default function HomeClient() {
             </div>
 
             {/* Content (Right on desktop) */}
-            <div className="lg:col-span-7 space-y-6">
-              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold bg-gold/10 px-3.5 py-1.5 rounded-full border border-gold/15 inline-block">
-                Clinical Leadership
-              </span>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-navy leading-tight">
-                {CLINIC.doctor}
-              </h2>
-              <span className="inline-flex items-center gap-1.5 bg-gold/10 text-gold border border-gold/30 text-[11px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full">
-                <Award className="w-3.5 h-3.5" /> {CLINIC.doctorTitle}
-              </span>
+            <div className="lg:col-span-7 space-y-8">
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1E73BE] bg-[#1E73BE]/10 px-4 py-1.5 rounded-full inline-block">
+                  Clinical Leadership
+                </span>
+                <h2 className="font-serif text-4xl md:text-5xl font-bold text-navy leading-tight">
+                  {CLINIC.doctor}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  <span className="inline-flex items-center gap-1.5 bg-navy/5 text-navy border border-[#E7ECF2] text-[11px] font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full">
+                    <Award className="w-3.5 h-3.5 text-[#1E73BE]" /> {CLINIC.doctorTitle}
+                  </span>
+                </div>
+              </div>
 
-              <p className="text-gray-600 text-xs md:text-sm leading-relaxed font-light">
+              <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light max-w-2xl">
                 Dr. Roghay Alizadeh is recognised across Cork for her advanced aesthetic work — from
                 porcelain veneers and composite bonding to complex full-mouth rehabilitation. She is
                 equally known for her empathetic chair-side manner with anxious and complex patients.
               </p>
 
-              <div className="rounded-2xl border border-gold/10 bg-white p-5 shadow-sm">
-                <h4 className="font-serif text-xs font-bold text-navy mb-3 uppercase tracking-wider">
+              <div className="rounded-[24px] border border-[#E7ECF2] bg-[#FAFBFC] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.03)]">
+                <h4 className="font-serif text-sm font-bold text-navy mb-5 uppercase tracking-widest">
                   Credentials &amp; Memberships
                 </h4>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5">
-                  <li className="flex items-start gap-2.5 text-xs text-gray-700 font-light">
-                    <CheckCircle className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <li className="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                    <ShieldCheck className="w-5 h-5 text-[#1E73BE] mt-0.5 shrink-0" />
                     <span>Dental Council of Ireland (#4203)</span>
                   </li>
-                  <li className="flex items-start gap-2.5 text-xs text-gray-700 font-light">
-                    <CheckCircle className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                  <li className="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                    <ShieldCheck className="w-5 h-5 text-[#1E73BE] mt-0.5 shrink-0" />
                     <span>Member of Irish Dental Association</span>
                   </li>
-                  <li className="flex items-start gap-2.5 text-xs text-gray-700 font-light">
-                    <CheckCircle className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                  <li className="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                    <ShieldCheck className="w-5 h-5 text-[#1E73BE] mt-0.5 shrink-0" />
                     <span>Advanced Cosmetic Dentistry Cert</span>
                   </li>
-                  <li className="flex items-start gap-2.5 text-xs text-gray-700 font-light">
-                    <CheckCircle className="w-4 h-4 text-gold mt-0.5 shrink-0" />
+                  <li className="flex items-start gap-3 text-sm text-gray-700 font-medium">
+                    <ShieldCheck className="w-5 h-5 text-[#1E73BE] mt-0.5 shrink-0" />
                     <span>Nervous Patient Sedation Specialist</span>
                   </li>
                 </ul>
               </div>
 
-              <blockquote className="relative rounded-2xl border border-gold/30 bg-gold/5 p-5 text-navy">
-                <Quote className="absolute -top-3 -left-3 w-7 h-7 text-gold bg-white rounded-full p-1.5 shadow" />
-                <p className="font-serif italic text-sm md:text-base leading-snug">
+              <blockquote className="relative border-l-2 border-[#1E73BE] pl-6 py-2">
+                <Quote className="absolute -top-2 -left-3 w-6 h-6 text-[#1E73BE]/20 bg-white" />
+                <p className="font-serif italic text-lg text-navy/80 leading-relaxed">
                   &ldquo;Every smile we design starts with listening. Clinical detail follows naturally
                   from understanding what the patient actually wants.&rdquo;
                 </p>
               </blockquote>
 
-              <div className="pt-2">
+              <div className="pt-4">
                 <Link
                   href="/dr-roghay-alizadeh"
-                  className="inline-flex items-center gap-2 bg-navy hover:bg-[#061e3d] text-white text-xs font-bold uppercase tracking-wider px-8 py-4 rounded-full shadow-[0_4px_0_0_#031833] hover:shadow-[0_5px_0_0_#031833] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer"
+                  className="inline-flex items-center gap-2 bg-white border border-[#E7ECF2] hover:bg-gray-50 text-navy text-sm font-semibold uppercase tracking-wider px-8 py-4 rounded-full shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:-translate-y-1 transition-all duration-300"
                 >
-                  Read Full Bio &amp; Story <ArrowRight className="w-4 h-4 text-gold" />
+                  Read Full Bio &amp; Story <ArrowRight className="w-4 h-4 text-[#1E73BE]" />
                 </Link>
               </div>
             </div>
@@ -714,47 +691,51 @@ export default function HomeClient() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div className="space-y-2">
-              <span className="text-[10px] font-bold tracking-[0.25em] text-gold uppercase bg-gold/10 px-3.5 py-1.5 rounded-full border border-gold/15 inline-block">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1E73BE] bg-[#1E73BE]/10 px-4 py-1.5 rounded-full inline-block">
                 Smile Gallery
               </span>
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-navy tracking-tight leading-tight">
                 Real Smile Transformations
               </h2>
-              <p className="text-gray-500 text-xs md:text-sm font-light">
+              <p className="text-gray-500 text-sm font-light">
                 See the results of our precision cosmetic dentistry. Drag the slider to compare before &amp; after.
               </p>
             </div>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-2 border border-navy/10 hover:border-gold hover:text-gold text-navy text-[11px] font-bold tracking-widest uppercase px-6 py-3 rounded-full shadow-[0_3px_0_0_rgba(10,22,40,0.06)] hover:shadow-[0_4px_0_0_rgba(10,22,40,0.1)] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 shrink-0 self-start md:self-auto bg-white cursor-pointer"
+              className="inline-flex items-center gap-2 border border-[#E7ECF2] bg-white hover:bg-gray-50 text-navy text-xs font-semibold tracking-widest uppercase px-6 py-3 rounded-full shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:-translate-y-1 transition-all duration-300 shrink-0 self-start md:self-auto"
             >
               Visit Smile Gallery
-              <ArrowRight className="w-3.5 h-3.5 text-gold" />
+              <ArrowRight className="w-4 h-4 text-[#1E73BE]" />
             </Link>
           </div>
 
           {/* Grid of Sliders */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-3 max-w-[360px] md:max-w-[480px] mx-auto w-full">
-              <BeforeAfterSlider
-                treatmentName="General Dentistry"
-                initials="M.H."
-                beforeImage="/before & after/General Dentistry_Before.jpg"
-                afterImage="/before & after/General Dentistry_After.jpg"
-              />
-              <p className="text-[11px] text-gray-400 font-light text-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="space-y-4 max-w-[360px] md:max-w-[480px] mx-auto w-full">
+              <div className="rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] border border-[#E7ECF2]">
+                <BeforeAfterSlider
+                  treatmentName="General Dentistry"
+                  initials="M.H."
+                  beforeImage="/before & after/General Dentistry_Before.jpg"
+                  afterImage="/before & after/General Dentistry_After.jpg"
+                />
+              </div>
+              <p className="text-xs text-gray-500 font-light text-center px-4">
                 * Complete dental checkup and restoration.
               </p>
             </div>
 
-            <div className="space-y-3 max-w-[360px] md:max-w-[480px] mx-auto w-full">
-              <BeforeAfterSlider
-                treatmentName="Composite Bonding"
-                initials="P.K."
-                beforeImage="/before & after/Composite Bonding_before.jpg"
-                afterImage="/before & after/Composite Bonding_after.jpg"
-              />
-              <p className="text-[11px] text-gray-400 font-light text-center">
+            <div className="space-y-4 max-w-[360px] md:max-w-[480px] mx-auto w-full">
+              <div className="rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] border border-[#E7ECF2]">
+                <BeforeAfterSlider
+                  treatmentName="Composite Bonding"
+                  initials="P.K."
+                  beforeImage="/before & after/Composite Bonding_before.jpg"
+                  afterImage="/before & after/Composite Bonding_after.jpg"
+                />
+              </div>
+              <p className="text-xs text-gray-500 font-light text-center px-4">
                 * Quick, non-invasive composite restoration for chipped or spaced teeth.
               </p>
             </div>
@@ -765,66 +746,66 @@ export default function HomeClient() {
       {/* 6. MODERN TECH SHOWCASE (Wrapped in Scroll3D) */}
       <Scroll3D>
         <section className="bg-navy text-white py-24 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,173,239,0.06),transparent_50%)]" />
+          <div className="absolute inset-0 bg-navy z-0" />
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
 
             {/* Tech List */}
-            <div className="lg:col-span-7 space-y-6">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-white tracking-tight">
+            <div className="lg:col-span-6 space-y-8">
+              <h2 className="font-serif text-4xl font-bold text-white tracking-tight">
                 Modern Tech for Comfortable Care
               </h2>
-              <p className="text-gray-300 text-xs md:text-sm font-light">
+              <p className="text-white/80 text-sm font-light leading-relaxed">
                 We invest in the future of dental care so every visit is faster, more precise, and entirely pain-free.
               </p>
 
-              <div className="space-y-6 pt-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold shrink-0 mt-0.5">
-                    <Activity className="w-4.5 h-4.5" />
+              <div className="space-y-8 pt-4">
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
+                    <Activity className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white leading-none">Digital Low-Radiation X-Rays</h4>
-                    <p className="text-xs text-gray-300 mt-2 leading-relaxed font-light">Safe and detailed view that exposes a tiny fraction of standard x-ray radiation.</p>
+                    <h4 className="text-base font-semibold text-white leading-none">Digital Low-Radiation X-Rays</h4>
+                    <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Safe and detailed view that exposes a tiny fraction of standard x-ray radiation.</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold shrink-0 mt-0.5">
-                    <Smile className="w-4.5 h-4.5" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
+                    <Smile className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white leading-none">Advanced Laser Therapy</h4>
-                    <p className="text-xs text-gray-300 mt-2 leading-relaxed font-light">Painless gum treatment and cavity preparation without the drill.</p>
+                    <h4 className="text-base font-semibold text-white leading-none">Advanced Laser Therapy</h4>
+                    <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Painless gum treatment and cavity preparation without the drill.</p>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold shrink-0 mt-0.5">
-                    <Sparkles className="w-4.5 h-4.5" />
+                <div className="flex items-start gap-5">
+                  <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
+                    <Activity className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white leading-none">Intraoral 3D Scanning</h4>
-                    <p className="text-xs text-gray-300 mt-2 leading-relaxed font-light">Say goodbye to messy impressions. High-speed 3D digital smile mapping.</p>
+                    <h4 className="text-base font-semibold text-white leading-none">Intraoral 3D Scanning</h4>
+                    <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Say goodbye to messy impressions. High-speed 3D digital smile mapping.</p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Tech Photo */}
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[360px] aspect-[4/3] rounded-3xl">
+            <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[400px] aspect-[4/3] rounded-[28px]">
 
-                <div className="w-full h-full rounded-3xl overflow-hidden shadow-2xl border-4 border-white/5 relative z-10 bg-gray-900">
+                <div className="w-full h-full rounded-[28px] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.4)] border border-white/10 relative z-10 bg-gray-900 group">
                   <img
                     src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=500"
                     alt="Modern dental scanner and therapy device"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700 group-hover:opacity-100"
                   />
                 </div>
 
-                {/* Floating 100% Badge */}
-                <div className="absolute -top-4 -right-4 bg-gold text-white font-bold py-2.5 px-5 rounded-xl shadow-lg border border-gold/30 z-20 text-[10px] uppercase tracking-wider">
+                {/* Floating Badge */}
+                <div className="absolute -top-4 -right-4 bg-[#1E73BE] text-white font-bold py-3 px-6 rounded-full shadow-lg border border-[#1E73BE]/30 z-20 text-[10px] uppercase tracking-wider">
                   100% Pain Free
                 </div>
 
@@ -837,127 +818,117 @@ export default function HomeClient() {
 
       {/* 7. PREMIUM PRODUCTS & TREATMENTS (Wrapped in Scroll3D) */}
       <Scroll3D>
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center space-y-3 max-w-3xl mx-auto">
-            <span className="text-[10px] font-bold tracking-[0.25em] text-gold uppercase bg-gold/10 px-3.5 py-1.5 rounded-full border border-gold/15 inline-block">
-              Clinic Shop &amp; Treatments
-            </span>
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-navy tracking-tight leading-tight">
-              Featured Products &amp; Premium Services
-            </h2>
-            <p className="text-gray-500 text-xs md:text-sm max-w-xl mx-auto leading-relaxed font-light">
-              Elevate your home care routine and explore our top-tier cosmetic dental treatments recommended by our clinical team.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-            {/* Product Card 1: Dental Bonding */}
-            <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
-                <img
-                  src="/products/image.png"
-                  alt="Dental Bonding Treatment"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-4 right-4 bg-navy/95 border border-gold/30 text-gold font-serif font-bold text-xs px-4 py-2 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] [transform:translateZ(30px)]">
-                  €120.00 – €180.00
-                </div>
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="p-7 flex flex-col flex-grow justify-between space-y-5 [transform-style:preserve-3d]">
-                <div className="space-y-3">
-                  <span className="text-[9px] font-bold tracking-widest text-gold uppercase bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15 inline-block [transform:translateZ(20px)]">Cosmetic Procedure</span>
-                  <h3 className="font-serif text-lg font-bold text-navy group-hover:text-gold transition-colors [transform:translateZ(25px)]">
-                    Dental Bonding
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    With dental bonding we can repair chips, stains and fluorosis as well as change the shape and size of the tooth to improve your smile. We do this by adding composite (white tooth filling) carefully to the teeth. Book an appointment with us and our amazing dental team who will walk you through the process and put your mind at ease!! Contact 0214303072 for bookings
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <button
-                    onClick={goToBooking}
-                    className="w-full bg-gold hover:bg-gold-dark text-navy text-xs font-bold uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_0_#987943] hover:shadow-[0_5px_0_0_#987943] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Calendar className="w-4 h-4" /> Book Treatment
-                  </button>
-                  <p className="text-[10px] text-center text-gray-400 mt-3">
-                    Or call <a href="tel:0214303072" className="underline hover:text-gold">021 430 3072</a> for bookings
-                  </p>
-                </div>
-              </div>
+        <section className="bg-[#FAFBFC] py-24 border-y border-[#E7ECF2]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center space-y-3 max-w-3xl mx-auto">
+              <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1E73BE] bg-[#1E73BE]/10 px-4 py-1.5 rounded-full inline-block">
+                Clinic Shop &amp; Treatments
+              </span>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-navy tracking-tight leading-tight">
+                Featured Products &amp; Premium Services
+              </h2>
+              <p className="text-gray-500 text-sm max-w-xl mx-auto leading-relaxed font-light">
+                Elevate your home care routine and explore our top-tier cosmetic dental treatments recommended by our clinical team.
+              </p>
             </div>
 
-            {/* Product Card 2: Black Is White Teeth Whitening Toothpaste */}
-            <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
-                <img
-                  src="/products/image copy.png"
-                  alt="Black Is White Teeth Whitening Toothpaste"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-4 right-4 bg-navy/95 border border-gold/30 text-gold font-serif font-bold text-xs px-4 py-2 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] [transform:translateZ(30px)]">
-                  €30.00
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+              {/* Product Card 1: Dental Bonding */}
+              <div className="group bg-white rounded-[28px] border border-[#E7ECF2] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.03)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-2">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-[#E7ECF2]">
+                  <img
+                    src="/products/image.png"
+                    alt="Dental Bonding Treatment"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur border border-[#E7ECF2] text-navy font-bold text-xs px-4 py-2 rounded-full shadow-sm">
+                    €120.00 – €180.00
+                  </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="p-7 flex flex-col flex-grow justify-between space-y-5 [transform-style:preserve-3d]">
-                <div className="space-y-3">
-                  <span className="text-[9px] font-bold tracking-widest text-gold uppercase bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15 inline-block [transform:translateZ(20px)]">Daily Care</span>
-                  <h3 className="font-serif text-lg font-bold text-navy group-hover:text-gold transition-colors [transform:translateZ(25px)]">
-                    Black Is White Whitening Toothpaste
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    Fresh lime mint toothpaste from Curaprox with activated carbon to gently lift surface stains and brighten the natural whiteness of teeth. Daily use, fluoride formula, suitable for sensitive teeth.
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <a
-                    href="tel:0214303072"
-                    className="w-full border border-navy/15 hover:border-gold hover:text-gold text-navy text-xs font-bold uppercase tracking-wider py-4 rounded-2xl shadow-[0_3px_0_0_rgba(10,22,40,0.06)] hover:shadow-[0_4px_0_0_rgba(10,22,40,0.1)] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 flex items-center justify-center gap-2 bg-white cursor-pointer"
-                  >
-                    <Phone className="w-4 h-4 text-gold" /> Purchase at Clinic
-                  </a>
-                  <p className="text-[10px] text-center text-gray-400 mt-3">
-                    Available for pick up during clinic hours
-                  </p>
+                <div className="p-8 flex flex-col flex-grow justify-between space-y-6">
+                  <div className="space-y-4">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 bg-gray-100 px-3 py-1 rounded-full inline-block">Cosmetic Procedure</span>
+                    <h3 className="font-serif text-xl font-bold text-navy group-hover:text-[#1E73BE] transition-colors">
+                      Dental Bonding
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed font-light">
+                      With dental bonding we can repair chips, stains and fluorosis as well as change the shape and size of the tooth to improve your smile. We do this by adding composite carefully to the teeth.
+                    </p>
+                  </div>
+                  <div className="pt-4 mt-auto">
+                    <button
+                      onClick={goToBooking}
+                      className="w-full bg-navy hover:bg-[#173B6D] text-white text-xs font-bold uppercase tracking-wider py-4 rounded-xl shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <Calendar className="w-4 h-4" /> Book Treatment
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Product Card 3: Pola Light Teeth Whitening Kits */}
-            <div className="group bg-gradient-to-b from-white via-white to-[#fefdfb] rounded-3xl border border-gold/15 hover:border-gold/45 overflow-hidden shadow-[0_12px_30px_-5px_rgba(10,22,40,0.03)] hover:shadow-[0_30px_50px_-10px_rgba(201,169,110,0.22)] transition-all duration-500 flex flex-col h-full hover:translate-y-[-8px] hover:[transform:rotateX(4deg)_rotateY(-2deg)] relative [transform-style:preserve-3d] [perspective:1000px] border-b-[3px] border-b-gold/20 hover:border-b-gold/60">
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-gold/10 [transform-style:preserve-3d]">
-                <img
-                  src="/products/image copy 2.png"
-                  alt="Pola Light Teeth Whitening Kits"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute top-4 right-4 bg-navy/95 border border-gold/30 text-gold font-serif font-bold text-xs px-4 py-2 rounded-full shadow-[0_4px_15px_rgba(0,0,0,0.2)] [transform:translateZ(30px)]">
-                  €250.00
+              {/* Product Card 2: Black Is White Teeth Whitening Toothpaste */}
+              <div className="group bg-white rounded-[28px] border border-[#E7ECF2] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.03)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-2">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-[#E7ECF2]">
+                  <img
+                    src="/products/image copy.png"
+                    alt="Black Is White Teeth Whitening Toothpaste"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur border border-[#E7ECF2] text-navy font-bold text-xs px-4 py-2 rounded-full shadow-sm">
+                    €30.00
+                  </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="p-8 flex flex-col flex-grow justify-between space-y-6">
+                  <div className="space-y-4">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 bg-gray-100 px-3 py-1 rounded-full inline-block">Daily Care</span>
+                    <h3 className="font-serif text-xl font-bold text-navy group-hover:text-[#1E73BE] transition-colors">
+                      Black Is White Whitening Toothpaste
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed font-light">
+                      Fresh lime mint toothpaste from Curaprox with activated carbon to gently lift surface stains and brighten the natural whiteness of teeth. Daily use, fluoride formula, suitable for sensitive teeth.
+                    </p>
+                  </div>
+                  <div className="pt-4 mt-auto">
+                    <a
+                      href="tel:0214303072"
+                      className="w-full border border-[#E7ECF2] hover:bg-gray-50 text-navy text-xs font-bold uppercase tracking-wider py-4 rounded-xl shadow-sm hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <Phone className="w-4 h-4 text-[#1E73BE]" /> Purchase at Clinic
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div className="p-7 flex flex-col flex-grow justify-between space-y-5 [transform-style:preserve-3d]">
-                <div className="space-y-3">
-                  <span className="text-[9px] font-bold tracking-widest text-gold uppercase bg-gold/10 px-2.5 py-1 rounded-full border border-gold/15 inline-block [transform:translateZ(20px)]">Whitening Kit</span>
-                  <h3 className="font-serif text-lg font-bold text-navy group-hover:text-gold transition-colors [transform:translateZ(25px)]">
-                    Pola Light Whitening Kits
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed font-light">
-                    Advanced teeth whitening system. Enjoy a brighter more confident smile in 5 days. Pola Light is an advanced tooth whitening system that combines Pola's award winning whitening formula, with an LED mouthpiece, for a faster whitening treatment. Buy Now
-                  </p>
+
+              {/* Product Card 3: Pola Light Teeth Whitening Kits */}
+              <div className="group bg-white rounded-[28px] border border-[#E7ECF2] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.03)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col h-full hover:-translate-y-2">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 border-b border-[#E7ECF2]">
+                  <img
+                    src="/products/image copy 2.png"
+                    alt="Pola Light Teeth Whitening Kits"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur border border-[#E7ECF2] text-navy font-bold text-xs px-4 py-2 rounded-full shadow-sm">
+                    €250.00
+                  </div>
                 </div>
-                <div className="pt-2">
-                  <button
-                    onClick={goToBooking}
-                    className="w-full bg-navy hover:bg-[#061e3d] text-white text-xs font-bold uppercase tracking-wider py-4 rounded-2xl shadow-[0_4px_0_0_#031833] hover:shadow-[0_5px_0_0_#031833] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    Buy Now
-                  </button>
-                  <p className="text-[10px] text-center text-gray-400 mt-3">
-                    Consultation required before product purchase
-                  </p>
+                <div className="p-8 flex flex-col flex-grow justify-between space-y-6">
+                  <div className="space-y-4">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 bg-gray-100 px-3 py-1 rounded-full inline-block">Whitening Kit</span>
+                    <h3 className="font-serif text-xl font-bold text-navy group-hover:text-[#1E73BE] transition-colors">
+                      Pola Light Whitening Kits
+                    </h3>
+                    <p className="text-sm text-gray-500 leading-relaxed font-light">
+                      Advanced teeth whitening system. Enjoy a brighter more confident smile in 5 days. Pola Light is an advanced tooth whitening system that combines Pola's award winning whitening formula, with an LED mouthpiece.
+                    </p>
+                  </div>
+                  <div className="pt-4 mt-auto">
+                    <button
+                      onClick={goToBooking}
+                      className="w-full bg-[#1E73BE] hover:bg-[#175A96] text-white text-xs font-bold uppercase tracking-wider py-4 rounded-xl shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -990,10 +961,13 @@ export default function HomeClient() {
 
       {/* 9. FAQ ACCORDION (Wrapped in Scroll3D - Redesigned as 3D premium) */}
       <Scroll3D>
-        <section className="max-w-3xl mx-auto px-4 space-y-8 py-8">
-          <div className="text-center space-y-2">
-            <h2 className="font-serif text-3xl font-bold text-navy">Frequently Asked Questions</h2>
-            <p className="text-gray-500 text-xs font-light">Got questions about our clinical care? We have answers.</p>
+        <section className="max-w-4xl mx-auto px-4 space-y-12 py-24">
+          <div className="text-center space-y-4">
+            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#1E73BE] bg-[#1E73BE]/10 px-4 py-1.5 rounded-full inline-block">
+              Knowledge Base
+            </span>
+            <h2 className="font-serif text-4xl font-bold text-navy">Frequently Asked Questions</h2>
+            <p className="text-gray-500 text-sm font-light">Got questions about our clinical care? We have answers.</p>
           </div>
 
           <div className="space-y-4">
@@ -1003,22 +977,22 @@ export default function HomeClient() {
               return (
                 <div
                   key={index}
-                  className={`border rounded-2xl overflow-hidden bg-white transition-all duration-300 transform [perspective:1000px] ${isOpen
-                    ? "border-gold/45 shadow-[0_15px_35px_-5px_rgba(201,169,110,0.18)] -translate-y-1 scale-[1.01]"
-                    : "border-gray-100 shadow-[0_4px_20px_rgba(10,22,40,0.02)] hover:border-gold/25 hover:shadow-[0_12px_25px_-5px_rgba(201,169,110,0.08)] hover:-translate-y-0.5"
+                  className={`border rounded-[24px] overflow-hidden bg-white transition-all duration-300 transform ${isOpen
+                    ? "border-[#E7ECF2] shadow-[0_12px_40px_rgba(15,23,42,0.06)]"
+                    : "border-[#E7ECF2] shadow-sm hover:shadow-md hover:-translate-y-1"
                     }`}
                 >
                   <div
                     onClick={() => setActiveFaq(isOpen ? null : index)}
-                    className="p-5 flex items-center justify-between cursor-pointer hover:bg-[#faf9f6]/40 transition-colors select-none"
+                    className="p-6 flex items-center justify-between cursor-pointer hover:bg-[#FAFBFC] transition-colors select-none"
                   >
-                    <span className={`text-xs md:text-sm font-bold leading-snug transition-colors ${isOpen ? "text-gold" : "text-navy"}`}>{faq.q}</span>
-                    <span className={`font-bold text-lg transition-transform duration-300 ${isOpen ? "text-gold rotate-180" : "text-gray-400"}`}>
+                    <span className={`text-sm md:text-base font-semibold leading-snug transition-colors ${isOpen ? "text-[#1E73BE]" : "text-navy"}`}>{faq.q}</span>
+                    <span className={`font-bold text-2xl transition-transform duration-300 ${isOpen ? "text-[#1E73BE] rotate-180" : "text-gray-300"}`}>
                       {isOpen ? "−" : "+"}
                     </span>
                   </div>
                   {isOpen && (
-                    <div className="p-6 bg-gradient-to-b from-white to-[#faf9f6]/30 border-t border-gold/10 text-xs text-gray-600 leading-relaxed font-light animate-fade-up">
+                    <div className="p-6 bg-[#FAFBFC] border-t border-[#E7ECF2] text-sm text-gray-600 leading-relaxed font-light animate-fade-up">
                       {faq.a}
                     </div>
                   )}
@@ -1029,54 +1003,42 @@ export default function HomeClient() {
         </section>
       </Scroll3D>
 
-      {/* 10. READY FOR HEALTHIER, BRIGHTER SMILE? (Final CTA Block redesigned as 3D premium) */}
+      {/* 10. READY FOR HEALTHIER, BRIGHTER SMILE? (Final CTA Block) */}
       <Scroll3D>
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          <div className="bg-gradient-to-br from-navy via-[#0c1b2f] to-[#040c17] rounded-[2.5rem] py-12 px-6 md:p-16 text-center text-white space-y-8 relative overflow-hidden border border-gold/30 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] group transition-all duration-500 hover:shadow-[0_35px_80px_-10px_rgba(201,169,110,0.25)] hover:border-gold/60">
-            {/* Ambient radial glow effects inside container */}
-            <div className="absolute -left-1/4 -top-1/2 w-96 h-96 bg-gold/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-gold/15 transition-all duration-700" />
-            <div className="absolute -right-1/4 -bottom-1/2 w-96 h-96 bg-gold/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-gold/15 transition-all duration-700" />
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="bg-navy rounded-[40px] py-20 px-6 md:p-24 text-center text-white space-y-10 relative overflow-hidden shadow-[0_24px_80px_rgba(15,23,42,0.12)]">
+            
+            <div className="absolute inset-0 bg-navy z-0" />
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay z-0 pointer-events-none" />
 
-            {/* Top light line accent */}
-            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-            <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
-              <span className="inline-flex items-center gap-1.5 bg-gold/15 text-gold border border-gold/30 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full select-none animate-pulse">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="relative z-10 space-y-6 max-w-3xl mx-auto">
+              <span className="inline-flex items-center gap-2 bg-[#1E73BE]/20 text-white border border-[#1E73BE]/30 text-xs font-semibold uppercase tracking-widest px-5 py-2.5 rounded-full select-none">
+                <Activity className="w-4 h-4 text-[#1E73BE]" />
                 <span>Begin Your Journey Today</span>
               </span>
 
-              <h2 className="font-serif text-3xl md:text-5xl font-bold leading-tight tracking-tight text-white drop-shadow-md">
-                Ready for a Healthier, <span className="text-gold italic font-medium">Brighter Smile</span>?
+              <h2 className="font-serif text-4xl md:text-6xl font-bold leading-tight tracking-tight text-white drop-shadow-sm">
+                Ready for a Healthier, <span className="text-[#1E73BE] italic font-medium">Brighter Smile</span>?
               </h2>
 
-              <p className="text-gray-300 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl mx-auto font-light">
+              <p className="text-white/80 text-sm md:text-lg leading-relaxed max-w-2xl mx-auto font-light">
                 Join thousands of happy Cork patients and experience the future of premium dental care today.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 relative z-10 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 relative z-10 w-full sm:w-auto max-w-sm sm:max-w-none mx-auto">
               <button
                 onClick={goToBooking}
-                className="w-full sm:w-auto bg-gradient-to-r from-gold to-[#D6B47C] hover:from-gold-dark hover:to-gold text-navy font-bold py-3.5 px-8 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-gold/20 hover:shadow-gold/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                className="w-full sm:w-auto bg-white hover:bg-gray-50 text-navy font-semibold py-4 px-10 rounded-full text-sm shadow-[0_12px_40px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer whitespace-nowrap"
               >
-                <Calendar className="w-4 h-4 text-navy shrink-0" /> Book Appointment Now
+                <Calendar className="w-5 h-5 text-[#1E73BE] shrink-0" /> Book Appointment Now
               </button>
 
               <a
                 href={CLINIC.phoneHref}
-                className="w-full sm:w-auto border border-white/15 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white font-semibold py-3.5 px-8 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
+                className="w-full sm:w-auto border border-white/20 hover:border-white/40 bg-white/5 hover:bg-white/10 text-white font-semibold py-4 px-10 rounded-full text-sm transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer whitespace-nowrap hover:-translate-y-1"
               >
-                <Phone className="w-4 h-4 text-gold shrink-0" /> Call Clinic: {CLINIC.phone}
-              </a>
-
-              <a
-                href={CLINIC.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto border border-emerald-500/35 hover:border-emerald-500 hover:bg-emerald-500/10 text-emerald-400 font-semibold py-3.5 px-8 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400 shrink-0" /> WhatsApp Chat
+                <Phone className="w-5 h-5 text-white/70 shrink-0" /> Call Clinic: {CLINIC.phone}
               </a>
             </div>
           </div>

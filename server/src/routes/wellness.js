@@ -26,8 +26,7 @@ router.get("/me", verifyToken, async (req, res) => {
       .limit(30);
     return res.status(200).json(rows);
   } catch (err) {
-    console.error("[wellness] me fetch failed", err);
-    return res.status(500).json({ message: "Failed to load wellness data." });
+    next(err);
   }
 });
 
@@ -60,8 +59,7 @@ router.post("/sync", verifyToken, async (req, res) => {
 
     return res.status(200).json({ message: "Synced." });
   } catch (err) {
-    console.error("[wellness] sync failed", err);
-    return res.status(500).json({ message: "Failed to sync wellness data." });
+    next(err);
   }
 });
 
@@ -97,8 +95,7 @@ router.get("/admin", verifyToken, requireRole("admin"), async (req, res) => {
 
     return res.status(200).json(latest);
   } catch (err) {
-    console.error("[wellness] admin fetch failed", err);
-    return res.status(500).json({ message: "Failed to load wellness data." });
+    next(err);
   }
 });
 
@@ -113,8 +110,7 @@ router.get("/admin/:userId/history", verifyToken, requireRole("admin"), async (r
       .limit(30);
     return res.status(200).json(rows);
   } catch (err) {
-    console.error("[wellness] history fetch failed", err);
-    return res.status(500).json({ message: "Failed to load history." });
+    next(err);
   }
 });
 

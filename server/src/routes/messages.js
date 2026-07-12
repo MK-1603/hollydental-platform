@@ -68,7 +68,7 @@ function projectMessage(row) {
  * Supports an optional `?since=<ISO timestamp>` query so the client can
  * lightly poll for new messages without re-downloading the whole thread.
  */
-router.get("/:patientId", verifyToken, async (req, res) => {
+router.get("/:patientId", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { patientId } = req.params;
   const sinceParam = req.query.since;
@@ -116,15 +116,14 @@ router.get("/:patientId", verifyToken, async (req, res) => {
 
     return res.status(200).json(records.map(projectMessage));
   } catch (error) {
-    console.error("[messages] GET failed", error);
-    return res.status(500).json({ message: "Failed to retrieve messages." });
+    next(error);
   }
 });
 
 /**
  * 2. POST Send Message.
  */
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { patientId, body } = req.body || {};
 
@@ -162,8 +161,7 @@ router.post("/", verifyToken, async (req, res) => {
 
     return res.status(201).json(projectMessage(inserted));
   } catch (error) {
-    console.error("[messages] POST failed", error);
-    return res.status(500).json({ message: "Failed to send message." });
+    next(error);
   }
 });
 
@@ -172,7 +170,7 @@ router.post("/", verifyToken, async (req, res) => {
  * Lets the client trigger read-receipts the moment a message becomes visible
  * (e.g. window focus) without waiting for the next thread refresh.
  */
-router.patch("/:patientId/read", verifyToken, async (req, res) => {
+router.patch("/:patientId/read", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { patientId } = req.params;
 
@@ -197,8 +195,7 @@ router.patch("/:patientId/read", verifyToken, async (req, res) => {
       );
     return res.status(204).end();
   } catch (error) {
-    console.error("[messages] PATCH read failed", error);
-    return res.status(500).json({ message: "Failed to update read state." });
+    next(error);
   }
 });
 
@@ -206,7 +203,7 @@ router.patch("/:patientId/read", verifyToken, async (req, res) => {
  * 4. DELETE /messages/:id — soft-delete a single message.
  * Patients can delete their own messages; admins can delete any.
  */
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res, next) => {
   return res.status(403).json({
     message: "Message deletion is disabled to preserve clinic audit trail.",
   });
@@ -216,7 +213,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
  * 5. GET / — list distinct patient threads with the latest message and
  * unread count. Admin-only.
  */
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   if (req.user.role !== "admin") {
     return res.status(403).json({ message: "Forbidden." });
@@ -278,8 +275,7 @@ router.get("/", verifyToken, async (req, res) => {
 
     return res.status(200).json(enriched);
   } catch (error) {
-    console.error("[messages] threads failed", error);
-    return res.status(500).json({ message: "Failed to retrieve threads." });
+    next(error);
   }
 });
 

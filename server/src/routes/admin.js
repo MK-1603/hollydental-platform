@@ -20,6 +20,26 @@ function requireDb(res) {
 }
 
 /**
+ * 0. Get all users for the admin settings page.
+ */
+router.get("/users", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  try {
+    const list = await db.select().from(users).orderBy(desc(users.createdAt));
+    res.json(list.map(u => ({
+      id: u.id,
+      email: u.email,
+      name: u.displayName,
+      role: u.role,
+      isActive: u.isActive,
+      profilePicUrl: u.profilePicUrl,
+    })));
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * 1. Force a user to change their password on next login.
  *    Body: { reason?: string }
  */
@@ -27,7 +47,7 @@ router.post(
   "/users/:id/force-password-change",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     const { reason } = req.body || {};
 
@@ -63,10 +83,7 @@ router.post(
         },
       });
     } catch (err) {
-      console.error("[admin.force_password_change] failed", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to enforce password reset." });
+      next(err);
     }
   }
 );
@@ -79,7 +96,7 @@ router.get(
   "/audit-logs",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 500);
     const { action, actorId, targetId, since, search } = req.query;
@@ -113,8 +130,7 @@ router.get(
 
       return res.status(200).json(rows);
     } catch (err) {
-      console.error("[admin.audit_logs] failed", err);
-      return res.status(500).json({ message: "Failed to load audit logs." });
+      next(err);
     }
   }
 );
@@ -127,7 +143,7 @@ router.get(
   "/password-resets",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     try {
       const rows = await db
@@ -148,10 +164,7 @@ router.get(
         .orderBy(desc(passwordResetTokens.createdAt));
       return res.status(200).json(rows);
     } catch (err) {
-      console.error("[admin.password_resets] failed", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to load password reset queue." });
+            next(error);
     }
   }
 );
@@ -164,7 +177,7 @@ router.post(
   "/password-resets/:id/resolve",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     try {
       const [updated] = await db
@@ -186,8 +199,7 @@ router.post(
       });
       return res.status(200).json({ message: "Marked as resolved." });
     } catch (err) {
-      console.error("[admin.password_resets.resolve] failed", err);
-      return res.status(500).json({ message: "Failed to update request." });
+      next(err);
     }
   }
 );
@@ -218,8 +230,7 @@ router.get(
         .orderBy(desc(users.createdAt));
       return res.status(200).json(rows);
     } catch (err) {
-      console.error("[admin.staff] failed", err);
-      return res.status(500).json({ message: "Failed to load staff list." });
+      next(err);
     }
   }
 );
@@ -238,7 +249,7 @@ router.post(
   "/staff",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
 
     const { email, password, name } = req.body || {};
@@ -333,10 +344,7 @@ router.post(
         },
       });
     } catch (err) {
-      console.error("[admin.staff.create] failed", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to create doctor account." });
+            next(error);
     }
   }
 );
@@ -350,7 +358,7 @@ router.patch(
   "/staff/:id/status",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     const { isActive } = req.body || {};
     if (typeof isActive !== "boolean") {
@@ -382,10 +390,7 @@ router.patch(
       });
       return res.status(200).json({ user: updated });
     } catch (err) {
-      console.error("[admin.staff.status] failed", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to update staff status." });
+            next(error);
     }
   }
 );

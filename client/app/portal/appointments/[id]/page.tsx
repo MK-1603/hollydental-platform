@@ -6,20 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { formatDate } from "@/lib/utils";
-import {
-  ArrowLeft,
-  CalendarDays,
-  Clock,
-  Stethoscope,
-  CheckCircle2,
-  AlertCircle,
-  XCircle,
-  Activity,
-  PlayCircle,
-  Hourglass,
-  Bell,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Stethoscope, CheckCircle2, AlertCircle, XCircle, Activity, PlayCircle, Hourglass, Bell, ShieldCheck } from "lucide-react";
 
 type Appointment = {
   id: string;

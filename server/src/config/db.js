@@ -1,55 +1,64 @@
+/**
+ * db.js — PostgreSQL connection pool via pg + Drizzle ORM.
+ *
+ * Pool tuning notes:
+ *  - max: 10 connections handles ~100 concurrent requests at 100ms avg query time.
+ *    Increase if you see "too many clients" errors under load.
+ *  - idleTimeoutMillis: 30s — close idle connections so serverless runtimes
+ *    (Neon, Supabase) don't charge for idle connections.
+ *  - connectionTimeoutMillis: 5s — fail fast if the DB is unreachable;
+ *    prevents requests from hanging indefinitely.
+ *  - allowExitOnIdle: false — keep pool alive on Render/Railway free tier.
+ */
+
 import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "../db/schema.js";
 import { ENV } from "./env.js";
+import logger from "../lib/logger.js";
 
 let db;
+let pool;
 
 if (ENV.DATABASE_URL) {
-  // Neon and most managed Postgres providers require SSL. We allow self-signed
-  // certs because the cloud-managed CAs aren't always exposed to Node's trust
-  // store, but we leave it OFF in production unless you opt in by setting
-  // PGSSL_REJECT_UNAUTHORIZED=true (recommended once you've installed the
-  // provider's root cert).
   const ssl = ENV.IS_PROD
     ? {
         rejectUnauthorized:
-          process.env.PGSSL_REJECT_UNAUTHORIZED === "true" ? true : false,
+          process.env.PGSSL_REJECT_UNAUTHORIZED === "true",
       }
     : { rejectUnauthorized: false };
 
-  const pool = new pg.Pool({
+  pool = new pg.Pool({
     connectionString: ENV.DATABASE_URL,
     ssl,
-    max: 10,
+    max: parseInt(process.env.DB_POOL_MAX || "10", 10),
+    min: parseInt(process.env.DB_POOL_MIN || "2", 10),
     idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
+    allowExitOnIdle: false,
   });
-  // Prevent unhandled 'error' events from crashing the process. Log and allow
-  // the application to decide how to handle transient DB errors.
+
+  // Log pool errors — prevents unhandled 'error' events from crashing the process
   pool.on("error", (err) => {
-    // eslint-disable-next-line no-console
-    console.error("[db] Postgres pool error:", err);
+    logger.error({ err }, "[db] Postgres pool error");
   });
-  db = drizzle(pool, { schema });
-  // eslint-disable-next-line no-console
-  console.log("[db] connected to Postgres pool.");
+
+  pool.on("connect", () => {
+    logger.debug("[db] New client connected to pool");
+  });
+
+  db = drizzle(pool, { schema, logger: false });
+  logger.info({ pool: { max: pool.options?.max ?? 10 } }, "[db] Postgres pool initialised");
 } else {
-  // eslint-disable-next-line no-console
-  console.warn(
-    "[db] DATABASE_URL is missing. Routes that need persistence will return 503."
-  );
-  // Throwing proxies prevent silent mock returns.
+  logger.warn("[db] DATABASE_URL is missing — routes that need persistence will return 503");
+
+  // Proxy throws on any access so bugs surface immediately instead of
+  // returning undefined silently.
   const requireDb = () => {
     throw new Error("DATABASE_URL is not configured.");
   };
-  db = new Proxy(
-    {},
-    {
-      get() {
-        return requireDb;
-      },
-    }
-  );
+  db = new Proxy({}, { get() { return requireDb; } });
+  pool = null;
 }
 
-export { db };
+export { db, pool };

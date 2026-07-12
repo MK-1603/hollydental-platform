@@ -5,21 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  CreditCard,
-  Lock,
-  ArrowLeft,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  Activity,
-  Heart,
-  User,
-  ShoppingBag,
-  HelpCircle,
-  ArrowRight,
-  ShieldAlert,
-} from "lucide-react";
+import { CreditCard, Lock, ArrowLeft, ShieldCheck, CheckCircle2, AlertCircle, Activity, Heart, User, ShoppingBag, HelpCircle, ArrowRight, ShieldAlert } from "lucide-react";
 
 interface Product {
   id: string;
@@ -138,21 +124,8 @@ function PaymentContent() {
       return;
     }
 
-    // Trigger Immersive Processing screen
-    setIsProcessing(true);
-    setProcessingStep(0);
-
-    setTimeout(() => {
-      setProcessingStep(1);
-      setTimeout(() => {
-        setProcessingStep(2);
-        setTimeout(() => {
-          // Open 3D Secure / Verified by Visa popup modal
-          setIsProcessing(false);
-          setShow3DSecure(true);
-        }, 1100);
-      }, 1100);
-    }, 1100);
+    // Open 3D Secure / Verified by Visa popup modal
+    setShow3DSecure(true);
   };
 
   const handleConfirmOTP = async () => {
@@ -241,46 +214,7 @@ function PaymentContent() {
   return (
     <div className="max-w-5xl mx-auto w-full px-4 py-6 font-sans relative">
       
-      {/* 1. Immersive Processing Gateway Overlay */}
-      {isProcessing && (
-        <div className="fixed inset-0 z-50 bg-navy/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl space-y-6 animate-scale-in border border-gray-50">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
-              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-              <CreditCard className="w-8 h-8 text-gold animate-pulse" />
-            </div>
 
-            <div className="space-y-1.5">
-              <h3 className="font-serif text-xl font-bold text-navy">Securing Transaction</h3>
-              <p className="text-gray-400 text-xs leading-relaxed">Securing SSL handshake with Irish Merchant Gateways...</p>
-            </div>
-
-            <div className="space-y-3 bg-gray-50 p-4 rounded-2xl text-left text-xs border border-gray-100 font-medium">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 0 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "1"}
-                </div>
-                <span className={processingStep === 0 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Connecting to bank checkout portal...</span>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 1 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "2"}
-                </div>
-                <span className={processingStep === 1 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Authorizing funds €{total.toFixed(2)} capture...</span>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 2 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "3"}
-                </div>
-                <span className={processingStep === 2 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Requesting 3D-Secure Multi-Factor Challenge...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* 2. 3D Secure / Verified by Visa Verification Challenge Popup Modal */}
       {show3DSecure && (

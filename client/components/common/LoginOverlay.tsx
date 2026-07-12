@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Activity } from "lucide-react";
 
 interface LoginOverlayProps {
   message?: string;
@@ -20,7 +20,7 @@ export default function LoginOverlay({
       <div className="relative z-10 text-center space-y-6 max-w-sm px-6">
         <div className="relative flex justify-center">
           <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center border border-gold/20 animate-pulse">
-            <Sparkles
+            <Activity
               className="w-8 h-8 text-gold animate-spin"
               style={{ animationDuration: "5s" }}
             />

@@ -1,0 +1,567 @@
+export const COUNTRIES = [
+  {
+    "name": "Afghanistan",
+    "code": "AF",
+    "dial": "+93"
+  },
+  {
+    "name": "Albania",
+    "code": "AL",
+    "dial": "+355"
+  },
+  {
+    "name": "Algeria",
+    "code": "DZ",
+    "dial": "+213"
+  },
+  {
+    "name": "Andorra",
+    "code": "AD",
+    "dial": "+376"
+  },
+  {
+    "name": "Angola",
+    "code": "AO",
+    "dial": "+244"
+  },
+  {
+    "name": "Argentina",
+    "code": "AR",
+    "dial": "+54"
+  },
+  {
+    "name": "Armenia",
+    "code": "AM",
+    "dial": "+374"
+  },
+  {
+    "name": "Australia",
+    "code": "AU",
+    "dial": "+61"
+  },
+  {
+    "name": "Austria",
+    "code": "AT",
+    "dial": "+43"
+  },
+  {
+    "name": "Azerbaijan",
+    "code": "AZ",
+    "dial": "+994"
+  },
+  {
+    "name": "Bahamas",
+    "code": "BS",
+    "dial": "+1"
+  },
+  {
+    "name": "Bahrain",
+    "code": "BH",
+    "dial": "+973"
+  },
+  {
+    "name": "Bangladesh",
+    "code": "BD",
+    "dial": "+880"
+  },
+  {
+    "name": "Barbados",
+    "code": "BB",
+    "dial": "+1"
+  },
+  {
+    "name": "Belarus",
+    "code": "BY",
+    "dial": "+375"
+  },
+  {
+    "name": "Belgium",
+    "code": "BE",
+    "dial": "+32"
+  },
+  {
+    "name": "Belize",
+    "code": "BZ",
+    "dial": "+501"
+  },
+  {
+    "name": "Benin",
+    "code": "BJ",
+    "dial": "+229"
+  },
+  {
+    "name": "Bhutan",
+    "code": "BT",
+    "dial": "+975"
+  },
+  {
+    "name": "Bolivia",
+    "code": "BO",
+    "dial": "+591"
+  },
+  {
+    "name": "Bosnia and Herzegovina",
+    "code": "BA",
+    "dial": "+387"
+  },
+  {
+    "name": "Botswana",
+    "code": "BW",
+    "dial": "+267"
+  },
+  {
+    "name": "Brazil",
+    "code": "BR",
+    "dial": "+55"
+  },
+  {
+    "name": "Brunei",
+    "code": "BN",
+    "dial": "+673"
+  },
+  {
+    "name": "Bulgaria",
+    "code": "BG",
+    "dial": "+359"
+  },
+  {
+    "name": "Burkina Faso",
+    "code": "BF",
+    "dial": "+226"
+  },
+  {
+    "name": "Burundi",
+    "code": "BI",
+    "dial": "+257"
+  },
+  {
+    "name": "Cambodia",
+    "code": "KH",
+    "dial": "+855"
+  },
+  {
+    "name": "Cameroon",
+    "code": "CM",
+    "dial": "+237"
+  },
+  {
+    "name": "Canada",
+    "code": "CA",
+    "dial": "+1"
+  },
+  {
+    "name": "Cape Verde",
+    "code": "CV",
+    "dial": "+238"
+  },
+  {
+    "name": "Central African Republic",
+    "code": "CF",
+    "dial": "+236"
+  },
+  {
+    "name": "Chad",
+    "code": "TD",
+    "dial": "+235"
+  },
+  {
+    "name": "Chile",
+    "code": "CL",
+    "dial": "+56"
+  },
+  {
+    "name": "China",
+    "code": "CN",
+    "dial": "+86"
+  },
+  {
+    "name": "Colombia",
+    "code": "CO",
+    "dial": "+57"
+  },
+  {
+    "name": "Comoros",
+    "code": "KM",
+    "dial": "+269"
+  },
+  {
+    "name": "Congo",
+    "code": "CG",
+    "dial": "+242"
+  },
+  {
+    "name": "Costa Rica",
+    "code": "CR",
+    "dial": "+506"
+  },
+  {
+    "name": "Croatia",
+    "code": "HR",
+    "dial": "+385"
+  },
+  {
+    "name": "Cuba",
+    "code": "CU",
+    "dial": "+53"
+  },
+  {
+    "name": "Cyprus",
+    "code": "CY",
+    "dial": "+357"
+  },
+  {
+    "name": "Czech Republic",
+    "code": "CZ",
+    "dial": "+420"
+  },
+  {
+    "name": "Denmark",
+    "code": "DK",
+    "dial": "+45"
+  },
+  {
+    "name": "Djibouti",
+    "code": "DJ",
+    "dial": "+253"
+  },
+  {
+    "name": "Dominican Republic",
+    "code": "DO",
+    "dial": "+1"
+  },
+  {
+    "name": "Ecuador",
+    "code": "EC",
+    "dial": "+593"
+  },
+  {
+    "name": "Egypt",
+    "code": "EG",
+    "dial": "+20"
+  },
+  {
+    "name": "El Salvador",
+    "code": "SV",
+    "dial": "+503"
+  },
+  {
+    "name": "Equatorial Guinea",
+    "code": "GQ",
+    "dial": "+240"
+  },
+  {
+    "name": "Eritrea",
+    "code": "ER",
+    "dial": "+291"
+  },
+  {
+    "name": "Estonia",
+    "code": "EE",
+    "dial": "+372"
+  },
+  {
+    "name": "Ethiopia",
+    "code": "ET",
+    "dial": "+251"
+  },
+  {
+    "name": "Fiji",
+    "code": "FJ",
+    "dial": "+679"
+  },
+  {
+    "name": "Finland",
+    "code": "FI",
+    "dial": "+358"
+  },
+  {
+    "name": "France",
+    "code": "FR",
+    "dial": "+33"
+  },
+  {
+    "name": "Gabon",
+    "code": "GA",
+    "dial": "+241"
+  },
+  {
+    "name": "Gambia",
+    "code": "GM",
+    "dial": "+220"
+  },
+  {
+    "name": "Georgia",
+    "code": "GE",
+    "dial": "+995"
+  },
+  {
+    "name": "Germany",
+    "code": "DE",
+    "dial": "+49"
+  },
+  {
+    "name": "Ghana",
+    "code": "GH",
+    "dial": "+233"
+  },
+  {
+    "name": "Greece",
+    "code": "GR",
+    "dial": "+30"
+  },
+  {
+    "name": "Guatemala",
+    "code": "GT",
+    "dial": "+502"
+  },
+  {
+    "name": "Guinea",
+    "code": "GN",
+    "dial": "+224"
+  },
+  {
+    "name": "Guyana",
+    "code": "GY",
+    "dial": "+592"
+  },
+  {
+    "name": "Haiti",
+    "code": "HT",
+    "dial": "+509"
+  },
+  {
+    "name": "Honduras",
+    "code": "HN",
+    "dial": "+504"
+  },
+  {
+    "name": "Hungary",
+    "code": "HU",
+    "dial": "+36"
+  },
+  {
+    "name": "Iceland",
+    "code": "IS",
+    "dial": "+354"
+  },
+  {
+    "name": "India",
+    "code": "IN",
+    "dial": "+91"
+  },
+  {
+    "name": "Indonesia",
+    "code": "ID",
+    "dial": "+62"
+  },
+  {
+    "name": "Iran",
+    "code": "IR",
+    "dial": "+98"
+  },
+  {
+    "name": "Iraq",
+    "code": "IQ",
+    "dial": "+964"
+  },
+  {
+    "name": "Ireland",
+    "code": "IE",
+    "dial": "+353"
+  },
+  {
+    "name": "Israel",
+    "code": "IL",
+    "dial": "+972"
+  },
+  {
+    "name": "Italy",
+    "code": "IT",
+    "dial": "+39"
+  },
+  {
+    "name": "Jamaica",
+    "code": "JM",
+    "dial": "+1"
+  },
+  {
+    "name": "Japan",
+    "code": "JP",
+    "dial": "+81"
+  },
+  {
+    "name": "Jordan",
+    "code": "JO",
+    "dial": "+962"
+  },
+  {
+    "name": "Kazakhstan",
+    "code": "KZ",
+    "dial": "+7"
+  },
+  {
+    "name": "Kenya",
+    "code": "KE",
+    "dial": "+254"
+  },
+  {
+    "name": "Kuwait",
+    "code": "KW",
+    "dial": "+965"
+  },
+  {
+    "name": "Lebanon",
+    "code": "LB",
+    "dial": "+961"
+  },
+  {
+    "name": "Libya",
+    "code": "LY",
+    "dial": "+218"
+  },
+  {
+    "name": "Malaysia",
+    "code": "MY",
+    "dial": "+60"
+  },
+  {
+    "name": "Mexico",
+    "code": "MX",
+    "dial": "+52"
+  },
+  {
+    "name": "Morocco",
+    "code": "MA",
+    "dial": "+212"
+  },
+  {
+    "name": "Netherlands",
+    "code": "NL",
+    "dial": "+31"
+  },
+  {
+    "name": "New Zealand",
+    "code": "NZ",
+    "dial": "+64"
+  },
+  {
+    "name": "Nigeria",
+    "code": "NG",
+    "dial": "+234"
+  },
+  {
+    "name": "Norway",
+    "code": "NO",
+    "dial": "+47"
+  },
+  {
+    "name": "Oman",
+    "code": "OM",
+    "dial": "+968"
+  },
+  {
+    "name": "Pakistan",
+    "code": "PK",
+    "dial": "+92"
+  },
+  {
+    "name": "Philippines",
+    "code": "PH",
+    "dial": "+63"
+  },
+  {
+    "name": "Poland",
+    "code": "PL",
+    "dial": "+48"
+  },
+  {
+    "name": "Portugal",
+    "code": "PT",
+    "dial": "+351"
+  },
+  {
+    "name": "Qatar",
+    "code": "QA",
+    "dial": "+974"
+  },
+  {
+    "name": "Russia",
+    "code": "RU",
+    "dial": "+7"
+  },
+  {
+    "name": "Saudi Arabia",
+    "code": "SA",
+    "dial": "+966"
+  },
+  {
+    "name": "Singapore",
+    "code": "SG",
+    "dial": "+65"
+  },
+  {
+    "name": "South Africa",
+    "code": "ZA",
+    "dial": "+27"
+  },
+  {
+    "name": "South Korea",
+    "code": "KR",
+    "dial": "+82"
+  },
+  {
+    "name": "Spain",
+    "code": "ES",
+    "dial": "+34"
+  },
+  {
+    "name": "Sri Lanka",
+    "code": "LK",
+    "dial": "+94"
+  },
+  {
+    "name": "Sweden",
+    "code": "SE",
+    "dial": "+46"
+  },
+  {
+    "name": "Switzerland",
+    "code": "CH",
+    "dial": "+41"
+  },
+  {
+    "name": "Taiwan",
+    "code": "TW",
+    "dial": "+886"
+  },
+  {
+    "name": "Thailand",
+    "code": "TH",
+    "dial": "+66"
+  },
+  {
+    "name": "Turkey",
+    "code": "TR",
+    "dial": "+90"
+  },
+  {
+    "name": "UAE",
+    "code": "AE",
+    "dial": "+971"
+  },
+  {
+    "name": "United Kingdom",
+    "code": "GB",
+    "dial": "+44"
+  },
+  {
+    "name": "United States",
+    "code": "US",
+    "dial": "+1"
+  },
+  {
+    "name": "Vietnam",
+    "code": "VN",
+    "dial": "+84"
+  }
+];

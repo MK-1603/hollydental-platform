@@ -1,6 +1,7 @@
 import { db } from "../config/db.js";
 import { auditLogs } from "../db/schema.js";
 import { lt } from "drizzle-orm";
+import logger from "./logger.js";
 
 /**
  * How long to retain audit entries. Configurable via AUDIT_RETENTION_DAYS;
@@ -38,8 +39,7 @@ export async function logActivity(req, action, fields = {}) {
       userAgent: req?.headers?.["user-agent"] || null,
     });
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("[audit] failed to log activity:", action, err?.message);
+    logger.error({ err, action }, "[audit] failed to log activity");
   }
 
   // Lazy retention sweep — runs at most every 6h.
@@ -50,8 +50,7 @@ export async function logActivity(req, action, fields = {}) {
     try {
       await db.delete(auditLogs).where(lt(auditLogs.createdAt, cutoff));
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error("[audit] retention sweep failed:", err?.message);
+      logger.error({ err }, "[audit] retention sweep failed");
     }
   }
 }

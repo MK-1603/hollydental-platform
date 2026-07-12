@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import PortalSidebar from "@/components/portal/PortalSidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, CalendarDays, MessageSquare, User, Bell, LogOut, Menu, Heart, Send, Sparkles, X } from "lucide-react";
+import { LayoutDashboard, CalendarDays, MessageSquare, User, Bell, LogOut, Menu, Heart, Send, Activity, X } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import SessionWatcher from "@/components/auth/SessionWatcher";
 import PushToggle from "@/components/common/PushToggle";
@@ -163,7 +163,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </header>
 
         <main className={`flex-1 ${
-          pathname.endsWith("/messages") || pathname.startsWith("/portal/ai")
+          pathname.endsWith("/messages")
             ? "overflow-hidden p-0 h-full flex flex-col"
             : "overflow-y-auto p-4 xl:p-6 pb-20 xl:pb-6"
         }`}>

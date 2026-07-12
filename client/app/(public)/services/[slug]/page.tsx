@@ -3,18 +3,7 @@ import BeforeAfterSlider from "@/components/public/BeforeAfterSlider";
 import Link from "next/link";
 import BookButton from "@/components/public/BookButton";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-  HelpCircle,
-  Phone,
-  MessageSquare,
-  Sparkles,
-  ShieldCheck,
-  Smile,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, Clock, HelpCircle, Phone, MessageSquare, Activity, ShieldCheck, Smile } from "lucide-react";
 
 export async function generateStaticParams() {
   return SERVICES.map((s) => ({ slug: s.slug }));
@@ -236,7 +225,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               {service.category === "cosmetic" ? (
                 <Smile className="w-3.5 h-3.5" />
               ) : (
-                <Sparkles className="w-3.5 h-3.5" />
+                <Activity className="w-3.5 h-3.5" />
               )}
               {service.category} Dentistry
             </span>
@@ -499,7 +488,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(201,169,110,0.18),_transparent_55%)]" />
           <div className="relative space-y-4 max-w-2xl mx-auto">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold/90 bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-              <Sparkles className="w-3 h-3" /> Ready when you are
+              <Activity className="w-3 h-3" /> Ready when you are
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight">
               Have questions about {service.name.toLowerCase()}?

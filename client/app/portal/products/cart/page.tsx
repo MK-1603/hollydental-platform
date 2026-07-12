@@ -6,19 +6,7 @@ import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { useCartStore } from "@/store/useCartStore";
-import {
-  ShoppingCart,
-  Minus,
-  Plus,
-  Trash2,
-  ArrowLeft,
-  ShieldCheck,
-  AlertCircle,
-  Banknote,
-  QrCode,
-  CreditCard,
-  Check,
-} from "lucide-react";
+import { ShoppingCart, Minus, Plus, Trash2, ArrowLeft, ShieldCheck, AlertCircle, Banknote, QrCode, CreditCard, Check } from "lucide-react";
 
 interface PaymentConfig {
   cash: { enabled: boolean };
@@ -78,17 +66,6 @@ export default function CartCheckoutPage() {
         );
         return;
       }
-
-      // Immersive Simulator loading sequence for UPI
-      setIsProcessingUpi(true);
-      setUpiProcessingStep(0);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(1);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(2);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(3);
-      await new Promise((r) => setTimeout(r, 800));
     }
 
     if (paymentMethod === "card") {
@@ -96,17 +73,6 @@ export default function CartCheckoutPage() {
         setError("Please complete all credit card fields with valid information.");
         return;
       }
-
-      // Immersive Simulator loading sequence for Card
-      setIsProcessingCard(true);
-      setProcessingStep(0);
-      await new Promise((r) => setTimeout(r, 1100));
-      setProcessingStep(1);
-      await new Promise((r) => setTimeout(r, 1100));
-      setProcessingStep(2);
-      await new Promise((r) => setTimeout(r, 1100));
-      setProcessingStep(3);
-      await new Promise((r) => setTimeout(r, 800));
     }
 
     setSubmitting(true);
@@ -174,101 +140,7 @@ export default function CartCheckoutPage() {
 
   return (
     <div className="space-y-6 font-sans pb-12 relative">
-      {/* Immersive Processing Screen for Card payment */}
-      {isProcessingCard && (
-        <div className="fixed inset-0 z-50 bg-navy/70 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 space-y-6 animate-scale-in">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
-              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-              <CreditCard className="w-8 h-8 text-gold animate-pulse" />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="font-sans text-xl font-bold text-navy">Securing Card Transaction</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">Please do not refresh the page or click back.</p>
-            </div>
-            
-            <div className="space-y-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100 text-xs">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 0 ? <Check className="w-3 h-3 text-navy font-bold" /> : "1"}
-                </div>
-                <span className={processingStep === 0 ? "font-bold text-navy" : "text-gray-400"}>Connecting to Irish banking gateway...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 1 ? <Check className="w-3 h-3 text-navy font-bold" /> : "2"}
-                </div>
-                <span className={processingStep === 1 ? "font-bold text-navy" : "text-gray-400"}>Authorizing €{subtotal.toFixed(2)} secure transfer...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 2 ? <Check className="w-3 h-3 text-navy font-bold" /> : "3"}
-                </div>
-                <span className={processingStep === 2 ? "font-bold text-navy" : "text-gray-400"}>Verifying CVC authorization & bank limits...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 3 ? "bg-emerald-500 text-white animate-bounce" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep >= 3 ? <Check className="w-3 h-3 text-white font-bold" /> : "4"}
-                </div>
-                <span className={processingStep === 3 ? "font-bold text-emerald-600" : "text-gray-400"}>Transaction Approved & Handshaked!</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Immersive Processing Screen for UPI payment */}
-      {isProcessingUpi && (
-        <div className="fixed inset-0 z-50 bg-navy/70 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 space-y-6 animate-scale-in">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
-              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-              <QrCode className="w-8 h-8 text-gold animate-pulse" />
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="font-sans text-xl font-bold text-navy">Verifying UPI Transaction</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">Please do not refresh the page or click back.</p>
-            </div>
-            
-            <div className="space-y-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100 text-xs">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 0 ? <Check className="w-3 h-3 text-navy font-bold" /> : "1"}
-                </div>
-                <span className={upiProcessingStep === 0 ? "font-bold text-navy" : "text-gray-400"}>Resolving clinic virtual payment address...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 1 ? <Check className="w-3 h-3 text-navy font-bold" /> : "2"}
-                </div>
-                <span className={upiProcessingStep === 1 ? "font-bold text-navy" : "text-gray-400"}>Transmitting €{subtotal.toFixed(2)} reference to registry...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 2 ? <Check className="w-3 h-3 text-navy font-bold" /> : "3"}
-                </div>
-                <span className={upiProcessingStep === 2 ? "font-bold text-navy" : "text-gray-400"}>Verifying reference format: {upiReference.slice(0, 12)}...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 3 ? "bg-emerald-500 text-white animate-bounce" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep >= 3 ? <Check className="w-3 h-3 text-white font-bold" /> : "4"}
-                </div>
-                <span className={upiProcessingStep === 3 ? "font-bold text-emerald-600" : "text-gray-400"}>Reference Logged! Awaiting Clinic Approval...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <header className="flex items-center justify-between border-b border-gray-100 pb-4 gap-3">
         <div className="space-y-1">

@@ -4,14 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiRequest } from "@/lib/api";
-import {
-  Lock,
-  Eye,
-  EyeOff,
-  ShieldAlert,
-  ShieldCheck,
-  CheckCircle2,
-} from "lucide-react";
+import { Lock, Eye, EyeOff, ShieldAlert, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 const PASSWORD_RULES = [
   { test: (p: string) => p.length >= 10, label: "At least 10 characters" },

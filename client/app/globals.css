@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -18,18 +19,40 @@
 
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
   
   --shadow-card: 0 4px 20px rgba(5,38,78,0.05);
   --shadow-gold-hover: 0 8px 32px rgba(0,173,239,0.2);
+  --shadow-admin-soft: 0 6px 30px rgba(15,23,42,0.06);
 
   --radius-card: 16px;
-  --radius-button: 8px;
-  --radius-input: 8px;
-  --radius-badge: 20px;
+  --radius-button: 12px;
+  --radius-input: 12px;
+  --radius-badge: 9999px;
+  
+  /* Admin Enterprise Theme */
+  --color-admin-bg: #F5F7FB;
+  --color-admin-surface: #FFFFFF;
+  --color-admin-surface-sec: #F1F5F9;
+  --color-admin-sidebar: #FFFFFF;
+  --color-admin-sidebar-hover: #F1F5F9;
+  --color-admin-primary: #2563EB;
+  --color-admin-success: #16A34A;
+  --color-admin-warning: #EA580C;
+  --color-admin-danger: #DC2626;
+  --color-admin-text: #111827;
+  --color-admin-text-sec: #6B7280;
+  --color-admin-border: #E5E7EB;
+
+  --radius-admin-btn: 12px;
+  --radius-admin-input: 12px;
+  --radius-admin-card: 20px;
+  --radius-admin-dialog: 16px;
+  --radius-admin-badge: 9999px;
 }
 
 :root {
-  --background: #ffffff;
+  --background: #F8FAFC;
   --foreground: #111827;
 }
 
@@ -139,16 +162,7 @@ body[data-mobile-menu-open="1"] [data-ai-chatbot] {
   scrollbar-width: none !important;
 }
 
-/* Full Width Design (Full Left and Right layout) */
-main .max-w-7xl,
-main .max-w-6xl,
-main .max-w-5xl,
-main .max-w-4xl,
-main .max-w-3xl,
-header .max-w-7xl,
-footer .max-w-7xl {
-  max-width: none !important;
-}
+/* Removed overriding of max-width to allow layout constraint */
 
 /* Adjust layout paddings slightly on larger screens to look extremely premium */
 @media (min-width: 1024px) {
@@ -158,8 +172,8 @@ footer .max-w-7xl {
   header .px-8,
   footer .px-4,
   footer .px-8 {
-    padding-left: 2.5rem !important;
-    padding-right: 2.5rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
   }
 }
 
@@ -170,8 +184,8 @@ footer .max-w-7xl {
   header .px-8,
   footer .px-4,
   footer .px-8 {
-    padding-left: 3.5rem !important;
-    padding-right: 3.5rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
   }
 }
 
@@ -182,7 +196,27 @@ footer .max-w-7xl {
   header .px-8,
   footer .px-4,
   footer .px-8 {
-    padding-left: 5rem !important;
-    padding-right: 5rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
   }
 }
+
+/* Hide all global scrollbars */
+::-webkit-scrollbar {
+  display: none !important;
+}
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Safe Area Utilities */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-mb {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}
+

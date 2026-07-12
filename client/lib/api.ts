@@ -100,7 +100,7 @@ export interface ApiRequestOptions extends RequestInit {
  * JSON request helper. Sends/expects application/json, includes httpOnly cookies.
  * Throws ApiError on non-2xx so the UI can render real empty / error states.
  */
-export async function apiRequest(path: string, options: ApiRequestOptions = {}) {
+export async function apiRequest(path: string, options: ApiRequestOptions = {}, retries = 2): Promise<any> {
   const { silentAuth, ...rest } = options;
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -108,28 +108,51 @@ export async function apiRequest(path: string, options: ApiRequestOptions = {}) 
     ...(rest.headers || {}),
   };
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    credentials: "include",
-    headers,
-  });
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      credentials: "include",
+      headers,
+    });
 
-  const data = await parseResponse(res);
+    const data = await parseResponse(res);
 
-  if (!res.ok) {
-    const message =
-      (data && typeof data === "object" && "message" in data && (data as any).message) ||
-      `Request failed with status ${res.status}`;
-    const retryAfterMs = parseRetryAfter(res.headers.get("retry-after"));
+    if (!res.ok) {
+      const message =
+        (data && typeof data === "object" && "message" in data && (data as any).message) ||
+        `Request failed with status ${res.status}`;
+      const retryAfterMs = parseRetryAfter(res.headers.get("retry-after"));
 
-    if (res.status === 401 && !silentAuth && !isSessionSafe(path)) {
-      emitSession("expired");
+      if (res.status === 401 && !silentAuth && !isSessionSafe(path)) {
+        emitSession("expired");
+      }
+
+      // Retry on 5xx errors
+      if (res.status >= 500 && retries > 0) {
+        await new Promise((r) => setTimeout(r, 1500));
+        return apiRequest(path, options, retries - 1);
+      }
+
+      throw new ApiError(message as string, res.status, data, retryAfterMs);
     }
 
-    throw new ApiError(message as string, res.status, data, retryAfterMs);
-  }
+    return data;
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      return null; // Return gracefully without logging or throwing
+    }
 
-  return data;
+    if (error.name === "ApiError") throw error; // Re-throw ApiErrors so they can be caught by components
+    
+    // Retry on network errors
+    if (retries > 0) {
+      await new Promise((r) => setTimeout(r, 1500));
+      return apiRequest(path, options, retries - 1);
+    }
+    
+    // console.error(`[API] Network error fetching ${path}:`, error);
+    throw new ApiError("Network Error or Server Unreachable", 0, null);
+  }
 }
 
 /**
@@ -147,25 +170,35 @@ export async function apiUpload(
     form.append(key, value);
   }
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...rest,
-    method: rest.method || "POST",
-    credentials: "include",
-    body: form,
-  });
+  try {
+    const res = await fetch(`${API_URL}${path}`, {
+      ...rest,
+      method: rest.method || "POST",
+      credentials: "include",
+      body: form,
+    });
 
-  const data = await parseResponse(res);
-  if (!res.ok) {
-    const message =
-      (data && typeof data === "object" && "message" in data && (data as any).message) ||
-      `Upload failed with status ${res.status}`;
-    const retryAfterMs = parseRetryAfter(res.headers.get("retry-after"));
+    const data = await parseResponse(res);
+    if (!res.ok) {
+      const message =
+        (data && typeof data === "object" && "message" in data && (data as any).message) ||
+        `Upload failed with status ${res.status}`;
+      const retryAfterMs = parseRetryAfter(res.headers.get("retry-after"));
 
-    if (res.status === 401 && !silentAuth && !isSessionSafe(path)) {
-      emitSession("expired");
+      if (res.status === 401 && !silentAuth && !isSessionSafe(path)) {
+        emitSession("expired");
+      }
+
+      throw new ApiError(message as string, res.status, data, retryAfterMs);
     }
-
-    throw new ApiError(message as string, res.status, data, retryAfterMs);
+    return data;
+  } catch (error: any) {
+    if (error.name === "AbortError") {
+      return null;
+    }
+    if (error.name === "ApiError") throw error;
+    
+    // console.error(`[API] Network error uploading to ${path}:`, error);
+    throw new ApiError("Network Error or Server Unreachable", 0, null);
   }
-  return data;
 }

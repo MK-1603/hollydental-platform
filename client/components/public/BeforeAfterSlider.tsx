@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { GripHorizontal, Sparkles } from "lucide-react";
+import { GripHorizontal, Activity } from "lucide-react";
 
 interface BeforeAfterSliderProps {
   beforeImage?: string;
@@ -118,7 +118,7 @@ export default function BeforeAfterSlider({
           className="absolute top-4 left-4 z-30 inline-flex items-center gap-1.5 bg-gold text-navy text-[10px] font-bold tracking-[0.2em] px-3 py-1.5 rounded-full uppercase shadow-sm transition-all duration-200"
           aria-hidden
         >
-          <Sparkles className="w-3 h-3" />
+          <Activity className="w-3 h-3" />
           After
         </span>
       ) : (
@@ -230,7 +230,7 @@ function ImagePane({
                 : "bg-navy/10 text-navy"
             }`}
           >
-            <Sparkles className="w-6 h-6" />
+            <Activity className="w-6 h-6" />
           </div>
           <span className="block text-[11px] font-semibold uppercase tracking-[0.25em] text-navy/60">
             {fallbackLabel}

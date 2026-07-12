@@ -3,7 +3,7 @@
 import React from "react";
 import BookButton from "./BookButton";
 import { CLINIC } from "@/lib/constants";
-import { Sparkles, PhoneCall, CalendarRange } from "lucide-react";
+import { Activity, PhoneCall, CalendarRange } from "lucide-react";
 
 interface PremiumBookingCTAProps {
   title?: string;
@@ -32,7 +32,7 @@ export default function PremiumBookingCTA({
       <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
         {/* Sparkle Header Icon */}
         <div className="inline-flex items-center gap-1.5 bg-gold/10 text-gold border border-gold/20 text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full select-none">
-          <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+          <Activity className="w-3.5 h-3.5 animate-pulse" />
           <span>Cork's Luxury Dental Care</span>
         </div>
 

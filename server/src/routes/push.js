@@ -69,8 +69,7 @@ router.post("/subscribe", verifyToken, async (req, res) => {
 
     return res.status(201).json({ message: "Subscribed to push notifications." });
   } catch (err) {
-    console.error("[push] subscribe failed", err);
-    return res.status(500).json({ message: "Failed to subscribe." });
+    next(err);
   }
 });
 
@@ -101,8 +100,7 @@ router.post("/unsubscribe", verifyToken, async (req, res) => {
 
     return res.status(200).json({ message: "Unsubscribed." });
   } catch (err) {
-    console.error("[push] unsubscribe failed", err);
-    return res.status(500).json({ message: "Failed to unsubscribe." });
+    next(err);
   }
 });
 

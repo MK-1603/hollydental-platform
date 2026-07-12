@@ -4,22 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
-import {
-  CalendarDays,
-  MessageSquare,
-  ChevronRight,
-  Bell,
-  ClipboardCheck,
-  ShieldCheck,
-  ClipboardList,
-  Receipt,
-  Sparkles,
-  Clock,
-  Calendar,
-  AlertTriangle,
-  ArrowRight,
-  Stethoscope
-} from "lucide-react";
+import { CalendarDays, MessageSquare, ChevronRight, Bell, ClipboardCheck, ShieldCheck, ClipboardList, Receipt, Activity, Clock, Calendar, AlertTriangle, ArrowRight, Stethoscope } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 function normalizeArray<T>(raw: any): T[] {
@@ -102,7 +87,7 @@ export default function PatientDashboardPage() {
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] font-extrabold uppercase tracking-widest">
-              <Sparkles className="w-3.5 h-3.5 animate-pulse" /> Patient Dental Workspace
+              <Activity className="w-3.5 h-3.5 animate-pulse" /> Patient Dental Workspace
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">
               {getGreeting()}, {firstName}

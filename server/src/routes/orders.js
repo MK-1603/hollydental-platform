@@ -17,7 +17,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-router.post("/upload-receipt", verifyToken, upload.single("file"), async (req, res) => {
+router.post("/upload-receipt", verifyToken, upload.single("file"), async (req, res, next) => {
   const file = req.file;
   if (!file) {
     return res.status(400).json({ message: "No file provided." });
@@ -29,8 +29,7 @@ router.post("/upload-receipt", verifyToken, upload.single("file"), async (req, r
       imageUrl: uploadResult.secure_url,
     });
   } catch (error) {
-    console.error("[receipt-upload] failed", error);
-    return res.status(500).json({ message: "Failed to upload receipt." });
+    next(error);
   }
 });
 
@@ -97,7 +96,7 @@ async function notifyAdmins(payload) {
 /**
  * GET /api/orders/my — authenticated patient's order history.
  */
-router.get("/my", verifyToken, async (req, res) => {
+router.get("/my", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   if (req.user.role !== "patient") {
     return res.status(403).json({ message: "Forbidden." });
@@ -110,15 +109,14 @@ router.get("/my", verifyToken, async (req, res) => {
       .orderBy(desc(orders.createdAt));
     res.status(200).json(rows);
   } catch (error) {
-    console.error("[orders] GET /my failed", error);
-    res.status(500).json({ message: "Failed to retrieve orders." });
+    next(error);
   }
 });
 
 /**
  * GET /api/orders — admin queue. Optional ?status= filter.
  */
-router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const status = String(req.query.status || "").trim();
@@ -130,8 +128,7 @@ router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
       : await db.select().from(orders).orderBy(desc(orders.createdAt));
     res.status(200).json(rows);
   } catch (error) {
-    console.error("[orders] GET / failed", error);
-    res.status(500).json({ message: "Failed to retrieve orders." });
+    next(error);
   }
 });
 
@@ -144,7 +141,7 @@ router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
  * UPI orders also start as "pending" until admin confirms the bank deposit
  * arrived; we never trust the client about money having moved.
  */
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   if (req.user.role !== "patient") {
     return res.status(403).json({ message: "Only patients can place orders." });
@@ -259,15 +256,14 @@ router.post("/", verifyToken, async (req, res) => {
       order: inserted,
     });
   } catch (error) {
-    console.error("[orders] POST failed", error);
-    res.status(500).json({ message: "Failed to place order." });
+    next(error);
   }
 });
 
 /**
  * GET /api/orders/:id — single order detail (patient owns it or admin).
  */
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const [order] = await db
@@ -297,8 +293,7 @@ router.get("/:id", verifyToken, async (req, res) => {
       patientProfile,
     });
   } catch (error) {
-    console.error("[orders] GET /:id failed", error);
-    res.status(500).json({ message: "Failed to retrieve order." });
+    next(error);
   }
 });
 
@@ -307,7 +302,7 @@ router.get("/:id", verifyToken, async (req, res) => {
  *
  * Body: { status, notes? }
  */
-router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.patch("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   const { status, notes } = req.body || {};
   if (!status || !ALLOWED_STATUSES.has(status)) {
@@ -366,8 +361,7 @@ router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
 
     res.status(200).json(updated);
   } catch (error) {
-    console.error("[orders] PATCH failed", error);
-    res.status(500).json({ message: "Failed to update order." });
+    next(error);
   }
 });
 
@@ -375,7 +369,7 @@ router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
  * DELETE /api/orders/:id — patient cancels their own order while still
  * pending. Admin can cancel any order.
  */
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const [target] = await db
@@ -425,15 +419,14 @@ router.delete("/:id", verifyToken, async (req, res) => {
     });
     res.status(200).json({ message: "Order cancelled." });
   } catch (error) {
-    console.error("[orders] DELETE failed", error);
-    res.status(500).json({ message: "Failed to cancel order." });
+    next(error);
   }
 });
 
 /**
  * PATCH /api/orders/:id/submit-receipt — patients submit payment receipt screenshot url or text reference.
  */
-router.patch("/:id/submit-receipt", verifyToken, async (req, res) => {
+router.patch("/:id/submit-receipt", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { upiReference } = req.body || {};
   if (!upiReference) {
@@ -463,8 +456,7 @@ router.patch("/:id/submit-receipt", verifyToken, async (req, res) => {
       order: updated,
     });
   } catch (error) {
-    console.error("[orders] submit-receipt failed", error);
-    return res.status(500).json({ message: "Failed to submit receipt." });
+    next(error);
   }
 });
 

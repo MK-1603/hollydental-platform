@@ -4,10 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
-import {
-  ShoppingBag, Search, Phone, MapPin, Sparkles,
-  Plus, Minus, ShoppingCart, Calendar, Check, Star, Shield, CreditCard, AlertCircle,
-} from "lucide-react";
+import { ShoppingBag, Search, Phone, MapPin, Activity, Plus, Minus, ShoppingCart, Calendar, Check, Star, Shield, CreditCard, AlertCircle } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 import { toast } from "@/lib/toast";
 import { useCartStore } from "@/store/useCartStore";
@@ -77,7 +74,7 @@ export default function PatientProductsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2.5 max-w-xl">
             <div className="inline-flex items-center gap-1.5 bg-gold/15 text-gold border border-gold/30 text-[9px] font-bold px-3 py-1 rounded-full uppercase tracking-widest animate-pulse">
-              <Sparkles className="w-3 h-3" />
+              <Activity className="w-3 h-3" />
               <span>HollyHill Clinical Storefront</span>
             </div>
             <h1 className="font-serif text-3xl md:text-4xl font-bold leading-tight">
@@ -171,7 +168,7 @@ export default function PatientProductsPage() {
           {(filter === "All" || filter === "Procedures") && procedures.length > 0 && (
             <section className="space-y-5">
               <SectionHeader
-                icon={<Sparkles className="w-3.5 h-3.5" />}
+                icon={<Activity className="w-3.5 h-3.5" />}
                 title="Dental Procedures"
                 subtitle="Chairside treatments — book a consultation to schedule"
               />
@@ -234,7 +231,7 @@ function ProcedureCard({ product }: { product: Product }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gold/5">
-              <Sparkles className="w-8 h-8 text-gold/30" />
+              <Activity className="w-8 h-8 text-gold/30" />
             </div>
           )}
           
@@ -400,7 +397,7 @@ function ShopCard({ product }: { product: Product }) {
                 onClick={handleBuyNow}
                 className="w-full sm:flex-1 bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-500 hover:to-gold text-navy font-bold py-3 px-2 rounded-xl text-[9px] transition-all duration-300 inline-flex items-center justify-center gap-1 shadow-sm hover:shadow font-sans uppercase tracking-widest"
               >
-                <Sparkles className="w-3.5 h-3.5 text-navy shrink-0 animate-pulse" />
+                <Activity className="w-3.5 h-3.5 text-navy shrink-0 animate-pulse" />
                 <span>Buy Now</span>
               </button>
             </div>
@@ -424,7 +421,7 @@ function ShopCard({ product }: { product: Product }) {
                 onClick={handleBuyNow}
                 className="bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-500 hover:to-gold text-navy font-bold py-3 px-2 rounded-xl text-[9px] transition-all duration-300 inline-flex items-center justify-center gap-1 shadow-sm w-full sm:flex-1 font-sans uppercase tracking-widest h-10"
               >
-                <Sparkles className="w-3.5 h-3.5 text-navy shrink-0" />
+                <Activity className="w-3.5 h-3.5 text-navy shrink-0" />
                 <span>Buy Now</span>
               </button>
             </div>

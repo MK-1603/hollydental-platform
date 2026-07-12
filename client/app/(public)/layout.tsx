@@ -1,7 +1,7 @@
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import CookieConsentBanner from "@/components/public/CookieConsentBanner";
-import AIChatbot from "@/components/public/AIChatbot";
+
 import Preloader from "@/components/public/Preloader";
 
 export default function PublicLayout({
@@ -16,7 +16,7 @@ export default function PublicLayout({
       <main className="flex-1 pb-20 lg:pb-0">{children}</main>
       <Footer />
       <CookieConsentBanner />
-      <AIChatbot />
+
     </div>
   );
 }

@@ -5,11 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  ArrowLeft, Package, PackageCheck, Clock, CheckCircle2,
-  XCircle, ShoppingBag, User, Phone, Mail,
-  CreditCard, Calendar, RefreshCw, Sparkles, Printer, ArrowUpRight, StickyNote
-} from "lucide-react";
+import { ArrowLeft, Package, PackageCheck, Clock, CheckCircle2, XCircle, ShoppingBag, User, Phone, Mail, CreditCard, Calendar, RefreshCw, ShieldCheck, Printer, ArrowUpRight, StickyNote } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { generateOrderReceiptPDF } from "@/lib/pdf";
 
@@ -314,7 +310,7 @@ export default function AdminOrderDetailPage() {
               {order.upiReference && (
                 <div className="border border-blue-100 bg-blue-50/30 rounded-2xl p-4 space-y-3">
                   <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
                     UPI Proof of Payment
                   </p>
                   {order.upiReference.startsWith("http") ? (

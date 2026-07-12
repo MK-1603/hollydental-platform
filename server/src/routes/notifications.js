@@ -1,152 +1,159 @@
 import express from "express";
-import { db } from "../config/db.js";
-import {
-  appointments,
-  messages,
-  patients,
-  prescriptions,
-  services,
-} from "../db/schema.js";
-import { and, desc, eq, gte } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
+import { db } from "../config/db.js";
+import { notifications } from "../db/schema.js";
+import { eq, and, desc, or, ilike } from "drizzle-orm";
 
 const router = express.Router();
 
-function requireDb(res) {
-  if (!process.env.DATABASE_URL) {
-    res
-      .status(503)
-      .json({ message: "Notifications service is not configured." });
-    return false;
-  }
-  return true;
-}
+// --- SSE Connection Management ---
+const activeClients = new Map();
 
-const STATUS_LABELS = {
-  pending: "Appointment Awaiting Confirmation",
-  confirmed: "Appointment Confirmed",
-  arrived: "Marked as Arrived at Clinic",
-  in_progress: "Dental Treatment in Progress",
-  completed: "Dental Treatment Completed",
-  cancelled: "Appointment Cancelled",
-  no_show: "Marked as Appointment No-Show",
+const addClient = (userId, res) => {
+  if (!activeClients.has(userId)) {
+    activeClients.set(userId, []);
+  }
+  activeClients.get(userId).push(res);
 };
 
-/**
- * GET /api/notifications/me — synthesises a notification feed for the
- * authenticated patient by stitching together recent appointment status
- * changes, new prescriptions, and inbound messages.
- *
- * We don't persist a separate notifications table because every event we
- * surface is already authoritatively stored in its source table. Instead
- * we map them into a uniform feed item shape on the fly. This keeps the
- * feature consistent with the audit log even if a clinician reverses a
- * decision later.
- */
-router.get("/me", verifyToken, async (req, res) => {
-  if (!requireDb(res)) return;
-  if (req.user.role !== "patient") {
-    return res.status(403).json({ message: "Forbidden." });
+const removeClient = (userId, res) => {
+  if (activeClients.has(userId)) {
+    const clients = activeClients.get(userId);
+    const newClients = clients.filter(c => c !== res);
+    if (newClients.length === 0) {
+      activeClients.delete(userId);
+    } else {
+      activeClients.set(userId, newClients);
+    }
   }
+};
 
+const broadcastToUser = (userId, eventType, data) => {
+  if (activeClients.has(userId)) {
+    const clients = activeClients.get(userId);
+    clients.forEach(res => {
+      res.write(`event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`);
+    });
+  }
+};
+
+// GET /api/notifications/stream (SSE Endpoint)
+router.get("/stream", verifyToken, (req, res) => {
+  const userId = req.user.id;
+  
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  addClient(userId, res);
+
+  res.write(`event: connected\ndata: ${JSON.stringify({ message: "SSE connected" })}\n\n`);
+
+  req.on("close", () => {
+    removeClient(userId, res);
+  });
+});
+// ---------------------------------
+
+// GET /api/notifications
+router.get("/", verifyToken, async (req, res, next) => {
   try {
-    const pRows = await db
-      .select()
-      .from(patients)
-      .where(eq(patients.userId, req.user.id))
-      .limit(1);
-    const patient = pRows[0];
-    if (!patient) return res.status(200).json([]);
+    const { filter = "all", search = "" } = req.query;
+    const userId = req.user.id;
 
-    const since = new Date();
-    since.setDate(since.getDate() - 60);
+    const conditions = [eq(notifications.userId, userId)];
 
-    const [apptRows, rxRows, msgRows] = await Promise.all([
-      db
-        .select({
-          id: appointments.id,
-          status: appointments.status,
-          updatedAt: appointments.updatedAt,
-          appointmentDate: appointments.appointmentDate,
-          appointmentTime: appointments.appointmentTime,
-          serviceName: services.name,
-        })
-        .from(appointments)
-        .leftJoin(services, eq(appointments.serviceId, services.id))
-        .where(
-          and(
-            eq(appointments.patientId, patient.id),
-            gte(appointments.updatedAt, since)
-          )
+    if (filter === "unread") conditions.push(eq(notifications.isRead, false));
+    else if (filter === "read") conditions.push(eq(notifications.isRead, true));
+    else if (filter === "archived") conditions.push(eq(notifications.isArchived, true));
+    else if (filter !== "all") conditions.push(eq(notifications.type, filter));
+
+    if (filter !== "archived") conditions.push(eq(notifications.isArchived, false));
+
+    if (search) {
+      conditions.push(
+        or(
+          ilike(notifications.title, `%${search}%`),
+          ilike(notifications.message, `%${search}%`)
         )
-        .orderBy(desc(appointments.updatedAt))
-        .limit(15),
-      db
-        .select()
-        .from(prescriptions)
-        .where(
-          and(
-            eq(prescriptions.patientId, patient.id),
-            gte(prescriptions.createdAt, since)
-          )
-        )
-        .orderBy(desc(prescriptions.createdAt))
-        .limit(10),
-      db
-        .select()
-        .from(messages)
-        .where(
-          and(
-            eq(messages.patientId, patient.id),
-            eq(messages.senderRole, "admin"),
-            gte(messages.createdAt, since)
-          )
-        )
-        .orderBy(desc(messages.createdAt))
-        .limit(15),
-    ]);
+      );
+    }
 
-    const items = [
-      ...apptRows.map((a) => ({
-        id: `appt-${a.id}-${a.status}`,
-        type: "appointment",
-        title:
-          STATUS_LABELS[a.status] ||
-          `Appointment status: ${a.status.replace("_", " ")}`,
-        body: `${a.serviceName || "Appointment"} on ${a.appointmentDate} at ${a.appointmentTime}`,
-        href: `/portal/appointments/${a.id}`,
-        timestamp: a.updatedAt,
-        read: false,
-      })),
-      ...rxRows.map((r) => ({
-        id: `rx-${r.id}`,
-        type: "prescription",
-        title: "New prescription",
-        body: `${r.drugName} ${r.dosage}${r.frequency ? ` · ${r.frequency}` : ""}`,
-        href: "/portal/prescriptions",
-        timestamp: r.createdAt,
-        read: false,
-      })),
-      ...msgRows.map((m) => ({
-        id: `msg-${m.id}`,
-        type: "message",
-        title: "New message from the clinic",
-        body: m.deletedAt ? "Message removed" : m.body.slice(0, 140),
-        href: "/portal/messages",
-        timestamp: m.createdAt,
-        read: !!m.isRead,
-      })),
-    ].sort(
-      (a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+    const results = await db.select()
+      .from(notifications)
+      .where(and(...conditions))
+      .orderBy(desc(notifications.createdAt));
 
-    return res.status(200).json(items);
+    res.json(results);
   } catch (error) {
-    console.error("[notifications] failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to load notifications." });
+    next(error);
+  }
+});
+
+// PATCH /api/notifications/:id/read
+router.patch("/:id/read", verifyToken, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
+
+    broadcastToUser(userId, "update", { type: "read", id });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// PATCH /api/notifications/:id/archive
+router.patch("/:id/archive", verifyToken, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    await db.update(notifications)
+      .set({ isArchived: true })
+      .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
+
+    broadcastToUser(userId, "update", { type: "archive", id });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/notifications/:id
+router.delete("/:id", verifyToken, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    await db.delete(notifications)
+      .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
+
+    broadcastToUser(userId, "update", { type: "delete", id });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/notifications/mark-all-read
+router.post("/mark-all-read", verifyToken, async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+
+    broadcastToUser(userId, "update", { type: "mark-all-read" });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
   }
 });
 

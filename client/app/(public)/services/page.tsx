@@ -4,16 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { SERVICES, ServiceType } from "@/lib/constants";
 import BookButton from "@/components/public/BookButton";
-import {
-  ArrowRight,
-  Sparkles,
-  Shield,
-  GraduationCap,
-  Flame,
-  Search,
-  Clock,
-  Smile,
-} from "lucide-react";
+import { ArrowRight, Activity, Shield, GraduationCap, Flame, Search, Clock, Smile } from "lucide-react";
 
 const CATEGORIES = [
   {
@@ -70,7 +61,7 @@ export default function ServicesPage() {
 
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-24 text-center space-y-5">
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-            <Sparkles className="w-3 h-3" /> Treatments &amp; Care
+            <Activity className="w-3 h-3" /> Treatments &amp; Care
           </span>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1]">
             Premium dentistry,{" "}
@@ -215,7 +206,7 @@ export default function ServicesPage() {
         <div className="bg-gold/10 border border-gold/30 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div className="space-y-2">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white border border-gold/40 px-2.5 py-1 rounded-full">
-              <Sparkles className="w-3 h-3" /> Free Consultation
+              <Activity className="w-3 h-3" /> Free Consultation
             </span>
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-navy leading-tight">
               Not sure which treatment is right for you?

@@ -6,23 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
 import Logo from "@/components/public/Logo";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  History,
-  FolderOpen,
-  MessageSquare,
-  User,
-  LogOut,
-  ClipboardList,
-  Receipt,
-  Bell,
-  ShoppingBag,
-  PackageCheck,
-  X,
-  Heart,
-  Sparkles,
-} from "lucide-react";
+import { LayoutDashboard, CalendarDays, History, FolderOpen, MessageSquare, User, LogOut, ClipboardList, Receipt, Bell, ShoppingBag, PackageCheck, X, Heart, HeartPulse } from "lucide-react";
 
 interface PortalSidebarProps {
   isOpen?: boolean;
@@ -164,7 +148,7 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
           )}
         </div>
 
-        {/* AI Chat CTA button */}
+        {/* Clinical Support CTA button */}
         <Link
           href="/portal/ai"
           onClick={(e) => handleNavClick(e, "/portal/ai")}
@@ -175,13 +159,13 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
           }`}
         >
           <div className="w-7 h-7 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-gold" />
+            <HeartPulse className="w-3.5 h-3.5 text-gold" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-navy truncate">AI Assistant</p>
+            <p className="text-xs font-bold text-navy truncate">Clinical Support</p>
             <p className="text-[9px] text-gray-500 truncate">Ask about your care</p>
           </div>
-          <Sparkles className="w-3.5 h-3.5 text-gold shrink-0" />
+          <HeartPulse className="w-3.5 h-3.5 text-gold shrink-0" />
         </Link>
 
         {/* Nav List */}

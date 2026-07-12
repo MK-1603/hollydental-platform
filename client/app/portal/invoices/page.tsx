@@ -4,26 +4,7 @@ import { useState, useMemo } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  FileText,
-  Calendar,
-  Receipt,
-  Download,
-  RefreshCw,
-  X,
-  ShieldCheck,
-  CreditCard,
-  AlertCircle,
-  TrendingUp,
-  Activity,
-  ArrowRight,
-  Printer,
-  Lock,
-  QrCode,
-  CheckCircle2,
-  ShieldAlert,
-  MapPin,
-} from "lucide-react";
+import { FileText, Calendar, Receipt, Download, RefreshCw, X, ShieldCheck, CreditCard, AlertCircle, TrendingUp, Activity, ArrowRight, Printer, Lock, QrCode, CheckCircle2, ShieldAlert, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { generateInvoicePDF } from "@/lib/pdf";
 
@@ -95,24 +76,6 @@ export default function PatientInvoicesPage() {
   // Popup Modal Selection State
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
 
-  // Active Payment variables
-  const [activePaymentMethod, setActivePaymentMethod] = useState<"card" | "upi" | "cash">("cash");
-  
-  // Card Inputs
-  const [cardHolder, setCardHolder] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
-
-  // Simulated Payment Stages
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStep, setProcessingStep] = useState(0);
-  const [show3DS, setShow3DS] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
-  const [otpSubmitting, setOtpSubmitting] = useState(false);
-  const [paymentError, setPaymentError] = useState("");
-
   const handleDownloadPdf = (inv: Invoice) => {
     generateInvoicePDF({
       invoiceNumber: inv.invoiceNumber,
@@ -145,220 +108,12 @@ export default function PatientInvoicesPage() {
     return { totalCount, paidCount, unpaidBal, lastPaidDate };
   }, [invoices]);
 
-  // Form submission simulated gateway
-  const handlePayClick = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPaymentError("");
 
-    const cleanCard = cardNumber.replace(/\s/g, "");
-    if (cleanCard.length !== 16) {
-      setPaymentError("Please enter a valid 16-digit card number.");
-      return;
-    }
-    if (cardExpiry.length !== 5 || !cardExpiry.includes("/")) {
-      setPaymentError("Enter expiry date in MM/YY format.");
-      return;
-    }
-    if (cardCvc.length !== 3) {
-      setPaymentError("Enter a valid 3-digit CVC code.");
-      return;
-    }
-
-    // Trigger simulation sequence
-    setIsProcessing(true);
-    setProcessingStep(0);
-
-    setTimeout(() => {
-      setProcessingStep(1);
-      setTimeout(() => {
-        setProcessingStep(2);
-        setTimeout(() => {
-          setIsProcessing(false);
-          setShow3DS(true);
-        }, 1000);
-      }, 1000);
-    }, 1000);
-  };
-
-  const handleOTPConfirm = async () => {
-    if (!selectedInvoice) return;
-    if (otp !== "123456" && otp.trim().length !== 6) {
-      setOtpError("Incorrect verification code. Use '123456' for sandbox check.");
-      return;
-    }
-
-    setOtpSubmitting(true);
-    setOtpError("");
-
-    try {
-      // Put call to update invoice paid status in backend
-      const resp: any = await apiRequest(`/billing/invoices/${selectedInvoice.id}/pay`, {
-        method: "PUT",
-      });
-
-      if (resp) {
-        toast.success(`Payment captured! ${selectedInvoice.invoiceNumber} has been cleared.`);
-        
-        // Update local selected state & refetch list
-        setSelectedInvoice({
-          ...selectedInvoice,
-          status: "paid",
-          paidAt: new Date().toISOString(),
-        });
-        
-        setShow3DS(false);
-        setOtp("");
-        refetch();
-      } else {
-        throw new Error("Billing system failed to post payment.");
-      }
-    } catch (err: any) {
-      setOtpError(err?.message || "Failed to update statement. Sandbox error.");
-      setOtpSubmitting(false);
-    } finally {
-      setOtpSubmitting(false);
-    }
-  };
 
   return (
     <div className="space-y-6 font-sans pb-12 relative">
       
-      {/* 1. Immersive Processing Gateway Overlay inside Invoices */}
-      {isProcessing && (
-        <div className="fixed inset-0 z-50 bg-navy/85 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl space-y-6 animate-scale-in border border-gray-55">
-            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
-              <div className="absolute inset-0 border-4 border-gold/20 rounded-full" />
-              <div className="absolute inset-0 border-4 border-gold border-t-transparent rounded-full animate-spin" />
-              <CreditCard className="w-8 h-8 text-gold animate-pulse" />
-            </div>
 
-            <div className="space-y-1.5">
-              <h3 className="font-serif text-xl font-bold text-navy">Securing Transaction</h3>
-              <p className="text-gray-400 text-xs leading-relaxed">Securing SSL handshake with Hollyhill Gateways...</p>
-            </div>
-
-            <div className="space-y-3 bg-gray-50 p-4 rounded-2xl text-left text-xs border border-gray-100 font-medium">
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 0 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "1"}
-                </div>
-                <span className={processingStep === 0 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Resolving payment parameters...</span>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 1 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "2"}
-                </div>
-                <span className={processingStep === 1 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Authorizing €{Number(selectedInvoice?.totalAmount || 0).toFixed(2)} statement capture...</span>
-              </div>
-
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${processingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {processingStep > 2 ? <CheckCircle2 className="w-3.5 h-3.5 text-navy font-bold" /> : "3"}
-                </div>
-                <span className={processingStep === 2 ? "font-bold text-navy animate-pulse" : "text-gray-400"}>Requesting 3D-Secure MFA Identity Check...</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 2. 3D Secure Verification Popup Modal inside Invoices */}
-      {show3DS && selectedInvoice && (
-        <div className="fixed inset-0 z-55 bg-navy/90 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-3xl overflow-hidden shadow-2xl animate-scale-in border border-gray-100">
-            
-            <div className="bg-navy p-5 text-white flex items-center justify-between border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-gold" />
-                <span className="font-serif text-sm font-bold tracking-wider">SECURE BANK CLEARING</span>
-              </div>
-              <span className="text-[9px] uppercase tracking-widest font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">Active Sandbox</span>
-            </div>
-
-            <div className="p-6 space-y-5 text-center">
-              <div className="w-12 h-12 bg-gold/15 rounded-full flex items-center justify-center mx-auto text-gold">
-                <ShieldCheck className="w-6 h-6 animate-pulse" />
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-serif text-base font-bold text-navy">Identity Check Verification</h4>
-                <p className="text-gray-400 text-xs px-2 leading-relaxed">
-                  Enter your multi-factor clearing code sent to your registered profile mobile.
-                </p>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 text-left text-xs space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400 font-semibold">Payment to:</span>
-                  <span className="font-bold text-navy">Hollyhill Dental Clinical</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400 font-semibold">Statement ID:</span>
-                  <span className="font-bold text-navy font-mono">{selectedInvoice.invoiceNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400 font-semibold">Amount:</span>
-                  <span className="font-bold text-navy">€{Number(selectedInvoice.totalAmount).toFixed(2)}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-left">
-                <label className="block text-[10px] uppercase font-bold text-navy tracking-wider">OTP Code *</label>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/gi, ""))}
-                  placeholder="Enter 123456"
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center text-lg font-mono font-bold tracking-widest focus:outline-none focus:bg-white focus:border-gold focus:ring-1 focus:ring-gold"
-                  maxLength={6}
-                />
-                <p className="text-[10px] text-gray-500">
-                  💡 Type sandbox bypass passcode <span className="font-bold text-gold">123456</span> to clear the invoice.
-                </p>
-              </div>
-
-              {otpError && (
-                <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-xs text-red-700 flex items-start gap-2 text-left animate-fade-in">
-                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                  <span>{otpError}</span>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShow3DS(false);
-                    setOtp("");
-                    setOtpError("");
-                  }}
-                  disabled={otpSubmitting}
-                  className="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-500 font-bold py-3 rounded-xl text-xs transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleOTPConfirm}
-                  disabled={otpSubmitting || otp.length !== 6}
-                  className="flex-1 bg-gold hover:bg-gold-dark text-navy font-bold py-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shadow-md"
-                >
-                  {otpSubmitting ? (
-                    <div className="w-4 h-4 border-2 border-navy border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Verify OTP</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Page Header */}
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-4 gap-3">
@@ -457,11 +212,6 @@ export default function PatientInvoicesPage() {
                 key={inv.id}
                 onClick={() => {
                   setSelectedInvoice(inv);
-                  setPaymentError("");
-                  setCardHolder("");
-                  setCardNumber("");
-                  setCardExpiry("");
-                  setCardCvc("");
                 }}
                 className="w-full max-w-sm h-[210px] relative font-sans cursor-pointer group"
               >

@@ -122,10 +122,14 @@ export const files = pgTable("files", {
   patientId: uuid("patient_id").references(() => patients.id, { onDelete: "cascade" }),
   uploadedBy: uuid("uploaded_by").references(() => users.id),
   fileName: varchar("file_name", { length: 255 }).notNull(),
+  originalName: varchar("original_name", { length: 255 }),
   fileType: varchar("file_type", { length: 100 }).notNull(),
+  size: integer("size"),
   cloudinaryPublicId: varchar("cloudinary_public_id", { length: 255 }).notNull(),
   cloudinaryUrl: text("cloudinary_url").notNull(),
   category: varchar("category", { length: 50 }).notNull().default("other"), // xray | document | photo | other
+  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "set null" }),
+  metadata: jsonb("metadata"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -167,11 +171,13 @@ export const blogPosts = pgTable("blog_posts", {
   excerpt: text("excerpt"),
   authorId: uuid("author_id").references(() => users.id),
   featuredImageUrl: text("featured_image_url"),
-  category: varchar("category", { length: 100 }).notNull(),
-  tags: text("tags"), // Comma separated tags
+  categoryId: uuid("category_id").references(() => blogCategories.id, { onDelete: "set null" }),
+  tags: jsonb("tags"), // Storing array of tag IDs or strings for simplicity
   seoTitle: varchar("seo_title", { length: 255 }),
   seoDescription: text("seo_description"),
-  status: varchar("status", { length: 50 }).notNull().default("draft"), // draft | published
+  canonicalUrl: varchar("canonical_url", { length: 255 }),
+  readingTime: integer("reading_time"),
+  status: varchar("status", { length: 50 }).notNull().default("draft"), // draft | review | scheduled | published | archived
   publishedAt: timestamp("published_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -333,4 +339,105 @@ export const orders = pgTable("orders", {
   cancelledAt: timestamp("cancelled_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+
+});
+
+// 25. Clinical Notes Table — per-patient clinical records created by doctors
+export const clinicalNotes = pgTable("clinical_notes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  patientId: uuid("patient_id").references(() => patients.id, { onDelete: "cascade" }),
+  doctorId: uuid("doctor_id").references(() => users.id, { onDelete: "set null" }),
+  recordType: varchar("record_type", { length: 100 }).notNull().default("general"), // general | soap | treatment | followup
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 26. Notifications Table — in-app notifications per user
+export const notifications = pgTable("notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 100 }).notNull().default("info"), // info | success | warning | error | appointment | message | payment
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  isArchived: boolean("is_archived").notNull().default(false),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+// 27. App Settings Table — key/value store for clinic-wide configuration
+export const appSettings = pgTable("app_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: varchar("key", { length: 100 }).notNull().unique(),
+  value: jsonb("value").notNull().default({}),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 28. Staff Table — clinic staff profiles linked to user accounts
+export const staff = pgTable("staff", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  role: varchar("role", { length: 50 }).notNull().default("staff"), // doctor | dentist | hygienist | receptionist | staff | admin
+  department: varchar("department", { length: 100 }),
+  bio: text("bio"),
+  schedule: jsonb("schedule"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 29. Suppliers Table — product/supply vendors
+export const suppliers = pgTable("suppliers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  contactName: varchar("contact_name", { length: 100 }),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  address: text("address"),
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active | inactive
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 22. Folders Table
+export const folders = pgTable("folders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  patientId: uuid("patient_id").references(() => patients.id, { onDelete: "cascade" }),
+  parentId: uuid("parent_id"),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  color: varchar("color", { length: 50 }),
+  icon: varchar("icon", { length: 50 }),
+  visibility: varchar("visibility", { length: 50 }).notNull().default("private"),
+  folderType: varchar("folder_type", { length: 50 }).notNull().default("other"),
+  tags: jsonb("tags"),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 23. Blog Categories Table
+export const blogCategories = pgTable("blog_categories", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  color: varchar("color", { length: 50 }),
+  icon: varchar("icon", { length: 50 }),
+  parentId: uuid("parent_id"),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+// 24. Blog Tags Table
+export const blogTags = pgTable("blog_tags", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });

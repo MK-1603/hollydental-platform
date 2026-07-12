@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { apiRequest, ApiError } from "@/lib/api";
+import { offlineCache } from "@/lib/offlineCache";
 
 interface Options<T> {
   /** Polling interval in ms. Set to 0 to disable polling. Defaults to 30000. */
@@ -58,6 +59,19 @@ export function useLiveData<T = unknown>(
     }
     return initialData;
   });
+  
+  // Asynchronously seed from IndexedDB if not in memory
+  useEffect(() => {
+    if (path && !memoryCache.has(path) && !hasDataRef.current) {
+      offlineCache.getItem<T>(`live:${path}`).then(cached => {
+        if (cached && !hasDataRef.current) {
+          setData(cached);
+          hasDataRef.current = true;
+          setLoading(false); // We have offline data, stop showing skeletons
+        }
+      });
+    }
+  }, [path]);
   const [error, setError] = useState<ApiError | Error | null>(null);
   const [loading, setLoading] = useState<boolean>(() => {
     if (!path || !enabled) return false;
@@ -102,8 +116,12 @@ export function useLiveData<T = unknown>(
     async (silent: boolean) => {
       if (!path || !enabled || stoppedRef.current) return;
 
-      // Cancel any in-flight request
-      abortRef.current?.abort();
+      // Cancel any in-flight request only if it hasn't been aborted yet
+      if (abortRef.current && !abortRef.current.signal.aborted) {
+        abortRef.current.abort();
+      }
+      abortRef.current = null;
+      
       const controller = new AbortController();
       abortRef.current = controller;
 
@@ -115,11 +133,12 @@ export function useLiveData<T = unknown>(
 
       try {
         const raw = await apiRequest(path, { signal: controller.signal });
-        if (!mountedRef.current) return;
+        if (!mountedRef.current || controller.signal.aborted) return;
 
         consecutiveErrorsRef.current = 0;
         const next = select ? select(raw) : (raw as T);
         memoryCache.set(path, next);
+        offlineCache.setItem(`live:${path}`, next);
         setData(next);
         hasDataRef.current = true;
         setError(null);
@@ -170,7 +189,10 @@ export function useLiveData<T = unknown>(
     return () => {
       mountedRef.current = false;
       clearTimer();
-      abortRef.current?.abort();
+      if (abortRef.current && !abortRef.current.signal.aborted) {
+        abortRef.current.abort();
+      }
+      abortRef.current = null;
     };
   }, []);
 

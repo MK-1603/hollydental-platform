@@ -3,16 +3,7 @@
 import { useState } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { useAuthStore } from "@/store/useAuthStore";
-import {
-  ClipboardList,
-  Calendar,
-  Pill,
-  RefreshCw,
-  Download,
-  X,
-  Eye,
-  FileText
-} from "lucide-react";
+import { ClipboardList, Calendar, Pill, RefreshCw, Download, X, Eye, FileText } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { generatePrescriptionPDF } from "@/lib/pdf";
 

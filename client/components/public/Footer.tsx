@@ -4,27 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CLINIC } from "@/lib/constants";
-import { 
-  MapPin, 
-  Phone, 
-  Mail, 
-  Clock, 
-  ChevronDown, 
-  ChevronUp, 
-  Instagram, 
-  Facebook, 
-  MessageSquare,
-  MessageCircle,
-  ShieldCheck,
-  Star
-} from "lucide-react";
+import { MapPin, Phone, Mail, Clock, ChevronDown, ChevronUp, Instagram, Facebook, MessageSquare, MessageCircle, ShieldCheck, Star } from "lucide-react";
 import { useUIStore } from "@/store/useUIStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import Logo from "@/components/public/Logo";
 
 export default function Footer() {
   const router = useRouter();
-  const { openLoginModal } = useUIStore();
+  const { openLoginModal, openBookingModal } = useUIStore();
   const { user } = useAuthStore();
   const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({
     quickLinks: false,
@@ -37,12 +24,7 @@ export default function Footer() {
   };
 
   const goToBooking = () => {
-    const target = "/portal/booking";
-    if (user) {
-      router.push(target);
-      return;
-    }
-    openLoginModal(() => router.push(target));
+    openBookingModal();
   };
 
   return (

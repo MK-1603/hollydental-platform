@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useLiveData } from "@/lib/useLiveData";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  PackageCheck, RefreshCw, ShoppingBag, Clock, CheckCircle2,
-  XCircle, Package, X, ChevronRight, Sparkles, TrendingUp,
-} from "lucide-react";
+import { PackageCheck, RefreshCw, ShoppingBag, Clock, CheckCircle2, XCircle, Package, X, ChevronRight, Activity, TrendingUp } from "lucide-react";
 
 interface Order {
   id: string;
@@ -227,7 +224,7 @@ function OrderCard({ order: o, onCancel }: { order: Order; onCancel: (e: React.M
       {/* Ready for pickup banner */}
       {o.status === "ready" && (
         <div className="px-4 py-2.5 bg-emerald-50 border-t border-emerald-100 flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <Activity className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
           <span className="text-[11px] text-emerald-700 font-semibold">Ready to collect at the clinic reception!</span>
         </div>
       )}

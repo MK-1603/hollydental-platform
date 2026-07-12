@@ -1,0 +1,179 @@
+========================================================================
+THE GOOGLE STITCH PROMPT TO FINALIZE THE UI & UX DESIGN
+========================================================================
+
+Copy and paste everything below this line into Google Stitch to finalize the UI & UX design. 
+
+------------------------------------------------------------------------
+>>> START GOOGLE STITCH PROMPT <<<
+------------------------------------------------------------------------
+
+"You are an elite, world-class UI/UX designer. I need you to generate a fully responsive, premium Next.js & Tailwind CSS UI for a bespoke dental clinic management platform called the 'Hollyhill Dental Clinic Platform'.
+
+CRITICAL CONSTRAINT - DO NOT INVENT FEATURES:
+You must strictly follow the layouts provided below. Do NOT create features, buttons, or screens on your own. You must build exactly what I give you—nothing more, nothing less. Follow the instructions to the letter.
+
+Global Aesthetic Rules:
+- Theme: Pristine, clinical, and reassuring Light Mode by default.
+- Colors: Soft surgical whites and light grays for backgrounds, with rich ocean blue or indigo for primary interactive actions. Use calm success greens (for confirmed appointments) and soft ambers (for pending approvals).
+- Typography: Use a modern, ultra-legible sans-serif font like 'Inter' or 'Roboto'. Headings should be airy and welcoming to reduce patient anxiety.
+- Textures: Clean, flat design with soft drop shadows (`shadow-sm` or `shadow-md`) to lift cards off the background. The AI Chatbot widget should use subtle glassmorphism (frosted glass) to float above the UI.
+- Interactivity: Everything must feel responsive and safe. Use smooth micro-animations on hover and active states (buttons should scale down slightly on click). Build it responsive for both mobile patients and desktop clinic admins."
+
+
+------------------------------------------------------------------------
+1. SCREEN 1: SPLASH & CLINIC LOGIN
+------------------------------------------------------------------------
+"Generate the Login UI for Hollyhill Dental Clinic.
+
+Layout Requirements:
+- A clean, professional 'Hollyhill Dental Clinic' logo perfectly centered on a pristine white background.
+- Below the logo, a dual-tab login box: 'Patient Portal' and 'Staff Access'.
+- Large, touch-friendly input fields for Email and Password.
+- Pinned below the form, a secure, ocean blue 'Sign In' button that pulses softly.
+- Include a subtle 'Forgot Password?' link."
+
+
+------------------------------------------------------------------------
+2. SCREEN 2: PATIENT PORTAL DASHBOARD
+------------------------------------------------------------------------
+"Generate the main Patient Dashboard screen.
+
+Layout Requirements:
+- A clean top navigation bar with a user profile avatar and a notification bell showing unread counts.
+- A welcoming banner at the top: 'Welcome back, [Name]'.
+- Below the banner, a grid of clean, soft-shadow cards: 'Upcoming Appointments', 'Pending Requests', and 'Recent Notifications'.
+- A prominent quick-action row with large, friendly icons: 'Request Appointment', 'My Invoices', and 'Contact Clinic'.
+- In the bottom right corner, a floating AI Chatbot bubble widget."
+
+
+------------------------------------------------------------------------
+3. SCREEN 3: APPOINTMENT BOOKING WIZARD (Patient View)
+------------------------------------------------------------------------
+"Generate the Appointment Booking Wizard for patients.
+
+Layout Requirements:
+- A sleek, multi-step progress bar at the top: '1. Service -> 2. Date & Time -> 3. Confirm'.
+- Step 1: A clean grid of selectable services (e.g., 'Checkup', 'Cleaning', 'Emergency').
+- Step 2: A highly interactive, massive calendar date-picker, followed by available time slot chips that turn ocean blue when selected.
+- Step 3: A final confirmation summary card with a large 'Submit Request' button.
+- Ensure the layout is highly tap-friendly for mobile users."
+
+
+------------------------------------------------------------------------
+4. SCREEN 4: TREATMENT HISTORY TIMELINE (Patient View)
+------------------------------------------------------------------------
+"Generate the Treatment History screen for patients.
+
+Layout Requirements:
+- A vertical, elegant timeline running down the left side of the screen.
+- Each timeline node represents a completed clinical procedure.
+- The node card should display: Date, Procedure Name (e.g., 'Root Canal'), and a brief, reassuring doctor's note from Dr. Roghay.
+- Use soft gray icons for past treatments and a highlighted blue icon for the most recent visit."
+
+
+------------------------------------------------------------------------
+5. SCREEN 5: INTERACTIVE DENTAL CHART (Patient View)
+------------------------------------------------------------------------
+"Generate the read-only Interactive Dental Chart screen for patients.
+
+Layout Requirements:
+- A massive, clear SVG map of an adult mouth (32 teeth) taking up the center of the screen.
+- Each tooth should have distinct color-coded statuses (e.g., green for healthy, blue for filled, silver for crowned).
+- When a user taps a tooth, a sleek side-panel or bottom-sheet slides in showing the exact clinical notes from Dr. Roghay.
+- A clean legend at the bottom explaining the tooth status colors."
+
+
+------------------------------------------------------------------------
+6. SCREEN 6: MY FILES & INVOICES (Patient View)
+------------------------------------------------------------------------
+"Generate the My Files & Billing screen for patients.
+
+Layout Requirements:
+- A sticky tab bar with two options: 'Clinical Files' and 'Billing'.
+- Under 'Clinical Files': A grid of downloadable document cards (e.g., 'Panoramic X-Ray - Oct 12', 'Consent Form PDF'). Each card has a prominent download icon.
+- Under 'Billing': A clean list of invoices showing Date, Treatment Summary, Total Cost, and a 'Pay Now' or 'Download Receipt' button."
+
+
+------------------------------------------------------------------------
+7. SCREEN 7: AI SYMPTOM CHECKER (Patient Emergency)
+------------------------------------------------------------------------
+"Generate the AI Symptom Checker screen.
+
+Layout Requirements:
+- A warning banner at the top with a subtle amber background: 'If you are experiencing severe bleeding or swelling, please call emergency services immediately.'
+- A chat-interface layout that feels like a messaging app, but specifically tailored for diagnostic questions.
+- User inputs should be large, easy-to-tap predefined bubbles (e.g., 'Throbbing Pain', 'Sensitivity to Cold', 'Broken Tooth') alongside a text input box.
+- The AI's responses should render in clean, distinct bubbles with a small Gemini AI sparkle icon."
+
+
+------------------------------------------------------------------------
+8. SCREEN 8: ADMIN & STAFF COMMAND CENTER
+------------------------------------------------------------------------
+"Generate the Admin Dashboard for clinic staff.
+
+Layout Requirements:
+- A professional side navigation menu (or bottom bar on mobile) with: 'Schedule', 'Approvals', 'Patients', 'Messages', and 'AI Scribe'.
+- The main view should be the 'Approvals Queue': A list of pending patient appointment requests with large 'Approve' (green) and 'Decline' (red) buttons.
+- Next to it, an interactive daily calendar showing confirmed, arrived, in-progress, and completed slots.
+- Quick action buttons pinned to the top right: 'Prescribe Inline' and 'Bill Inline'."
+
+
+------------------------------------------------------------------------
+9. SCREEN 9: ADMIN INTERACTIVE CHART & NOTES
+------------------------------------------------------------------------
+"Generate the Admin view of the Interactive Dental Chart.
+
+Layout Requirements:
+- Similar to the patient view, an SVG map of the 32 teeth.
+- However, this view has a 'Toolbar' floating on the left with editing actions: 'Mark Filled', 'Mark Extracted', 'Flag for Treatment'.
+- Clicking a tooth opens a massive, clear text area where the dentist can rapidly type clinical observations.
+- A prominent 'Save to Record' button at the bottom."
+
+
+------------------------------------------------------------------------
+10. SCREEN 10: AI CLINICAL SCRIBE & ASSISTANT (Admin View)
+------------------------------------------------------------------------
+"Generate the AI Assistant Dashboard for the clinic staff.
+
+Layout Requirements:
+- A clean top tab navigation: 'Clinical Briefs', 'SEO Articles', 'Review Replies', and 'SMS Reminders'.
+- The main workspace should feature a large text-generation area with a 'Generate with Gemini' button (featuring the sparkle icon).
+- Include a side-panel where staff can select patient records or recent treatments to feed into the AI context window.
+- Ensure the generated text appears in a clean, copy-friendly text box."
+
+
+------------------------------------------------------------------------
+11. SCREEN 11: LIVE MESSAGING CENTER (Admin View)
+------------------------------------------------------------------------
+"Generate the Live Messaging Center for the clinic staff.
+
+Layout Requirements:
+- A classic two-pane layout: A list of active patient conversations on the left, and the active chat window on the right.
+- Each message must look permanent (no edit/delete icons anywhere) to visually enforce the immutable audit trail rule.
+- The chat window must have a sticky 'Auto-refreshing...' indicator at the top to reassure staff the connection is live.
+- A quick-action bar above the chat input to easily send templated clinical responses."
+
+
+------------------------------------------------------------------------
+12. SCREEN 12: SYSTEM ACTIVITY & AUDIT LOG (Admin View)
+------------------------------------------------------------------------
+"Generate the System Activity Log for the clinic admin.
+
+Layout Requirements:
+- A wide, highly structured data table taking up the majority of the screen.
+- Columns should include: Timestamp, User (Staff Member), Action Taken (e.g., 'Deleted Patient Record', 'Approved Appointment'), and IP Address.
+- A powerful search and filter bar at the top to filter logs by date range or specific staff member.
+- The UI should feel strictly administrative, secure, and read-only."
+
+
+------------------------------------------------------------------------
+13. SCREEN 13: SETTINGS & GDPR SAFETY
+------------------------------------------------------------------------
+"Generate the Profile Settings & Data Management screen.
+
+Layout Requirements:
+- A clean list of sections: 'Personal Info', 'Security', and 'Data Privacy'.
+- 'Security Section': Form inputs to enforce password rotation (Current Password, New Password, Confirm Password).
+- 'Data Privacy Section': A prominent button: 'Export GDPR Data (JSON)'.
+- 'Danger Zone Section': A section with a subtle red border containing a 'Delete Account' button. Tapping it must trigger a safety modal requiring the user to type 'DELETE' before proceeding."

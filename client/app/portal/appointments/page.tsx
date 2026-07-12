@@ -4,10 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import Link from "next/link";
-import {
-  CalendarDays, ChevronDown, Plus, Clock, RefreshCw,
-  MapPin, Phone, X, Stethoscope, ChevronRight, Sparkles,
-} from "lucide-react";
+import { CalendarDays, ChevronDown, Plus, Clock, RefreshCw, MapPin, Phone, X, Stethoscope, ChevronRight, Activity } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { CLINIC } from "@/lib/constants";
 
@@ -129,7 +126,7 @@ export default function PortalAppointmentsPage() {
         </div>
         {upcoming.length > 0 && (
           <div className="relative mt-4 flex items-center gap-3 bg-white/10 rounded-xl px-4 py-3 border border-white/10">
-            <Sparkles className="w-4 h-4 text-gold shrink-0" />
+            <Activity className="w-4 h-4 text-gold shrink-0" />
             <span className="text-xs text-white/80">Next visit: <span className="font-bold text-white">{formatDate(upcoming[0].appointmentDate)}</span> at <span className="font-bold text-gold">{upcoming[0].appointmentTime}</span></span>
           </div>
         )}

@@ -6,25 +6,7 @@ import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { CLINIC } from "@/lib/constants";
-import {
-  ShoppingCart,
-  Minus,
-  Plus,
-  ArrowLeft,
-  ShieldCheck,
-  AlertCircle,
-  Banknote,
-  QrCode,
-  CreditCard,
-  Check,
-  User,
-  Heart,
-  Activity,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-} from "lucide-react";
+import { ShoppingCart, Minus, Plus, ArrowLeft, ShieldCheck, AlertCircle, Banknote, QrCode, CreditCard, Check, User, Heart, Activity, Calendar, Phone, Mail, MapPin } from "lucide-react";
 
 interface Product {
   id: string;
@@ -137,17 +119,7 @@ function CheckoutContent() {
         setError("Please paste the 12-character UPI reference from your bank app.");
         return;
       }
-
-      // Immersive Simulator loading sequence for UPI
       setIsProcessingUpi(true);
-      setUpiProcessingStep(0);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(1);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(2);
-      await new Promise((r) => setTimeout(r, 1100));
-      setUpiProcessingStep(3);
-      await new Promise((r) => setTimeout(r, 800));
     }
 
     setSubmitting(true);
@@ -232,31 +204,10 @@ function CheckoutContent() {
             
             <div className="space-y-3 bg-gray-50 p-4 rounded-xl text-left border border-gray-100 text-xs">
               <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 0 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 0 ? <Check className="w-3 h-3 text-navy font-bold" /> : "1"}
+                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold bg-gold text-navy">
+                  <Check className="w-3 h-3 text-navy font-bold" />
                 </div>
-                <span className={upiProcessingStep === 0 ? "font-bold text-navy" : "text-gray-400"}>Resolving clinic VPA gateway address...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 1 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 1 ? <Check className="w-3 h-3 text-navy font-bold" /> : "2"}
-                </div>
-                <span className={upiProcessingStep === 1 ? "font-bold text-navy" : "text-gray-400"}>Transmitting €{total.toFixed(2)} reference...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 2 ? "bg-gold text-navy" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep > 2 ? <Check className="w-3 h-3 text-navy font-bold" /> : "3"}
-                </div>
-                <span className={upiProcessingStep === 2 ? "font-bold text-navy" : "text-gray-400"}>Verifying reference code: {upiReference.slice(0, 12)}...</span>
-              </div>
-              
-              <div className="flex items-center gap-2.5">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${upiProcessingStep >= 3 ? "bg-emerald-500 text-white animate-bounce" : "bg-gray-200 text-gray-400"}`}>
-                  {upiProcessingStep >= 3 ? <Check className="w-3 h-3 text-white font-bold" /> : "4"}
-                </div>
-                <span className={upiProcessingStep === 3 ? "font-bold text-emerald-600" : "text-gray-400"}>Reference Logged! Awaiting clinic approval...</span>
+                <span className="font-bold text-navy">Processing with clinic gateway...</span>
               </div>
             </div>
           </div>

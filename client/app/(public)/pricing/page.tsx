@@ -6,19 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { SERVICES, ServiceType } from "@/lib/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
-import {
-  ArrowRight,
-  BadgeHelp,
-  Landmark,
-  Search,
-  ShieldCheck,
-  Sparkles,
-  CheckCircle2,
-  Clock,
-  Lock,
-  ChevronDown,
-  Star,
-} from "lucide-react";
+import { ArrowRight, BadgeHelp, Landmark, Search, ShieldCheck, Activity, CheckCircle2, Clock, Lock, ChevronDown, Star } from "lucide-react";
 
 const CATEGORY_ORDER = ["All", "general", "cosmetic", "orthodontics", "advanced"] as const;
 type CategoryKey = (typeof CATEGORY_ORDER)[number];
@@ -379,7 +367,7 @@ export default function PricingPage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,_rgba(201,169,110,0.18),_transparent_55%)]" />
           <div className="relative space-y-4">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold/90 bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-              <Sparkles className="w-3 h-3" /> Ready when you are
+              <Activity className="w-3 h-3" /> Ready when you are
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold">
               Reserve your slot in under a minute.

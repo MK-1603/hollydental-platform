@@ -30,8 +30,7 @@ router.get("/me", verifyToken, async (req, res) => {
     }
     return res.status(200).json(pRows[0]);
   } catch (err) {
-    console.error("[patients] GET /me failed", err);
-    return res.status(500).json({ message: "Failed to retrieve profile." });
+    next(err);
   }
 });
 
@@ -64,8 +63,7 @@ router.patch("/me", verifyToken, async (req, res) => {
       .returning();
     return res.status(200).json({ message: "Profile updated.", patientProfile: updated });
   } catch (err) {
-    console.error("[patients] PATCH /me failed", err);
-    return res.status(500).json({ message: "Failed to update profile." });
+    next(err);
   }
 });
 
@@ -94,8 +92,7 @@ router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
     const results = await db.select().from(patients);
     return res.status(200).json(results);
   } catch (error) {
-    console.error("[patients] GET / failed", error);
-    return res.status(500).json({ message: "Failed to retrieve patients." });
+    next(error);
   }
 });
 
@@ -113,10 +110,7 @@ router.get("/:id", verifyToken, requireRole("admin"), async (req, res) => {
     }
     return res.status(200).json(rows[0]);
   } catch (error) {
-    console.error("[patients] GET /:id failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve patient profile." });
+        next(error);
   }
 });
 
@@ -176,31 +170,49 @@ router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
       patient: inserted,
     });
   } catch (error) {
-    console.error("[patients] POST / failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to create patient profile." });
+        next(error);
   }
 });
 
-/* 4. PUT update (admin). */
-router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+/* 4. PUT update (admin) — explicit allowlist prevents mass-assignment. */
+router.put("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
+  const {
+    firstName, lastName, dateOfBirth, gender, bloodGroup, age,
+    phone, email, address, emergencyContact, emergencyPhone,
+    medicalConditions, medications, allergies, insuranceProvider, notes,
+  } = req.body || {};
   try {
-    const updated = await db
+    const patch = {
+      updatedAt: new Date(),
+      ...(firstName !== undefined && { firstName }),
+      ...(lastName !== undefined && { lastName }),
+      ...(dateOfBirth !== undefined && { dateOfBirth }),
+      ...(gender !== undefined && { gender }),
+      ...(bloodGroup !== undefined && { bloodGroup: bloodGroup || null }),
+      ...(age !== undefined && { age: age ? Number(age) : null }),
+      ...(phone !== undefined && { phone }),
+      ...(email !== undefined && { email }),
+      ...(address !== undefined && { address: address || null }),
+      ...(emergencyContact !== undefined && { emergencyContact: emergencyContact || null }),
+      ...(emergencyPhone !== undefined && { emergencyPhone: emergencyPhone || null }),
+      ...(medicalConditions !== undefined && { medicalConditions: medicalConditions || null }),
+      ...(medications !== undefined && { medications: medications || null }),
+      ...(allergies !== undefined && { allergies: allergies || null }),
+      ...(insuranceProvider !== undefined && { insuranceProvider: insuranceProvider || null }),
+      ...(notes !== undefined && { notes: notes || null }),
+    };
+    const [updated] = await db
       .update(patients)
-      .set({ ...(req.body || {}), updatedAt: new Date() })
+      .set(patch)
       .where(eq(patients.id, req.params.id))
       .returning();
-    if (updated.length === 0) {
+    if (!updated) {
       return res.status(404).json({ message: "Patient not found." });
     }
-    return res.status(200).json(updated[0]);
+    return res.status(200).json(updated);
   } catch (error) {
-    console.error("[patients] PUT /:id failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to update patient profile." });
+    next(error);
   }
 });
 
@@ -243,10 +255,7 @@ router.get("/:id/summary", verifyToken, requireRole("admin"), async (req, res) =
 
     return res.status(200).json({ summary });
   } catch (error) {
-    console.error("[patients] summary failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to generate patient summary." });
+        next(error);
   }
 });
 

@@ -5,12 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiRequest, apiUpload } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import {
-  ArrowLeft, Package, PackageCheck, Clock, CheckCircle2,
-  XCircle, ShoppingBag, AlertCircle, X, Phone, MapPin,
-  CreditCard, Hash, Calendar, FileText, RefreshCw, Sparkles,
-  Upload, Camera, Download, Lock,
-} from "lucide-react";
+import { ArrowLeft, Package, PackageCheck, Clock, CheckCircle2, XCircle, ShoppingBag, AlertCircle, X, Phone, MapPin, CreditCard, Hash, Calendar, FileText, RefreshCw, Activity, Upload, Camera, Download, Lock } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 import { generateOrderReceiptPDF } from "@/lib/pdf";
 
@@ -346,7 +341,7 @@ export default function OrderDetailPage() {
               
               {order.status === "ready" && (
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-emerald-700 font-semibold bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100/50">
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+                  <Activity className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
                   <a href={CLINIC.phoneHref} className="hover:underline flex items-center gap-1"><Phone className="w-3 h-3 text-gold" /> {CLINIC.phone}</a>
                   <span className="text-gray-300">·</span>
                   <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-gold" /> {CLINIC.address}</span>

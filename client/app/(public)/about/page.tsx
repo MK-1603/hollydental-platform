@@ -3,23 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { CLINIC } from "@/lib/constants";
-import {
-  Award,
-  ShieldCheck,
-  HeartHandshake,
-  Smile,
-  CheckCircle,
-  Sparkles,
-  ArrowRight,
-  Clock,
-  MapPin,
-  Phone,
-  MessageSquare,
-  Quote,
-  Stethoscope,
-  Users,
-  Star,
-} from "lucide-react";
+import { Award, ShieldCheck, HeartHandshake, Smile, CheckCircle, Activity, ArrowRight, Clock, MapPin, Phone, MessageSquare, Quote, Stethoscope, Users, Star } from "lucide-react";
 import BookButton from "@/components/public/BookButton";
 
 const stats = [
@@ -172,7 +156,7 @@ export default function AboutPage() {
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-28 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-              <Sparkles className="w-3 h-3" /> About the Clinic
+              <Activity className="w-3 h-3" /> About the Clinic
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1]">
               Premium dental care with{" "}

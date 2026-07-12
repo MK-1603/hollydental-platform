@@ -4,18 +4,7 @@ import { useMemo, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
-import {
-  CalendarClock,
-  Check,
-  RefreshCw,
-  X,
-  User,
-  Mail,
-  Phone,
-  StickyNote,
-  Inbox,
-  Send,
-} from "lucide-react";
+import { CalendarClock, Check, RefreshCw, X, User, Mail, Phone, StickyNote, Inbox, Send } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface PendingAppointment {

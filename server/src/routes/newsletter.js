@@ -49,8 +49,7 @@ router.post("/subscribe", async (req, res) => {
 
     return res.status(201).json({ message: "Subscribed successfully." });
   } catch (err) {
-    console.error("[newsletter] subscribe failed", err);
-    return res.status(500).json({ message: "Failed to subscribe." });
+    next(err);
   }
 });
 
@@ -71,8 +70,7 @@ router.post("/unsubscribe", async (req, res) => {
       .where(eq(newsletterSubscribers.email, cleaned));
     return res.status(200).json({ message: "You've been unsubscribed." });
   } catch (err) {
-    console.error("[newsletter] unsubscribe failed", err);
-    return res.status(500).json({ message: "Failed to unsubscribe." });
+    next(err);
   }
 });
 

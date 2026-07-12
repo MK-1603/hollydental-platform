@@ -1,0 +1,61 @@
+========================================================================
+Hollyhill Dental Clinic Platform - What We're Building & Why
+========================================================================
+
+1. The Real Problem in Dental Management
+------------------------------------------------------------------------
+If you talk to any busy dental clinic manager or patient, you'll hear the same frustrations. Patients are tired of calling during office hours just to book an appointment, filling out physical paper forms on clipboards, and struggling to access their own dental history or X-rays. 
+
+For the clinic staff—like Dr. Roghay Alizadeh and her team at Hollyhill Dental Clinic—the problem is reversed but equally painful. They are managing scheduling, patient records, billing, and communication across completely separate, disconnected software systems. When a patient arrives, the staff has to bounce between a calendar app to confirm the slot, a file system to pull up old X-rays, and a separate messaging tool to communicate.
+
+It is fragmented, inefficient, and slow. Patients want instant access to their dental journey, and the clinic needs a centralized command center to run operations smoothly.
+
+
+2. What's Out There vs. What We're Doing Differently
+------------------------------------------------------------------------
+We looked at existing dental practice management software. Many of them are incredibly clunky, look like they were built in the early 2000s, and force clinics to pay hefty per-user subscription fees. More importantly, they completely lack modern, patient-facing experiences or AI capabilities.
+
+The Hollyhill Dental Clinic Platform is built to be a unified, intelligent ecosystem.
+
+**Bespoke Client Application**: It is crucial to emphasize that this is *not* a generic, multi-tenant SaaS product. This is a bespoke, single-tenant application engineered exclusively for our specific client: **Hollyhill Dental Clinic** (led by Dr. Roghay Alizadeh in Cork, Unit 6 Hollyhill Shopping Centre). Every feature, database architecture, and workflow is tailor-made specifically for their daily business operations and their patients.
+
+- A Unified Dual-Experience: We don't just build a backend tool for the staff. We built a beautiful Patient Portal where individuals can interact directly with their dental data (even viewing an interactive SVG of their 32 teeth!) alongside a powerful Admin Dashboard for the clinic.
+- AI-Driven Clinic Operations: Instead of relying purely on manual data entry, we integrated Google Gemini AI. The platform can instantly draft clinical summaries, generate SEO blog articles, handle patient reviews, and even power a patient-facing symptom checker.
+- Complete Data Security & Ownership: Unlike generic platforms that hold your data hostage, we implemented strict GDPR export functionality, rigorous audit trails, and extreme security measures (JWT, rate-limiting) to ensure patient data is locked down but easily accessible to the right people.
+
+
+3. Exactly What We Need to Build (The Features)
+------------------------------------------------------------------------
+
+The Patient Portal
+When a patient logs in, they need a clean dashboard summarizing their upcoming appointments, pending requests, and unread notifications. They should easily be able to request new appointments, view their entire timeline of completed treatments, download secure files (like X-rays or consent PDFs), and review or pay billing statements. 
+Most uniquely, they need a read-only Interactive Dental Chart—a visual SVG map of their 32 teeth where they can click any tooth to see current statuses (crowned, filled, etc.) and diagnostic notes from Dr. Roghay.
+
+The Admin & Staff Command Center
+Clinic staff need a robust dashboard to approve or decline pending bookings and an interactive calendar to manage the daily schedule. 
+To speed up workflows, we need Clinical Quick Actions so dentists can instantly generate prescriptions (like Amoxicillin or Ibuprofen) and bill patients inline with a single click.
+The staff also gets an Interactive Dental Chart, but theirs allows them to actually modify tooth statuses and save clinical observations.
+
+Live Patient Communication
+We need a Live Messaging Center that auto-refreshes (every 5 seconds) so staff can provide real-time clinical support and chat with active patients instantly. These chat logs must be immutable—neither patients nor admins can delete them, ensuring a permanent clinical audit trail.
+
+AI Assistants (The Secret Weapon)
+The platform must feature embedded AI powered by Google Gemini 1.5 Flash:
+- Patient-facing: An AI Chatbot for clinic info/prices and a Symptom Checker for dental emergencies.
+- Staff-facing: Assistants to compile Clinical Briefs from patient histories, scribe SEO articles, draft Review Replies, and generate SMS Reminders.
+
+
+4. The Vibe & The Tech (Non-Functional Stuff)
+------------------------------------------------------------------------
+
+Fort Knox Security
+Because healthcare data is involved, security is non-negotiable. We need cookie-based JWT Auth with `SameSite=Lax` to prevent XSS. Default admin accounts must undergo forced password rotation (minimum 10 characters). To prevent brute forcing and API abuse, we need strict rate limiting (600 req/15m globally, 15 req/15m for auth, 12 req/m for AI).
+
+It Needs to Look Premium and Modern
+This cannot look like a spreadsheet. We want to use Next.js, Tailwind CSS, and Lucide icons to create a sleek, responsive UI. It should feel like a premium health app.
+
+Enterprise-Grade Backend & Storage
+The core needs to run on Node.js and Express with Drizzle ORM connecting to a Neon PostgreSQL database. Heavy clinical files like X-rays cannot be stored locally; they must be securely uploaded and served instantly via Cloudinary CDN.
+
+Patient Control
+Patients must have total control over their data under GDPR. They need a one-click button in their profile to export all their data as a clean JSON file, or permanently delete their account.

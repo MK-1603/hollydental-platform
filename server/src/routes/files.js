@@ -2,8 +2,8 @@ import express from "express";
 import multer from "multer";
 import { uploadToCloudinary } from "../config/cloudinary.js";
 import { db } from "../config/db.js";
-import { files, patients } from "../db/schema.js";
-import { eq } from "drizzle-orm";
+import { files, folders, patients } from "../db/schema.js";
+import { eq, and } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
 import { logActivity, AuditActions } from "../lib/auditLog.js";
@@ -67,47 +67,54 @@ router.post(
   verifyToken,
   requireRole("admin"),
   upload.single("file"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
-    const { patientId, category = "other" } = req.body || {};
-    const file = req.file;
+      const { patientId, category = "other", folderId = null, metadata = "{}" } = req.body || {};
+      const file = req.file;
 
-    if (!patientId || !file) {
-      return res
-        .status(400)
-        .json({ message: "Patient ID and file are required." });
-    }
-    if (!UUID_RE.test(String(patientId))) {
-      return res.status(400).json({ message: "Invalid patient identifier." });
-    }
-
-    try {
-      const exists = await db
-        .select()
-        .from(patients)
-        .where(eq(patients.id, patientId))
-        .limit(1);
-      if (exists.length === 0) {
-        return res.status(404).json({ message: "Patient not found." });
+      if (!patientId || !file) {
+        return res
+          .status(400)
+          .json({ message: "Patient ID and file are required." });
+      }
+      if (!UUID_RE.test(String(patientId))) {
+        return res.status(400).json({ message: "Invalid patient identifier." });
       }
 
-      const uploadResult = await uploadToCloudinary(
-        file.buffer,
-        file.originalname
-      );
+      try {
+        const exists = await db
+          .select()
+          .from(patients)
+          .where(eq(patients.id, patientId))
+          .limit(1);
+        if (exists.length === 0) {
+          return res.status(404).json({ message: "Patient not found." });
+        }
 
-      const [inserted] = await db
-        .insert(files)
-        .values({
-          patientId,
-          uploadedBy: req.user.id,
-          fileName: file.originalname,
-          fileType: file.mimetype,
-          cloudinaryPublicId: uploadResult.public_id,
-          cloudinaryUrl: uploadResult.secure_url,
-          category,
-        })
-        .returning();
+        const uploadResult = await uploadToCloudinary(
+          file.buffer,
+          file.originalname
+        );
+
+        let parsedMetadata = {};
+        try { parsedMetadata = JSON.parse(metadata); } catch(e){}
+
+        const [inserted] = await db
+          .insert(files)
+          .values({
+            patientId,
+            uploadedBy: req.user.id,
+            fileName: parsedMetadata.customName || file.originalname,
+            originalName: file.originalname,
+            fileType: file.mimetype,
+            size: file.size,
+            cloudinaryPublicId: uploadResult.public_id,
+            cloudinaryUrl: uploadResult.secure_url,
+            category: parsedMetadata.category || category,
+            folderId: folderId || null,
+            metadata: parsedMetadata,
+          })
+          .returning();
 
       await logActivity(req, AuditActions.FILE_UPLOADED, {
         targetType: "file",
@@ -125,8 +132,7 @@ router.post(
         file: inserted,
       });
     } catch (error) {
-      console.error("[files] upload failed", error);
-      return res.status(500).json({ message: "Failed to upload file." });
+      next(error);
     }
   }
 );
@@ -134,7 +140,7 @@ router.post(
 /**
  * 2. GET Files by Patient ID (Admin, or own Patient).
  */
-router.get("/patient/:id", verifyToken, async (req, res) => {
+router.get("/patient/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const patientId = req.params.id;
   if (!UUID_RE.test(patientId)) {
@@ -157,24 +163,21 @@ router.get("/patient/:id", verifyToken, async (req, res) => {
       .where(eq(files.patientId, patientId));
     return res.status(200).json(records);
   } catch (error) {
-    console.error("[files] list failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve patient files." });
+        next(error);
   }
 });
 
 /**
  * 3a. PATCH /:id — rename file or change category (Admin only).
  */
-router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.patch("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   if (!UUID_RE.test(req.params.id)) {
     return res.status(400).json({ message: "Invalid file identifier." });
   }
-  const { fileName, category } = req.body || {};
-  if (!fileName && !category) {
-    return res.status(400).json({ message: "Provide fileName or category to update." });
+  const { fileName, category, folderId, metadata } = req.body || {};
+  if (!fileName && !category && folderId === undefined && !metadata) {
+    return res.status(400).json({ message: "Provide fields to update." });
   }
   try {
     const target = await db.select().from(files).where(eq(files.id, req.params.id)).limit(1);
@@ -182,18 +185,21 @@ router.patch("/:id", verifyToken, requireRole("admin"), async (req, res) => {
     const updates = {};
     if (fileName) updates.fileName = String(fileName).trim();
     if (category) updates.category = String(category).trim();
+    if (folderId !== undefined) updates.folderId = folderId;
+    if (metadata) {
+      try { updates.metadata = typeof metadata === 'string' ? JSON.parse(metadata) : metadata; } catch(e){}
+    }
     const [updated] = await db.update(files).set(updates).where(eq(files.id, req.params.id)).returning();
     return res.status(200).json({ message: "File updated.", file: updated });
   } catch (err) {
-    console.error("[files] patch failed", err);
-    return res.status(500).json({ message: "Failed to update file." });
+    next(err);
   }
 });
 
 /**
  * 3. DELETE File (Admin only).
  */
-router.delete("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.delete("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   if (!UUID_RE.test(req.params.id)) {
     return res.status(400).json({ message: "Invalid file identifier." });
@@ -221,8 +227,68 @@ router.delete("/:id", verifyToken, requireRole("admin"), async (req, res) => {
 
     return res.status(200).json({ message: "File deleted successfully." });
   } catch (error) {
-    console.error("[files] delete failed", error);
-    return res.status(500).json({ message: "Failed to delete file." });
+    next(error);
+  }
+});
+
+// ==========================================
+// FOLDERS API
+// ==========================================
+
+router.get("/folders/patient/:id", verifyToken, async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const patientId = req.params.id;
+  if (!UUID_RE.test(patientId)) return res.status(400).json({ message: "Invalid patient identifier." });
+  try {
+    const records = await db.select().from(folders).where(eq(folders.patientId, patientId));
+    return res.status(200).json(records);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/folders", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const { patientId, parentId, name, description, color, icon, visibility, folderType, tags } = req.body || {};
+  if (!patientId || !name) return res.status(400).json({ message: "Patient ID and Name are required." });
+  
+  try {
+    const [inserted] = await db.insert(folders).values({
+      patientId,
+      parentId: parentId || null,
+      name,
+      description,
+      color,
+      icon,
+      visibility: visibility || "private",
+      folderType: folderType || "other",
+      tags: tags || [],
+      createdBy: req.user.id
+    }).returning();
+    return res.status(201).json(inserted);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.patch("/folders/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const updates = req.body || {};
+  try {
+    const [updated] = await db.update(folders).set({ ...updates, updatedAt: new Date() }).where(eq(folders.id, req.params.id)).returning();
+    return res.status(200).json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete("/folders/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  try {
+    await db.delete(folders).where(eq(folders.id, req.params.id));
+    return res.status(200).json({ message: "Folder deleted." });
+  } catch (err) {
+    next(err);
   }
 });
 

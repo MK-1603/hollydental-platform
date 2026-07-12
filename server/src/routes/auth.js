@@ -22,6 +22,7 @@ import { authLimiter } from "../middleware/rateLimiter.js";
 import { logActivity, AuditActions } from "../lib/auditLog.js";
 import { sendPush } from "../lib/push.js";
 import { ENV, cookieOptions } from "../config/env.js";
+import logger from "../lib/logger.js";
 
 const router = express.Router();
 const JWT_SECRET = ENV.JWT_SECRET;
@@ -48,7 +49,7 @@ function generateResetCode() {
 }
 
 // 1. Patient Register
-router.post("/register", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   const { email, password, firstName, lastName, phone, dateOfBirth, gender, address, bloodGroup, age } = req.body;
 
   if (!email || !password || !firstName || !lastName || !phone) {
@@ -128,13 +129,12 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Register Error:", error);
-    return res.status(500).json({ message: "Registration failed." });
+    next(error);
   }
 });
 
 // 2. All Roles Login
-router.post("/login", authLimiter, async (req, res) => {
+router.post("/login", authLimiter, async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -197,13 +197,12 @@ router.post("/login", authLimiter, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login Error:", error);
-    return res.status(500).json({ message: "Login failed." });
+    next(error);
   }
 });
 
 // 3. Clear Cookie
-router.post("/logout", verifyToken, async (req, res) => {
+router.post("/logout", verifyToken, async (req, res, next) => {
   res.clearCookie("token", { ...cookieOptions, maxAge: 0 });
   await logActivity(req, AuditActions.AUTH_LOGOUT, {
     targetType: "user",
@@ -213,7 +212,7 @@ router.post("/logout", verifyToken, async (req, res) => {
 });
 
 // 4. Me checking auth
-router.get("/me", verifyToken, async (req, res) => {
+router.get("/me", verifyToken, async (req, res, next) => {
   try {
     const rows = await db.select().from(users).where(eq(users.id, req.user.id)).limit(1);
     const user = rows[0];
@@ -240,12 +239,12 @@ router.get("/me", verifyToken, async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: "Failed to retrieve user status." });
+    next(error);
   }
 });
 
 // 5. Change Password (Forced/Regular)
-router.post("/change-password", verifyToken, async (req, res) => {
+router.post("/change-password", verifyToken, async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -309,8 +308,7 @@ router.post("/change-password", verifyToken, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Change Password Error:", error);
-    return res.status(500).json({ message: "Failed to change password." });
+    next(error);
   }
 });
 
@@ -320,7 +318,7 @@ router.post("/change-password", verifyToken, async (req, res) => {
  * generated code back to them, then the patient enters it on the reset page.
  * We always return 200 to avoid leaking which emails exist.
  */
-router.post("/forgot-password", authLimiter, async (req, res) => {
+router.post("/forgot-password", authLimiter, async (req, res, next) => {
   const { email } = req.body || {};
   if (!email) {
     return res.status(400).json({ message: "Email is required." });
@@ -367,7 +365,7 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
           );
         }
       } catch (pushErr) {
-        console.error("[forgot-password] push delivery failed", pushErr?.message);
+        logger.warn({ err: pushErr }, "[forgot-password] push delivery failed (non-fatal)");
       }
 
       await logActivity(
@@ -390,7 +388,8 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
         "Your reset request has been sent to the clinic. Please call the clinic on +353 21 430 3072 to receive your reset code.",
     });
   } catch (err) {
-    console.error("[forgot-password] failed", err);
+    // Always return 200 — never leak whether an email exists in the system
+    logger.error({ err }, "[forgot-password] unexpected error");
     return res.status(200).json({
       message:
         "Your reset request has been sent to the clinic. Please call the clinic on +353 21 430 3072 to receive your reset code.",
@@ -403,7 +402,7 @@ router.post("/forgot-password", authLimiter, async (req, res) => {
  * clinic staff.
  * Body: { email, code, newPassword }
  */
-router.post("/reset-password", authLimiter, async (req, res) => {
+router.post("/reset-password", authLimiter, async (req, res, next) => {
   const { email, code, newPassword } = req.body || {};
   if (!email || !code || !newPassword) {
     return res.status(400).json({
@@ -484,8 +483,7 @@ router.post("/reset-password", authLimiter, async (req, res) => {
       message: "Your password has been updated. You can now sign in.",
     });
   } catch (err) {
-    console.error("[reset-password] failed", err);
-    return res.status(500).json({ message: "Failed to reset password." });
+    next(err);
   }
 });
 
@@ -495,7 +493,7 @@ router.post("/reset-password", authLimiter, async (req, res) => {
  * clinic's medical/legal retention obligations remain satisfied; the auth
  * user row is deleted, which cascades to login access only.
  */
-router.delete("/me", verifyToken, async (req, res) => {
+router.delete("/me", verifyToken, async (req, res, next) => {
   if (!process.env.DATABASE_URL) {
     return res.status(503).json({ message: "Service is not configured." });
   }
@@ -582,8 +580,7 @@ router.delete("/me", verifyToken, async (req, res) => {
     res.clearCookie("token", { ...cookieOptions, maxAge: 0 });
     return res.status(200).json({ message: "Your account has been removed." });
   } catch (err) {
-    console.error("[delete-self] failed", err);
-    return res.status(500).json({ message: "Failed to delete account." });
+    next(err);
   }
 });
 
@@ -596,7 +593,7 @@ const upload = multer({
 /**
  * 9. PATCH /profile — update display name for any authenticated user.
  */
-router.patch("/profile", verifyToken, async (req, res) => {
+router.patch("/profile", verifyToken, async (req, res, next) => {
   const { displayName } = req.body || {};
   if (!displayName || !String(displayName).trim()) {
     return res.status(400).json({ message: "Display name is required." });
@@ -619,12 +616,11 @@ router.patch("/profile", verifyToken, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("[profile] patch failed", err);
-    return res.status(500).json({ message: "Failed to update profile." });
+    next(err);
   }
 });
 
-router.patch("/profile-pic", verifyToken, upload.single("file"), async (req, res) => {
+router.patch("/profile-pic", verifyToken, upload.single("file"), async (req, res, next) => {
   const file = req.file;
   if (!file) {
     return res.status(400).json({ message: "No file provided." });
@@ -644,8 +640,7 @@ router.patch("/profile-pic", verifyToken, upload.single("file"), async (req, res
       profilePicUrl,
     });
   } catch (error) {
-    console.error("[profile-pic-upload] failed", error);
-    return res.status(500).json({ message: "Failed to upload profile picture." });
+    next(error);
   }
 });
 

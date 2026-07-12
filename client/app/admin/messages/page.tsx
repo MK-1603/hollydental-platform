@@ -4,20 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { useChatThread } from "@/lib/useChatThread";
 import { toast } from "@/lib/toast";
-import {
-  Send,
-  Search,
-  RefreshCw,
-  AlertCircle,
-  MessageSquare,
-  Trash2,
-  Check,
-  CheckCheck,
-  Phone,
-  MoreVertical,
-  Smile,
-  ChevronLeft,
-} from "lucide-react";
+import { Send, Search, RefreshCw, AlertCircle, MessageSquare, Trash2, Check, CheckCheck, Phone, MoreVertical, Smile, ChevronLeft } from "lucide-react";
 
 interface Patient {
   id: string;

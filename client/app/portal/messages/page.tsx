@@ -6,11 +6,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useChatThread } from "@/lib/useChatThread";
 import { CLINIC } from "@/lib/constants";
 import { toast } from "@/lib/toast";
-import {
-  Send, ChevronLeft, RefreshCw, AlertCircle,
-  Check, CheckCheck, Phone, MoreVertical, Smile,
-  Paperclip, Shield,
-} from "lucide-react";
+import { Send, ChevronLeft, RefreshCw, AlertCircle, Check, CheckCheck, Phone, MoreVertical, Smile, Paperclip, Shield } from "lucide-react";
 
 export default function PortalMessagesPage() {
   const { user } = useAuthStore();

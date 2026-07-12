@@ -1,271 +1,184 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useLiveData } from "@/lib/useLiveData";
-import Logo from "@/components/public/Logo";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  Users,
-  FileText,
-  ClipboardList,
-  Sparkles,
-  NotebookPen,
-  TrendingUp,
-  FolderLock,
-  Settings,
-  LogOut,
-  CalendarCheck,
-  MessageSquare,
-  Activity,
-  ShoppingBag,
-  PackageCheck,
-  X,
-  User,
-  Heart,
+import { 
+  LayoutDashboard, Users, CalendarDays, Stethoscope, 
+  CreditCard, ShoppingBag, BarChart, Bell, Settings, LogOut,
+  PanelLeftClose, MessageSquare, Pill, FileText, Heart,
+  Package, Truck, FileEdit, Folder, Activity, ClipboardCheck, PanelLeftOpen
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AdminSidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
+export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCollapse }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout, performLogoutTransition, user } = useAuthStore();
-  const [isPending, startTransition] = useTransition();
-  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const { performLogoutTransition, user } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (pendingHref && pathname.startsWith(pendingHref)) {
-      setPendingHref(null);
-    }
-  }, [pathname, pendingHref]);
+    setMounted(true);
+  }, []);
 
-  const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
-  ) => {
-    if (
-      e.metaKey ||
-      e.ctrlKey ||
-      e.shiftKey ||
-      e.altKey ||
-      e.button !== 0
-    ) {
-      return;
+  const navGroups = useMemo(() => [
+    {
+      title: "Workspace",
+      items: [
+        { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+        { name: "Messages", href: "/admin/messages", icon: MessageSquare },
+        { name: "Appointments", href: "/admin/appointments", icon: CalendarDays },
+        { name: "Patients", href: "/admin/patients", icon: Users },
+      ]
+    },
+    {
+      title: "Clinical",
+      items: [
+        { name: "Workspace", href: "/admin/workspace", icon: Stethoscope },
+        { name: "Prescriptions", href: "/admin/prescriptions", icon: Pill },
+        { name: "Records", href: "/admin/records", icon: FileText },
+        { name: "Wellness", href: "/admin/wellness", icon: Heart },
+      ]
+    },
+    {
+      title: "Files & Content",
+      items: [
+        { name: "File Manager", href: "/admin/files", icon: Folder },
+        { name: "CMS Publishing", href: "/admin/blog", icon: FileEdit },
+      ]
+    },
+    {
+      title: "Business",
+      items: [
+        { name: "Billing", href: "/admin/billing", icon: CreditCard },
+        { name: "Products", href: "/admin/products", icon: ShoppingBag },
+        { name: "Orders", href: "/admin/orders", icon: Package },
+        { name: "Suppliers", href: "/admin/suppliers", icon: Truck },
+        { name: "Reports", href: "/admin/analytics", icon: BarChart },
+      ]
+    },
+    {
+      title: "System",
+      items: [
+        { name: "Notifications", href: "/admin/notifications", icon: Bell },
+        { name: "Activity", href: "/admin/activity", icon: Activity },
+        { name: "Approvals", href: "/admin/approvals", icon: ClipboardCheck },
+      ]
     }
+  ], []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (pathname === href) {
       e.preventDefault();
       onClose?.();
-      return;
-    }
-    e.preventDefault();
-    setPendingHref(href);
-    startTransition(() => {
-      router.push(href);
+    } else {
       onClose?.();
-    });
+    }
   };
 
-  const handleLogout = () => {
-    performLogoutTransition(router);
-    onClose?.();
-  };
-
-  // Live feeds for sidebar badge counters
-  const [pendingAppts, setPendingAppts] = useState<number>(0);
-  const [unreadMsgs, setUnreadMsgs] = useState<number>(0);
-
-  const { data: appointments = [] } = useLiveData<any[]>("/appointments", {
-    intervalMs: 15000,
-    initialData: [],
-  });
-
-  const { data: messages = [] } = useLiveData<any[]>("/messages", {
-    intervalMs: 15000,
-    initialData: [],
-  });
-
-  useEffect(() => {
-    if (Array.isArray(appointments)) {
-      setPendingAppts(appointments.filter((a) => a.status === "pending").length);
-    }
-  }, [appointments]);
-
-  useEffect(() => {
-    if (Array.isArray(messages)) {
-      setUnreadMsgs(messages.reduce((acc, t) => acc + (t.unreadFromPatient || 0), 0));
-    }
-  }, [messages]);
-
-  const navItems = [
-    { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
-    { name: "Appointments", href: "/admin/appointments", icon: CalendarDays },
-    { name: "Approvals", href: "/admin/approvals", icon: CalendarCheck },
-    { name: "Messages", href: "/admin/messages", icon: MessageSquare },
-    { name: "Patients", href: "/admin/patients", icon: Users },
-    { name: "Billing", href: "/admin/billing", icon: FileText },
-    { name: "Prescriptions", href: "/admin/prescriptions", icon: ClipboardList },
-    { name: "Products Manager", href: "/admin/products", icon: ShoppingBag },
-    { name: "Orders", href: "/admin/orders", icon: PackageCheck },
-    { name: "Blog CMS", href: "/admin/blog", icon: NotebookPen },
-    { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
-    { name: "Activity Log", href: "/admin/activity", icon: Activity },
-    { name: "Wellness Monitor", href: "/admin/wellness", icon: Heart },
-    { name: "File Manager", href: "/admin/files", icon: FolderLock },
-    { name: "System Settings", href: "/admin/settings", icon: Settings },
-    { name: "My Profile", href: "/admin/profile", icon: User },
-  ];
+  if (!mounted) return null;
 
   return (
     <>
-      {/* Mobile Backdrop */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 xl:hidden transition-opacity duration-300"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 xl:hidden transition-opacity" onClick={onClose} />
       )}
-
-      <aside
-        className={`bg-navy border-r border-white/5 p-6 flex flex-col text-white transition-transform duration-300 overflow-hidden h-screen z-50
-          fixed top-0 left-0 w-full sm:w-[300px]
-          xl:sticky xl:top-0 xl:left-auto xl:w-[280px] xl:!translate-x-0 xl:shrink-0
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        
-        {/* Brand logo */}
-        <div className="mb-10 flex items-center justify-between shrink-0">
-          <Link
-            href="/admin/dashboard"
-            className="flex items-center min-w-0"
-            onClick={onClose}
-          >
-            <Logo variant="full" theme="light" size={40} asLink={false} />
-          </Link>
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="xl:hidden p-1.5 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white transition-colors focus:outline-none cursor-pointer"
-              aria-label="Close sidebar"
-            >
-              <X className="w-5 h-5" />
+      <aside className={cn(
+        "fixed xl:relative top-0 left-0 h-screen bg-[#F7F7F8] border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
+        isCollapsed ? "w-[72px]" : "w-[280px]",
+        isOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
+      )}>
+        {/* Header / Logo */}
+        <div className={cn("h-14 flex items-center shrink-0 border-b border-gray-200/50", isCollapsed ? "justify-center" : "px-4 justify-between")}>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="w-7 h-7 bg-black text-white rounded-[6px] flex items-center justify-center font-bold text-sm shrink-0">H</div>
+            {!isCollapsed && <span className="font-semibold text-gray-900 text-sm truncate tracking-tight">HollyDental</span>}
+          </div>
+          {!isCollapsed && (
+            <button onClick={onToggleCollapse} className="text-gray-400 hover:text-gray-900 transition-colors hidden xl:block">
+              <PanelLeftClose className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* AI Chat CTA button */}
-        <Link
-          href="/admin/ai"
-          onClick={(e) => handleNavClick(e, "/admin/ai")}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 border transition-all shrink-0 ${
-            pathname.startsWith("/admin/ai")
-              ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20"
-              : "bg-gold/10 hover:bg-gold/20 text-gold border-gold/20 hover:border-gold/40"
-          }`}
-        >
-          <div className="w-7 h-7 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-gold" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className={`text-xs font-bold truncate ${pathname.startsWith("/admin/ai") ? "text-navy" : "text-gold"}`}>AI Assistant</p>
-            <p className={`text-[9px] truncate ${pathname.startsWith("/admin/ai") ? "text-navy/60" : "text-gold/60"}`}>Clinical chat · Gemini</p>
-          </div>
-          <Sparkles className={`w-3.5 h-3.5 shrink-0 ${pathname.startsWith("/admin/ai") ? "text-navy/60" : "text-gold/60"}`} />
-        </Link>
-
-        {/* Nav List */}
-        <nav className="flex-1 space-y-1 overflow-y-auto pr-1 no-scrollbar mb-6">
-          {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            const Icon = item.icon;
-
-            let badge = null;
-            if (item.name === "Approvals" && pendingAppts > 0) {
-              badge = (
-                <span className="ml-auto bg-gold text-navy text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-                  {pendingAppts}
-                </span>
-              );
-            } else if (item.name === "Messages" && unreadMsgs > 0) {
-              badge = (
-                <span className="ml-auto bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-                  {unreadMsgs}
-                </span>
-              );
-            }
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                prefetch
-                onClick={(e) => handleNavClick(e, item.href)}
-                aria-busy={pendingHref === item.href}
-                className={`relative flex items-center gap-3.5 px-4 py-3 rounded-lg text-xs font-semibold tracking-wide transition-all ${
-                  isActive
-                    ? "text-white bg-white/10 border-l-4 border-gold pl-3"
-                    : pendingHref === item.href
-                    ? "text-white bg-white/10"
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Icon
-                  className={`w-4 h-4 ${
-                    isActive || pendingHref === item.href
-                      ? "text-gold"
-                      : "text-gray-400"
-                  } ${
-                    pendingHref === item.href && isPending ? "animate-pulse" : ""
-                  }`}
-                />
-                <span>{item.name}</span>
-                {badge}
-                {pendingHref === item.href && isPending && (
-                  <span
-                    aria-hidden
-                    className="absolute right-3 inline-block w-3 h-3 border-2 border-gold border-t-transparent rounded-full animate-spin"
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* User profile & Logout */}
-        <div className="border-t border-white/10 pt-6 mt-auto space-y-4 shrink-0">
-          <Link href="/admin/profile" onClick={onClose} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            {user?.profilePicUrl ? (
-              <img src={user.profilePicUrl} alt="Profile" className="w-10 h-10 rounded-full object-cover border border-gold/40 shrink-0" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center font-bold text-gold text-xs shrink-0">
-                {(user?.displayName || user?.email || "D")[0].toUpperCase()}
+        {/* Scrollable Nav */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-2 space-y-6">
+          {navGroups.map((group, idx) => (
+            <div key={idx} className="flex flex-col">
+              {!isCollapsed && (
+                <div className="px-3 mb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  {group.title}
+                </div>
+              )}
+              <div className="space-y-0.5">
+                {group.items.map(item => {
+                  const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                      className={cn(
+                        "flex items-center rounded-lg h-9 transition-colors group relative",
+                        isCollapsed ? "justify-center px-0 w-10 mx-auto" : "px-3",
+                        isActive ? "bg-white shadow-sm border border-gray-200/60 text-black font-medium" : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 border border-transparent"
+                      )}
+                      title={isCollapsed ? item.name : undefined}
+                    >
+                      <item.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600")} strokeWidth={isActive ? 2.5 : 2} />
+                      {!isCollapsed && (
+                        <span className="ml-3 text-[13px] truncate">{item.name}</span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
-            )}
-            <div className="truncate">
-              <span className="block text-xs font-bold text-white truncate">
-                {user?.displayName || (user?.email === "doctor@hollyhilldental.ie" ? "Dr. Roghay Alizadeh" : user?.email?.split("@")[0]) || "Doctor"}
-              </span>
-              <span className="inline-block bg-gold/25 text-gold text-[9px] font-bold px-2 py-0.5 rounded-full mt-0.5 uppercase tracking-wider">
-                {user?.role === "admin" ? "Principal Dentist" : "Staff"}
-              </span>
             </div>
-          </Link>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-lg text-xs font-semibold text-red-400 hover:bg-red-950/20 transition-colors focus:outline-none"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
+          ))}
         </div>
 
+        {/* Footer Profile */}
+        <div className="p-2 border-t border-gray-200/50 shrink-0">
+          <div className={cn("flex items-center rounded-lg p-1.5 transition-colors", isCollapsed ? "justify-center" : "gap-3 hover:bg-gray-200/50")}>
+            {user?.profilePicUrl ? (
+              <img src={user.profilePicUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                {user?.displayName?.[0] || "A"}
+              </div>
+            )}
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-medium text-gray-900 truncate">{user?.displayName || "Admin User"}</div>
+                <div className="text-[11px] text-gray-500 truncate">{user?.email}</div>
+              </div>
+            )}
+            {!isCollapsed && (
+              <div className="flex items-center shrink-0">
+                <Link href="/admin/settings/my-account" className="p-1.5 text-gray-400 hover:text-gray-900 rounded-md transition-colors">
+                  <Settings className="w-4 h-4" />
+                </Link>
+                <button onClick={() => performLogoutTransition(router)} className="p-1.5 text-gray-400 hover:text-red-600 rounded-md transition-colors">
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+          {isCollapsed && (
+            <button onClick={onToggleCollapse} className="mt-2 w-full flex justify-center p-2 text-gray-400 hover:text-gray-900 transition-colors hidden xl:flex">
+              <PanelLeftOpen className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </aside>
     </>
   );

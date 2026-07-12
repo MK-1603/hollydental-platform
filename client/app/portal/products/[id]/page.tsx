@@ -6,21 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 import { useCartStore } from "@/store/useCartStore";
-import {
-  ArrowLeft,
-  ShoppingCart,
-  Package,
-  CheckCircle2,
-  AlertCircle,
-  Star,
-  Shield,
-  Clock,
-  ChevronRight,
-  Minus,
-  Plus,
-  Calendar,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ShoppingCart, Package, CheckCircle2, AlertCircle, Star, Shield, Clock, ChevronRight, Minus, Plus, Calendar, Activity } from "lucide-react";
 
 interface Product {
   id: string;
@@ -163,7 +149,7 @@ export default function ProductDetailPage({ params }: PageProps) {
         {/* Hologram aesthetic lines */}
         <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-navy via-gold to-navy" />
         <div className="absolute right-4 top-4 text-gray-50 pointer-events-none">
-          <Sparkles className="w-32 h-32 opacity-10" />
+          <Activity className="w-32 h-32 opacity-10" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
@@ -295,7 +281,7 @@ export default function ProductDetailPage({ params }: PageProps) {
               <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center gap-2.5 pb-3 border-b border-gray-100">
                   <div className="w-9 h-9 rounded-xl bg-gold/15 flex items-center justify-center border border-gold/20">
-                    <Sparkles className="w-4 h-4 text-gold" />
+                    <Activity className="w-4 h-4 text-gold" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-navy">Book Clinic Appointment</p>
@@ -385,7 +371,7 @@ export default function ProductDetailPage({ params }: PageProps) {
                         onClick={handleBuyNow}
                         className="bg-gradient-to-r from-gold to-yellow-500 hover:from-yellow-500 hover:to-gold text-navy font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all inline-flex items-center justify-center gap-1.5 shadow-sm hover:shadow"
                       >
-                        <Sparkles className="w-4 h-4 text-navy shrink-0 animate-pulse" />
+                        <Activity className="w-4 h-4 text-navy shrink-0 animate-pulse" />
                         <span>Buy Now Instantly</span>
                       </button>
                     </div>

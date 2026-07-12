@@ -122,7 +122,7 @@ async function patientsByQuarter() {
 }
 
 /* 1. GET dashboard overview. */
-router.get("/overview", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/overview", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const today = new Date().toISOString().split("T")[0];
@@ -165,43 +165,37 @@ router.get("/overview", verifyToken, requireRole("admin"), async (req, res) => {
       patientHistory,
     });
   } catch (error) {
-    console.error("[analytics] overview failed", error);
-    return res.status(500).json({ message: "Failed to fetch overview analytics." });
+    next(error);
   }
 });
 
-router.get("/revenue", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/revenue", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const data = await revenueByMonth();
     return res.status(200).json(data);
   } catch (error) {
-    console.error("[analytics] revenue failed", error);
-    return res.status(500).json({ message: "Failed to fetch revenue analytics." });
+    next(error);
   }
 });
 
-router.get("/appointments", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/appointments", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const data = await appointmentsByWeek();
     return res.status(200).json(data);
   } catch (error) {
-    console.error("[analytics] appointments failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to fetch appointment analytics." });
+        next(error);
   }
 });
 
-router.get("/patients", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/patients", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const data = await patientsByQuarter();
     return res.status(200).json(data);
   } catch (error) {
-    console.error("[analytics] patients failed", error);
-    return res.status(500).json({ message: "Failed to fetch patient analytics." });
+    next(error);
   }
 });
 
@@ -213,7 +207,7 @@ router.get("/patients", verifyToken, requireRole("admin"), async (req, res) => {
  * Each entry has a stable shape so the client doesn't need to parse server
  * internals: { id, type, text, time, actor }.
  */
-router.get("/activity", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/activity", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   const limit = Math.min(20, Math.max(1, parseInt(req.query.limit, 10) || 8));
   try {
@@ -340,8 +334,7 @@ router.get("/activity", verifyToken, requireRole("admin"), async (req, res) => {
 
     return res.status(200).json({ events: ordered });
   } catch (error) {
-    console.error("[analytics] activity failed", error);
-    return res.status(500).json({ message: "Failed to fetch activity feed." });
+    next(error);
   }
 });
 

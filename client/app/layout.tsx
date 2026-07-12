@@ -4,6 +4,7 @@ import AuthModals from "@/components/auth/AuthModals";
 import Toaster from "@/components/common/Toaster";
 import Preloader from "@/components/public/Preloader";
 import PwaRegister from "@/components/public/PwaRegister";
+import OfflineSyncManager from "@/components/common/OfflineSyncManager";
 
 export const metadata: Metadata = {
   title: "Hollyhill Dental Cork | Dr. Roghay Alizadeh | Confident Smiles",
@@ -42,6 +43,8 @@ export const viewport = {
   themeColor: "#0A1628",
 };
 
+import { DialogProvider } from "@/components/DialogProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -53,11 +56,14 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-white text-navy selection:bg-gold/30"
         suppressHydrationWarning
       >
-        <Preloader />
-        <PwaRegister />
-        {children}
-        <AuthModals />
-        <Toaster />
+        <DialogProvider>
+          <Preloader />
+          <PwaRegister />
+          <OfflineSyncManager />
+          {children}
+          <AuthModals />
+          <Toaster />
+        </DialogProvider>
       </body>
     </html>
   );

@@ -1,23 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { apiRequest } from "@/lib/api";
 import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
-import {
-  Plus,
-  RefreshCw,
-  Download,
-  Eye,
-  Trash2,
-  Edit3,
-  X,
-  FileText,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  ChevronRight,
+import { 
+  Plus, Download, Eye, Trash2, Edit3, X, FileText, CheckCircle2, 
+  Clock, AlertCircle, TrendingUp, DollarSign, CreditCard, Send, Printer
 } from "lucide-react";
+import { useDialog } from "@/components/DialogProvider";
 import { generateInvoicePDF } from "@/lib/pdf";
 
 interface PatientLite {
@@ -57,40 +48,32 @@ function normalizeInvoices(raw: any): Invoice[] {
 }
 
 const STATUS_CONFIG = {
-  paid: { label: "Paid", icon: CheckCircle2, color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
-  pending: { label: "Pending", icon: Clock, color: "text-amber-600 bg-amber-50 border-amber-100" },
-  overdue: { label: "Overdue", icon: AlertCircle, color: "text-red-600 bg-red-50 border-red-100" },
-  cancelled: { label: "Cancelled", icon: X, color: "text-gray-500 bg-gray-50 border-gray-100" },
+  paid: { label: "Paid", icon: CheckCircle2, bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+  pending: { label: "Pending", icon: Clock, bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
+  overdue: { label: "Overdue", icon: AlertCircle, bg: "bg-red-50", text: "text-red-700", border: "border-red-200" },
+  cancelled: { label: "Cancelled", icon: X, bg: "bg-gray-100", text: "text-gray-600", border: "border-gray-200" },
 };
 
 export default function AdminBillingPage() {
+  const { confirm } = useDialog();
   const { data: patients = [] } = useLiveData<PatientLite[]>("/patients", {
-    intervalMs: 0,
-    select: normalizePatients,
-    initialData: [],
+    intervalMs: 0, select: normalizePatients, initialData: [],
   });
-
   const { data: invoices = [], loading, refetch } = useLiveData<Invoice[]>("/billing/invoices", {
-    intervalMs: 30000,
-    select: normalizeInvoices,
-    initialData: [],
+    intervalMs: 30000, select: normalizeInvoices, initialData: [],
   });
 
-  const [showBuilder, setShowBuilder] = useState(false);
-  const [builderLoading, setBuilderLoading] = useState(false);
-  const [viewInvoice, setViewInvoice] = useState<Invoice | null>(null);
-  const [editInvoice, setEditInvoice] = useState<Invoice | null>(null);
-  const [editLoading, setEditLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Create form
+  // Form State
   const [patientId, setPatientId] = useState("");
   const [itemDesc, setItemDesc] = useState("");
   const [itemCost, setItemCost] = useState("");
-
-  // Edit form
-  const [editStatus, setEditStatus] = useState<Invoice["status"]>("pending");
-  const [editDesc, setEditDesc] = useState("");
-  const [editCost, setEditCost] = useState("");
+  const [invoiceStatus, setInvoiceStatus] = useState<Invoice["status"]>("pending");
 
   useEffect(() => {
     if (!patientId && patients.length > 0) setPatientId(patients[0].id);
@@ -102,346 +85,405 @@ export default function AdminBillingPage() {
     return p ? `${p.firstName} ${p.lastName}` : "—";
   };
 
-  const handleCreateInvoice = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!patientId) { toast.warning("Please select a patient first."); return; }
-    setBuilderLoading(true);
+  const filteredInvoices = useMemo(() => {
+    if (activeTab === "all") return invoices;
+    return invoices.filter(i => i.status === activeTab);
+  }, [invoices, activeTab]);
+
+  const kpis = useMemo(() => {
+    const total = invoices.length;
+    let paid = 0, pending = 0, overdueAmount = 0, totalRevenue = 0;
+    
+    invoices.forEach(inv => {
+      const amt = parseFloat(inv.totalAmount.toString());
+      if (inv.status === 'paid') { paid++; totalRevenue += amt; }
+      else if (inv.status === 'pending') pending++;
+      else if (inv.status === 'overdue') overdueAmount += amt;
+    });
+
+    return { total, paid, pending, totalRevenue, overdueAmount };
+  }, [invoices]);
+
+  const handleOpenDetails = (inv: Invoice) => {
+    setSelectedInvoice(inv);
+    setInvoiceStatus(inv.status);
+    setIsAdding(false);
+    setIsDrawerOpen(true);
+  };
+
+  const handleOpenAdd = () => {
+    setSelectedInvoice(null);
+    setItemDesc("");
+    setItemCost("");
+    setIsAdding(true);
+    setIsDrawerOpen(true);
+  };
+
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setTimeout(() => {
+      setSelectedInvoice(null);
+      setIsAdding(false);
+    }, 300);
+  };
+
+  const handleSaveInvoice = async () => {
+    if (!patientId) return toast.warning("Select a patient.");
+    const cost = parseFloat(itemCost);
+    if (isNaN(cost) || cost <= 0) return toast.warning("Valid cost required.");
+    
+    setIsSaving(true);
     try {
-      const cost = parseFloat(itemCost);
-      if (isNaN(cost) || cost <= 0) { toast.warning("Please enter a valid cost."); return; }
       await apiRequest("/billing/invoices", {
         method: "POST",
         body: JSON.stringify({
           patientId,
-          items: [{ description: itemDesc, quantity: 1, price: cost }],
-          subtotal: cost,
-          vatAmount: 0,
-          totalAmount: cost,
-        }),
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          items: [{ description: itemDesc || "Dental Services", quantity: 1, price: cost }],
+          status: "pending"
+        })
       });
-      setShowBuilder(false);
-      setItemDesc("");
-      setItemCost("");
+      toast.success("Invoice created.");
       refetch();
-      toast.success("Invoice generated.");
-    } catch (error: any) {
-      toast.error(`Failed to create invoice: ${error?.message || "Please try again."}`);
+      handleCloseDrawer();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to create invoice");
     } finally {
-      setBuilderLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handleEditOpen = (inv: Invoice) => {
-    setEditInvoice(inv);
-    setEditStatus(inv.status);
-    setEditDesc(inv.items?.[0]?.description || "");
-    setEditCost(String(inv.totalAmount || ""));
-  };
-
-  const handleEditSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editInvoice) return;
-    setEditLoading(true);
+  const handleUpdateStatus = async () => {
+    if (!selectedInvoice) return;
+    setIsSaving(true);
     try {
-      await apiRequest(`/billing/invoices/${editInvoice.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status: editStatus }),
+      await apiRequest(`/billing/invoices/${selectedInvoice.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ status: invoiceStatus })
       });
+      toast.success("Invoice status updated.");
       refetch();
-      setEditInvoice(null);
-      toast.success("Invoice updated.");
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to update invoice.");
+      setSelectedInvoice(prev => prev ? {...prev, status: invoiceStatus} : null);
+    } catch (e: any) {
+      toast.error(e.message || "Failed to update invoice");
     } finally {
-      setEditLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = async (id: string, num: string) => {
-    const ok = await toast.confirm({
-      title: `Delete ${num}?`,
-      message: "This invoice will be permanently deleted. This can't be undone.",
-      confirmText: "Delete",
-      danger: true,
+  const handleDelete = async (id: string) => {
+    const isConfirmed = await confirm({
+      title: "Delete Invoice",
+      description: "Permanently delete this invoice? This action cannot be undone.",
+      type: "danger"
     });
-    if (!ok) return;
+    if (!isConfirmed) return;
     try {
       await apiRequest(`/billing/invoices/${id}`, { method: "DELETE" });
-      refetch();
       toast.success("Invoice deleted.");
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to delete invoice.");
+      refetch();
+      if (selectedInvoice?.id === id) handleCloseDrawer();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete invoice");
     }
   };
 
-  const handleDownloadPdf = (inv: Invoice) => {
-    generateInvoicePDF({
-      invoiceNumber: inv.invoiceNumber,
-      issueDate:     inv.issueDate,
-      dueDate:       inv.dueDate,
-      paidAt:        undefined,
-      status:        inv.status,
-      patientName:   patientName(inv.patientId),
-      items:         Array.isArray(inv.items) ? inv.items : [],
-      subtotal:      inv.totalAmount,
-      vatAmount:     0,
-      totalAmount:   inv.totalAmount,
-    });
-  };
-
-  const totalCollected = invoices
-    .filter((i) => i.status === "paid")
-    .reduce((sum, i) => sum + Number(i.totalAmount || 0), 0);
-
-  const totalPending = invoices
-    .filter((i) => i.status === "pending" || i.status === "overdue")
-    .reduce((sum, i) => sum + Number(i.totalAmount || 0), 0);
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between border-b border-gray-200 pb-4 gap-3">
-        <div className="min-w-0">
-          <h1 className="font-serif text-xl sm:text-2xl font-bold text-navy">Billing &amp; Invoices</h1>
-          <p className="text-gray-500 text-xs mt-1">Review revenue, process settlements, and generate invoices.</p>
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
+      
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
+        <div>
+          <h1 className="text-[20px] font-bold text-gray-900 font-serif">Financial Dashboard</h1>
+          <p className="text-[13px] text-gray-500 mt-1">Manage patient invoices, payments, and revenue insights.</p>
         </div>
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={() => setShowBuilder(true)}
-            disabled={patients.length === 0}
-            className="bg-gold hover:bg-gold-dark text-navy font-bold px-3 sm:px-4 py-2 rounded-lg text-xs shadow flex items-center gap-1.5 focus:outline-none disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Create Invoice</span>
-            <span className="sm:hidden">New</span>
-          </button>
-          <button
-            onClick={refetch}
-            className="border border-navy text-navy font-semibold p-2 sm:px-4 rounded-lg text-xs hover:bg-gray-50 focus:outline-none flex items-center gap-1.5"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span className="hidden sm:inline">Sync</span>
+        <div className="flex gap-3">
+          <button onClick={handleOpenAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+            <Plus className="w-4 h-4" /> Create Invoice
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Total Collected</span>
-          <span className="text-xl sm:text-3xl font-serif font-bold text-navy block mt-1">€{totalCollected.toLocaleString()}</span>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+        
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 shrink-0">
+          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Total Revenue</p>
+              <p className="text-[24px] font-bold text-gray-900 mt-1">€{kpis.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+            </div>
+            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100">
+              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            </div>
+          </div>
+          
+          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Outstanding (Overdue)</p>
+              <p className="text-[24px] font-bold text-red-600 mt-1">€{kpis.overdueAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+            </div>
+            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center border border-red-100">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Paid Invoices</p>
+              <p className="text-[24px] font-bold text-gray-900 mt-1">{kpis.paid}</p>
+            </div>
+            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100">
+              <CheckCircle2 className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
+            <div>
+              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Pending Payment</p>
+              <p className="text-[24px] font-bold text-gray-900 mt-1">{kpis.pending}</p>
+            </div>
+            <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center border border-amber-100">
+              <Clock className="w-6 h-6 text-amber-600" />
+            </div>
+          </div>
         </div>
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Outstanding</span>
-          <span className="text-xl sm:text-3xl font-serif font-bold text-amber-600 block mt-1">€{totalPending.toLocaleString()}</span>
+
+        {/* Tabs */}
+        <div className="flex flex-wrap items-center p-1 bg-gray-100 rounded-[10px] shadow-inner mb-4 self-start">
+          {["all", "paid", "pending", "overdue"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-1.5 text-[12px] font-bold rounded-[8px] transition-all capitalize ${
+                activeTab === tab 
+                  ? "bg-white text-blue-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              {tab} Invoices
+            </button>
+          ))}
         </div>
-        <div className="col-span-2 lg:col-span-1 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-          <span className="text-[9px] sm:text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Total Invoices</span>
-          <span className="text-xl sm:text-3xl font-serif font-bold text-navy block mt-1">{invoices.length}</span>
+
+        {/* Robust Table */}
+        <div className="flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex flex-col">
+          <div className="overflow-x-auto flex-1 custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+              <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
+                <tr>
+                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Invoice Details</th>
+                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Patient</th>
+                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {loading ? (
+                  <tr><td colSpan={5} className="p-8 text-center text-[13px] text-gray-500">Loading invoices...</td></tr>
+                ) : filteredInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-12 text-center">
+                      <FileText className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                      <p className="text-[14px] font-bold text-gray-900">No invoices found</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInvoices.map((inv) => {
+                    const meta = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
+                    const StatusIcon = meta.icon;
+                    return (
+                      <tr key={inv.id} onClick={() => handleOpenDetails(inv)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-[10px] bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">#{inv.invoiceNumber}</p>
+                              <p className="text-[11px] text-gray-500 mt-0.5">Issued: {new Date(inv.issueDate).toLocaleDateString()}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-[13px] font-medium text-gray-900">
+                          {patientName(inv.patientId)}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-[14px] font-bold text-gray-900">€{parseFloat(inv.totalAmount.toString()).toFixed(2)}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
+                            <StatusIcon className="w-3.5 h-3.5" /> {meta.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
+                            Manage
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Invoices list */}
-      {loading && invoices.length === 0 ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-20 shimmer rounded-2xl" />)}
-        </div>
-      ) : invoices.length === 0 ? (
-        <div className="border border-gray-200 rounded-2xl bg-white p-12 text-center space-y-3 max-w-md mx-auto">
-          <FileText className="w-10 h-10 text-gray-200 mx-auto" />
-          <h3 className="font-serif text-base font-semibold text-navy">No Invoices</h3>
-          <p className="text-gray-500 text-xs leading-relaxed">No invoices have been generated yet.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {invoices.map((inv) => {
-            const sc = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
-            const Icon = sc.icon;
-            return (
-              <div key={inv.id} className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 flex flex-col justify-between h-full group">
-                <div className="space-y-4">
-                  {/* Header info */}
-                  <div className="flex items-start justify-between gap-2 border-b border-gray-50 pb-3">
-                    <div className="min-w-0">
-                      <span className="font-mono font-bold text-navy text-xs group-hover:text-gold transition-colors">{inv.invoiceNumber}</span>
-                      <p className="text-[10px] text-gray-400 font-medium truncate mt-0.5" title={patientName(inv.patientId)}>
-                        Patient: {patientName(inv.patientId)}
-                      </p>
+      {/* Right Drawer Slide-over */}
+      {isDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm transition-opacity" onClick={handleCloseDrawer} />
+          
+          <div className="relative w-full max-w-lg bg-white h-full shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-300">
+            
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+              <h2 className="text-[16px] font-bold text-gray-900">
+                {isAdding ? "Create New Invoice" : `Invoice #${selectedInvoice?.invoiceNumber}`}
+              </h2>
+              <div className="flex items-center gap-2">
+                {!isAdding && selectedInvoice && (
+                  <>
+                    <button onClick={() => handleDelete(selectedInvoice.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[8px] transition-colors" title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <button onClick={handleCloseDrawer} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[8px] transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+              {isAdding ? (
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Select Patient <span className="text-red-500">*</span></label>
+                    <select value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm appearance-none">
+                      {patients.map(p => (
+                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Item Description</label>
+                    <input type="text" value={itemDesc} onChange={e => setItemDesc(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. Routine Dental Checkup" />
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Amount (€) <span className="text-red-500">*</span></label>
+                    <input type="number" step="0.01" value={itemCost} onChange={e => setItemCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
+                  </div>
+                  <button onClick={handleSaveInvoice} disabled={isSaving} className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50">
+                    Create & Send Invoice
+                  </button>
+                </div>
+              ) : selectedInvoice ? (
+                <div className="space-y-6">
+                  
+                  {/* Status Banner */}
+                  <div className={`p-4 rounded-[12px] border ${STATUS_CONFIG[selectedInvoice.status].bg} ${STATUS_CONFIG[selectedInvoice.status].border}`}>
+                    <div className="flex items-center gap-2">
+                       {(() => {
+                         const Icon = STATUS_CONFIG[selectedInvoice.status].icon;
+                         return <Icon className={`w-5 h-5 ${STATUS_CONFIG[selectedInvoice.status].text}`} />;
+                       })()}
+                       <h3 className={`text-[15px] font-bold ${STATUS_CONFIG[selectedInvoice.status].text}`}>
+                          This invoice is {selectedInvoice.status.toUpperCase()}
+                       </h3>
                     </div>
-                    <span className={`inline-flex items-center gap-1 text-[8px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider border shrink-0 ${sc.color}`}>
-                      <Icon className="w-2.5 h-2.5" />
-                      {sc.label}
-                    </span>
                   </div>
 
-                  {/* Pricing / Details */}
-                  <div className="flex items-end justify-between">
-                    <div>
-                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Total Amount</span>
-                      <span className="font-serif font-bold text-navy text-base block mt-0.5">€{Number(inv.totalAmount || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[9px] text-gray-400 font-bold uppercase tracking-wider block">Issued Date</span>
-                      <span className="text-[10px] text-gray-500 font-medium block mt-0.5">{new Date(inv.issueDate).toLocaleDateString()}</span>
+                  {/* Patient Info */}
+                  <div className="bg-gray-50 border border-gray-100 rounded-[12px] p-4">
+                     <h4 className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-1">Billed To</h4>
+                     <p className="text-[15px] font-bold text-gray-900">{patientName(selectedInvoice.patientId)}</p>
+                     <p className="text-[13px] text-gray-500 mt-1">Due: {selectedInvoice.dueDate ? new Date(selectedInvoice.dueDate).toLocaleDateString() : 'N/A'}</p>
+                  </div>
+
+                  {/* Line Items */}
+                  <div>
+                    <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Line Items</h4>
+                    <div className="border border-gray-100 rounded-[12px] overflow-hidden">
+                      <table className="w-full text-left">
+                         <thead className="bg-gray-50 border-b border-gray-100">
+                           <tr>
+                              <th className="px-4 py-2 text-[11px] font-bold text-gray-500">Description</th>
+                              <th className="px-4 py-2 text-[11px] font-bold text-gray-500 text-right">Qty</th>
+                              <th className="px-4 py-2 text-[11px] font-bold text-gray-500 text-right">Price</th>
+                           </tr>
+                         </thead>
+                         <tbody className="divide-y divide-gray-100">
+                            {selectedInvoice.items && selectedInvoice.items.length > 0 ? (
+                               selectedInvoice.items.map((item, idx) => (
+                                  <tr key={idx}>
+                                     <td className="px-4 py-3 text-[13px] text-gray-900">{item.description}</td>
+                                     <td className="px-4 py-3 text-[13px] text-gray-500 text-right">{item.quantity}</td>
+                                     <td className="px-4 py-3 text-[13px] font-medium text-gray-900 text-right">€{parseFloat(item.price.toString()).toFixed(2)}</td>
+                                  </tr>
+                               ))
+                            ) : (
+                               <tr><td colSpan={3} className="px-4 py-3 text-center text-[13px] text-gray-500">No items on this invoice.</td></tr>
+                            )}
+                            <tr className="bg-gray-50/50">
+                               <td colSpan={2} className="px-4 py-3 text-[12px] font-bold text-gray-700 uppercase tracking-wider text-right">Total Due</td>
+                               <td className="px-4 py-3 text-[15px] font-bold text-gray-900 text-right">€{parseFloat(selectedInvoice.totalAmount.toString()).toFixed(2)}</td>
+                            </tr>
+                         </tbody>
+                      </table>
                     </div>
                   </div>
-                </div>
 
-                {/* Actions */}
-                <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 w-full">
-                    <button onClick={() => setViewInvoice(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-blue-100 text-blue-500 text-[10px] font-bold hover:bg-blue-50 transition-colors active:scale-95">
-                      <Eye className="w-3.5 h-3.5" /> View
-                    </button>
-                    <button onClick={() => handleEditOpen(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-gold/30 text-gold text-[10px] font-bold hover:bg-gold/5 transition-colors active:scale-95">
-                      <Edit3 className="w-3.5 h-3.5" /> Edit
-                    </button>
-                    <button onClick={() => handleDownloadPdf(inv)} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-navy/20 text-navy text-[10px] font-bold hover:bg-navy/5 transition-colors active:scale-95" title="PDF">
-                      <Download className="w-3.5 h-3.5" /> PDF
-                    </button>
-                    <button onClick={() => handleDelete(inv.id, inv.invoiceNumber)} className="p-2 rounded-xl border border-red-100 text-red-500 hover:bg-red-50 transition-colors active:scale-95" title="Delete">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
+                     <button onClick={() => {
+                        generateInvoicePDF({
+                          invoiceNumber: selectedInvoice.invoiceNumber,
+                          issueDate: selectedInvoice.issueDate,
+                          dueDate: selectedInvoice.dueDate,
+                          status: selectedInvoice.status,
+                          patientName: patientName(selectedInvoice.patientId),
+                          items: selectedInvoice.items || [],
+                          subtotal: selectedInvoice.totalAmount,
+                          totalAmount: selectedInvoice.totalAmount
+                        });
+                        toast.success("Downloading PDF...");
+                     }} className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors">
+                        <Download className="w-4 h-4" /> Download PDF
+                     </button>
+                     <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors">
+                        <Send className="w-4 h-4" /> Email Patient
+                     </button>
                   </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) }
-      {/* ─── View Modal ─── */}
-      {viewInvoice && (
-        <Modal title={`Invoice ${viewInvoice.invoiceNumber}`} onClose={() => setViewInvoice(null)}>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <InfoRow label="Patient" value={patientName(viewInvoice.patientId)} />
-              <InfoRow label="Invoice #" value={viewInvoice.invoiceNumber} mono />
-              <InfoRow label="Date" value={new Date(viewInvoice.issueDate).toLocaleDateString()} />
-              <InfoRow label="Amount" value={`€${Number(viewInvoice.totalAmount).toFixed(2)}`} />
-              <InfoRow label="Status" value={STATUS_CONFIG[viewInvoice.status]?.label || viewInvoice.status} />
-              {viewInvoice.dueDate && <InfoRow label="Due" value={new Date(viewInvoice.dueDate).toLocaleDateString()} />}
-            </div>
-            {viewInvoice.items && viewInvoice.items.length > 0 && (
-              <div>
-                <p className="text-[9px] font-bold text-navy uppercase tracking-widest mb-2">Line Items</p>
-                <div className="space-y-1.5">
-                  {viewInvoice.items.map((item, i) => (
-                    <div key={i} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 text-xs">
-                      <span className="text-navy font-medium truncate mr-4">{item.description}</span>
-                      <span className="text-navy font-bold shrink-0">€{Number(item.price).toFixed(2)}</span>
+
+                  {/* Update Status */}
+                  <div className="pt-6 border-t border-gray-100">
+                    <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Record Payment / Update Status</h4>
+                    <div className="flex items-center gap-3">
+                       <select value={invoiceStatus} onChange={e => setInvoiceStatus(e.target.value as any)} className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm appearance-none">
+                         <option value="pending">Pending</option>
+                         <option value="paid">Paid (Record Payment)</option>
+                         <option value="overdue">Overdue</option>
+                         <option value="cancelled">Cancelled</option>
+                       </select>
+                       <button onClick={handleUpdateStatus} disabled={isSaving || invoiceStatus === selectedInvoice.status} className="px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm">
+                         Update
+                       </button>
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => handleDownloadPdf(viewInvoice)}
-                className="flex-1 bg-navy text-white font-bold py-2.5 rounded-lg text-xs flex items-center justify-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" /> Download PDF
-              </button>
-              <button
-                onClick={() => { setViewInvoice(null); handleEditOpen(viewInvoice); }}
-                className="flex-1 bg-gold text-navy font-bold py-2.5 rounded-lg text-xs flex items-center justify-center gap-1.5"
-              >
-                <Edit3 className="w-3.5 h-3.5" /> Edit Status
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+                  </div>
 
-      {/* ─── Edit Modal ─── */}
-      {editInvoice && (
-        <Modal title={`Edit ${editInvoice.invoiceNumber}`} onClose={() => setEditInvoice(null)}>
-          <form onSubmit={handleEditSave} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold text-navy uppercase tracking-wider block">Invoice Status</label>
-              <select
-                value={editStatus}
-                onChange={(e) => setEditStatus(e.target.value as Invoice["status"])}
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-gold"
-              >
-                <option value="pending">Pending</option>
-                <option value="paid">Paid</option>
-                <option value="overdue">Overdue</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
+                </div>
+              ) : null}
             </div>
-            <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
-              <div className="flex justify-between"><span className="text-gray-500">Invoice #</span><span className="font-mono font-semibold">{editInvoice.invoiceNumber}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">Amount</span><span className="font-bold text-navy">€{Number(editInvoice.totalAmount).toFixed(2)}</span></div>
-            </div>
-            <div className="flex gap-2">
-              <button type="submit" disabled={editLoading} className="flex-1 bg-gold hover:bg-gold-dark text-navy font-bold py-2.5 rounded-lg text-xs disabled:opacity-50">
-                {editLoading ? "Saving…" : "Save Changes"}
-              </button>
-              <button type="button" onClick={() => setEditInvoice(null)} className="flex-1 border border-gray-200 text-navy font-semibold py-2.5 rounded-lg text-xs hover:bg-gray-50">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
 
-      {/* ─── Create Invoice Drawer ─── */}
-      {showBuilder && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-end">
-          <div className="bg-white h-full w-full max-w-[460px] p-6 space-y-6 shadow-2xl relative flex flex-col justify-between animate-fade-up overflow-y-auto">
-            <button onClick={() => setShowBuilder(false)} className="absolute right-4 top-4 text-gray-400 hover:text-navy text-lg font-bold">&times;</button>
-            <form onSubmit={handleCreateInvoice} className="space-y-4 flex-1 mt-6">
-              <div className="border-b border-gray-200 pb-3">
-                <h4 className="font-serif text-lg font-bold text-navy">New Clinical Invoice</h4>
-                <p className="text-gray-500 text-[10px] mt-0.5">Generate a billing record for a procedure.</p>
-              </div>
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Patient</label>
-                  <select value={patientId} onChange={(e) => setPatientId(e.target.value)} required className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-gold">
-                    {patients.length === 0 ? <option value="">No patients</option> : patients.map((p) => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Treatment Description</label>
-                  <input type="text" required value={itemDesc} onChange={(e) => setItemDesc(e.target.value)} placeholder="e.g. Tooth restoration filling" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-gold" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-semibold text-navy">Cost Fee (€)</label>
-                  <input type="number" step="0.01" min="0" required value={itemCost} onChange={(e) => setItemCost(e.target.value)} placeholder="e.g. 150.00" className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-xs focus:outline-none focus:border-gold" />
-                </div>
-              </div>
-              <button type="submit" disabled={builderLoading} className="w-full bg-gold hover:bg-gold-dark text-navy font-bold py-2.5 rounded-lg text-xs shadow-md transition-colors disabled:opacity-50 mt-4">
-                {builderLoading ? "Generating…" : "Generate and Send Invoice"}
-              </button>
-            </form>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ─── Shared Modal ─── */
-function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-[480px] shadow-2xl animate-fade-up overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h4 className="font-serif text-sm font-bold text-navy">{title}</h4>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-navy transition-colors"><X className="w-4 h-4" /></button>
-        </div>
-        <div className="p-5">{children}</div>
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div className="space-y-0.5">
-      <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">{label}</p>
-      <p className={`text-navy font-semibold ${mono ? "font-mono" : ""}`}>{value}</p>
     </div>
   );
 }

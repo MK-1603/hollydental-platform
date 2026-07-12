@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  CheckCircle2,
-  XCircle,
-  AlertTriangle,
-  Info,
-  X,
-  ShieldAlert,
-} from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Info, X, ShieldAlert } from "lucide-react";
 import { useToastStore, type ToastItem } from "@/store/useToast";
 
 const VARIANT_STYLES: Record<

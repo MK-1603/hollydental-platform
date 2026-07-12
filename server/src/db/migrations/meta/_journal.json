@@ -64,6 +64,83 @@
       "when": 1748332800003,
       "tag": "0008_wellness_logs",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1783753391611,
+      "tag": "0010_free_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1783756855860,
+      "tag": "0011_harsh_bushwacker",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1783757180037,
+      "tag": "0012_aromatic_zarda",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1783769154327,
+      "tag": "0013_dazzling_storm",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1783777181852,
+      "tag": "0014_confused_the_phantom",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1783785846176,
+      "tag": "0015_worried_reptil",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1783786038570,
+      "tag": "0016_mixed_chronomancer",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1783786053064,
+      "tag": "0017_lovely_midnight",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1783786349520,
+      "tag": "0018_simple_revanche",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1783817671517,
+      "tag": "0020_aromatic_piledriver",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1783900000000,
+      "tag": "0021_add_missing_tables",
+      "breakpoints": true
     }
   ]
 }

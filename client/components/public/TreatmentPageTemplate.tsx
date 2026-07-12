@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
-import { Star, ShieldCheck, Sparkles, HelpCircle, ArrowRight, Clock, Plus, Minus } from "lucide-react";
+import { Star, ShieldCheck, Activity, HelpCircle, ArrowRight, Clock, Plus, Minus } from "lucide-react";
 import BeforeAfterSlider from "@/components/public/BeforeAfterSlider";
 import { CLINIC } from "@/lib/constants";
 
@@ -121,7 +121,7 @@ export default function TreatmentPageTemplate({
           {/* Left info */}
           <div className="lg:col-span-7 space-y-6">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-gold/10 px-3 py-1 rounded-full border border-gold/20">
-              <Sparkles className="w-3.5 h-3.5" /> Premium Treatment Landing Page
+              <Activity className="w-3.5 h-3.5" /> Premium Treatment Landing Page
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight">
               {heroTitle}
@@ -260,7 +260,7 @@ export default function TreatmentPageTemplate({
         <div className="bg-gold/10 border border-gold/30 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div className="space-y-2">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white border border-gold/40 px-2.5 py-1 rounded-full">
-              <Sparkles className="w-3 h-3" /> Booking Request
+              <Activity className="w-3 h-3" /> Booking Request
             </span>
             <h3 className="font-serif text-2xl md:text-3xl font-bold text-navy leading-tight">
               Ready to schedule your {treatmentName} consultation?

@@ -2,6 +2,7 @@
 
 import LoginModal from "@/components/public/LoginModal";
 import RegisterModal from "@/components/public/RegisterModal";
+import BookingModal from "@/components/public/BookingModal";
 
 /**
  * Mount both auth modals once at the root layout so they're available
@@ -13,6 +14,7 @@ export default function AuthModals() {
     <>
       <LoginModal />
       <RegisterModal />
+      <BookingModal />
     </>
   );
 }

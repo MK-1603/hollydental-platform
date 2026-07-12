@@ -1,0 +1,112 @@
+========================================================================
+ALL PROJECT DIAGRAMS - HOLLYHILL DENTAL PLATFORM (MERMAID FORMAT)
+========================================================================
+
+Below is the complete collection of all flowcharts mapped out for the Hollyhill Dental Clinic Platform architecture, dual-user journeys, security protocols, and deployment pipeline. 
+
+These diagrams are written in "Mermaid" format. When you upload this to Claude, or view it in a Markdown previewer, these will automatically render as gorgeous, structured visual flowcharts!
+
+------------------------------------------------------------------------
+DIAGRAM 1: Dual-Role Splash & Login Logic
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[User Opens App] --> B{Who are you?}
+    B -->|PATIENT| C[Patient Portal Login]
+    B -->|STAFF| D[Admin Access Login]
+    C --> E[Secure JWT Cookie Issued]
+    D --> E
+    E --> F[Route to correct Dashboard]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 2: Patient Dashboard Overview
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[THE PATIENT DASHBOARD <br> Home Base] --> B[Upcoming Appointments]
+    A --> C[My Invoices & Billing]
+    A --> D[My Clinical Files <br> X-Rays via Cloudinary]
+    A --> E[Quick Action: Request Booking]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 3: Admin Command Center
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[THE ADMIN DASHBOARD <br> Command Center] --> B[Approvals Queue]
+    B --> C{Review Request}
+    C -->|Decline| D[Patient Notified <br> Slot Remains Free]
+    C -->|Approve| E[Slot Locked in Calendar <br> Success!]
+    A --> F[Live Daily Schedule]
+    A --> G[System Activity Logs]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 4: The Interactive SVG Dental Chart
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[Open Dental Chart] --> B[Renders 32-Tooth SVG Map]
+    B --> C[Tap a Tooth]
+    C --> D{Role Check}
+    D -->|Patient| E[View-Only Mode <br> Slide-in panel shows doctor notes]
+    D -->|Admin| F[Edit Mode <br> Toolbar opens to Mark Filled/Extracted]
+    F --> G[Type Clinical Notes & Save]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 5: Live Messaging & Immutable Audit Trail
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[Patient Sends Message] --> B[Socket.io Real-Time Event]
+    B --> C[Admin Screen Auto-Refreshes]
+    C --> D[Admin Replies]
+    D --> E[Save to Database]
+    E --> F{Try to Delete Message?}
+    F -->|Blocked by Backend| G[403 Forbidden <br> Immutable Audit Trail ENFORCED]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 6: The AI Gemini Engine
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[The AI Engine <br> Gemini 1.5 Flash] --> B{Who is using it?}
+    B -->|Patient| C[Emergency Symptom Checker]
+    C --> D[Triage chat to reduce anxiety]
+    B -->|Admin| E[The Clinical Scribe]
+    E --> F[Generate Clinical Briefs]
+    E --> G[Draft SEO Articles]
+    E --> H[Generate Review Replies]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 7: The Secure Rate-Limited Architecture
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[Frontend UI <br> Next.js] -->|API Request| B[Backend Server <br> Express / Node.js]
+    B --> C{Rate Limiter Check}
+    C -->|Too many attempts| D[429 Blocked <br> Stops brute force]
+    C -->|Approved| E[Validate JWT Token]
+    E --> F{Asset Type?}
+    F -->|Text / Records| G[Neon Postgres DB <br> via Drizzle ORM]
+    F -->|Heavy X-Ray Image| H[Cloudinary CDN <br> Memory Upload]
+```
+
+------------------------------------------------------------------------
+DIAGRAM 8: The Quad-Fold Deployment Pipeline
+------------------------------------------------------------------------
+```mermaid
+graph TD
+    A[1. IDE Terminal <br> git push origin main] -->|Code stored in GitHub| B[2. The Cloud Vaults]
+    B --> C[Neon Database]
+    B --> D[Cloudinary CDN]
+    C --> E[3. Render Build Servers <br> Hosts Express Backend]
+    D --> E
+    E -->|Provides Live API URL| F[4. Vercel Build Servers <br> Hosts Next.js Frontend]
+    F -->|LIVE VERCEL URL| G[5. Share with Clinic! <br> Ready for patients]
+```

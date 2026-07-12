@@ -1,19 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CLINIC } from "@/lib/constants";
-import {
-  Award,
-  ShieldCheck,
-  HeartHandshake,
-  CheckCircle,
-  Sparkles,
-  ArrowLeft,
-  Quote,
-  Star,
-  BookOpen,
-  Calendar,
-  MessageSquare
-} from "lucide-react";
+import { Award, ShieldCheck, HeartHandshake, CheckCircle, Activity, ArrowLeft, Quote, Star, BookOpen, Calendar, MessageSquare } from "lucide-react";
 import BookButton from "@/components/public/BookButton";
 
 export const metadata: Metadata = {
@@ -66,7 +54,7 @@ export default function DoctorBioPage() {
           {/* Intro Text */}
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-gold/10 px-3.5 py-1.5 rounded-full border border-gold/15">
-              <Sparkles className="w-3 h-3" /> Principal Dentist & Director
+              <Activity className="w-3 h-3" /> Principal Dentist & Director
             </span>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-navy leading-[1.1]">
               Dr. Roghay Alizadeh

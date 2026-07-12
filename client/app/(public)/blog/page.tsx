@@ -4,21 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import PremiumBookingCTA from "@/components/public/PremiumBookingCTA";
-import {
-  Search,
-  Calendar,
-  ArrowRight,
-  BookOpen,
-  ShieldCheck,
-  CheckCircle2,
-  Sparkles,
-  Heart,
-  Activity,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-  Clock,
-} from "lucide-react";
+import { Search, Calendar, ArrowRight, BookOpen, ShieldCheck, CheckCircle2, Activity, Heart, Mail, CheckCircle, AlertCircle, Clock } from "lucide-react";
 
 interface BlogPost {
   id: string;
@@ -44,7 +30,7 @@ const CATEGORY_DEFS: { key: string; label: string; desc: string; icon: any }[] =
     key: "Cosmetic Dentistry",
     label: "Cosmetic",
     desc: "Veneers & bonding",
-    icon: Sparkles,
+    icon: Activity,
   },
   {
     key: "Teeth Whitening",
@@ -68,7 +54,7 @@ const CATEGORY_DEFS: { key: string; label: string; desc: string; icon: any }[] =
     key: "Orthodontics & Braces",
     label: "Orthodontics",
     desc: "Aligners & braces",
-    icon: Sparkles,
+    icon: Activity,
   },
   {
     key: "Pediatric Dentistry",

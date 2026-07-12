@@ -45,10 +45,7 @@ router.get("/", verifyToken, async (req, res) => {
       .orderBy(desc(prescriptions.createdAt));
     return res.status(200).json(allRx);
   } catch (error) {
-    console.error("[prescriptions] GET / failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve prescriptions." });
+        next(error);
   }
 });
 
@@ -118,31 +115,43 @@ router.post("/", verifyToken, requireRole("admin"), async (req, res) => {
       prescription: inserted,
     });
   } catch (error) {
-    console.error("[prescriptions] POST failed", error);
-    return res.status(500).json({ message: "Failed to create prescription." });
+    next(error);
   }
 });
 
-/* 3. PUT edit prescription (admin only). */
-router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+/* 3. PUT edit prescription (admin only) — explicit field allowlist. */
+router.put("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
+  const {
+    drugName, dosage, frequency, duration, instructions, notes,
+  } = req.body || {};
   try {
-    const updated = await db
+    const patch = {
+      ...(drugName !== undefined && { drugName }),
+      ...(dosage !== undefined && { dosage }),
+      ...(frequency !== undefined && { frequency: frequency || null }),
+      ...(duration !== undefined && { duration: duration || null }),
+      ...(instructions !== undefined && { instructions: instructions || null }),
+      ...(notes !== undefined && { notes: notes || null }),
+    };
+    if (Object.keys(patch).length === 0) {
+      return res.status(400).json({ message: "No fields to update." });
+    }
+    const [updated] = await db
       .update(prescriptions)
-      .set(req.body || {})
+      .set(patch)
       .where(eq(prescriptions.id, req.params.id))
       .returning();
-    if (updated.length === 0) {
+    if (!updated) {
       return res.status(404).json({ message: "Prescription not found." });
     }
     await logActivity(req, "prescription.updated", {
       targetType: "prescription",
       targetId: req.params.id,
     });
-    return res.status(200).json(updated[0]);
+    return res.status(200).json(updated);
   } catch (error) {
-    console.error("[prescriptions] PUT failed", error);
-    return res.status(500).json({ message: "Failed to edit prescription." });
+    next(error);
   }
 });
 
@@ -157,8 +166,7 @@ router.delete("/:id", verifyToken, requireRole("admin"), async (req, res) => {
     });
     return res.status(200).json({ message: "Prescription deleted successfully." });
   } catch (error) {
-    console.error("[prescriptions] DELETE failed", error);
-    return res.status(500).json({ message: "Failed to delete prescription." });
+    next(error);
   }
 });
 

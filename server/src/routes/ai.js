@@ -19,7 +19,7 @@ router.get("/health", (_req, res) => {
 });
 
 /* 1. Public chatbot — used by the floating widget on every public page. */
-router.post("/chatbot", async (req, res) => {
+router.post("/chatbot", async (req, res, next) => {
   const { message, history = [] } = req.body || {};
   if (!message) return res.status(400).json({ message: "Message is required." });
 
@@ -30,13 +30,12 @@ router.post("/chatbot", async (req, res) => {
     );
     return res.status(200).json({ reply });
   } catch (error) {
-    console.error("[ai] chatbot failed", error);
-    return res.status(500).json({ message: "AI assistant error." });
+    next(error);
   }
 });
 
 /* 2. Portal assistant — same persona, patient-aware context. */
-router.post("/portal-assistant", verifyToken, async (req, res) => {
+router.post("/portal-assistant", verifyToken, async (req, res, next) => {
   const { message, history = [], patientName } = req.body || {};
   if (!message) return res.status(400).json({ message: "Message is required." });
 
@@ -47,8 +46,7 @@ router.post("/portal-assistant", verifyToken, async (req, res) => {
     );
     return res.status(200).json({ reply });
   } catch (error) {
-    console.error("[ai] portal-assistant failed", error);
-    return res.status(500).json({ message: "AI assistant error." });
+    next(error);
   }
 });
 
@@ -57,7 +55,7 @@ router.post(
   "/patient-summary",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     const { name } = req.body || {};
     if (!name) return res.status(400).json({ message: "Patient name is required." });
 
@@ -68,8 +66,7 @@ router.post(
       );
       return res.status(200).json({ summary });
     } catch (error) {
-      console.error("[ai] patient-summary failed", error);
-      return res.status(500).json({ message: "Failed to generate patient summary." });
+      next(error);
     }
   }
 );
@@ -79,7 +76,7 @@ router.post(
   "/review-reply",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     const { reviewText } = req.body || {};
     if (!reviewText) {
       return res.status(400).json({ message: "reviewText is required." });
@@ -92,8 +89,7 @@ router.post(
       );
       return res.status(200).json({ reply });
     } catch (error) {
-      console.error("[ai] review-reply failed", error);
-      return res.status(500).json({ message: "Failed to generate review reply." });
+      next(error);
     }
   }
 );
@@ -103,7 +99,7 @@ router.post(
   "/blog-generate",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     const { topic, wordCount } = req.body || {};
     if (!topic) return res.status(400).json({ message: "Topic is required." });
 
@@ -114,14 +110,13 @@ router.post(
       );
       return res.status(200).json({ article });
     } catch (error) {
-      console.error("[ai] blog-generate failed", error);
-      return res.status(500).json({ message: "Failed to generate blog article." });
+      next(error);
     }
   }
 );
 
 /* 6. Symptom checker (public). */
-router.post("/symptom-check", async (req, res) => {
+router.post("/symptom-check", async (req, res, next) => {
   const { symptom } = req.body || {};
   if (!symptom) return res.status(400).json({ message: "Symptom is required." });
 
@@ -132,8 +127,7 @@ router.post("/symptom-check", async (req, res) => {
     );
     return res.status(200).json({ advice });
   } catch (error) {
-    console.error("[ai] symptom-check failed", error);
-    return res.status(500).json({ message: "Failed to check symptom." });
+    next(error);
   }
 });
 
@@ -142,7 +136,7 @@ router.post(
   "/followup-reminder",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     const { name, treatment } = req.body || {};
     if (!name || !treatment) {
       return res
@@ -157,8 +151,7 @@ router.post(
       );
       return res.status(200).json({ smsText });
     } catch (error) {
-      console.error("[ai] followup-reminder failed", error);
-      return res.status(500).json({ message: "Failed to generate reminder." });
+      next(error);
     }
   }
 );
@@ -168,7 +161,7 @@ router.post(
   "/prescription-note",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     const { drugName } = req.body || {};
     if (!drugName) {
       return res.status(400).json({ message: "Drug name is required." });
@@ -181,10 +174,7 @@ router.post(
       );
       return res.status(200).json({ note });
     } catch (error) {
-      console.error("[ai] prescription-note failed", error);
-      return res
-        .status(500)
-        .json({ message: "Failed to generate prescription note." });
+            next(error);
     }
   }
 );

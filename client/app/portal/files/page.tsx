@@ -3,10 +3,7 @@
 import { useMemo, useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
-import {
-  FolderOpen, Download, FileText, X, RefreshCw,
-  Image, File, Filter, Grid3X3, List, Eye, Shield,
-} from "lucide-react";
+import { FolderOpen, Download, FileText, X, RefreshCw, Image, File, Filter, Grid3X3, List, Eye, Shield } from "lucide-react";
 
 interface PatientFile {
   id: string;

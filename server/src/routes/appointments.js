@@ -5,6 +5,7 @@ import { eq, and, or } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
 import { sendPush } from "../lib/push.js";
+import logger from "../lib/logger.js";
 import { logActivity, AuditActions } from "../lib/auditLog.js";
 
 const router = express.Router();
@@ -63,7 +64,7 @@ async function resolveOrCreatePatient(reqUser, patientPayload = {}) {
 /* -------------------- ROUTES -------------------- */
 
 // 1. GET ALL (Admin only)
-router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
+router.get("/", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const { status } = req.query;
@@ -110,15 +111,12 @@ router.get("/", verifyToken, requireRole("admin"), async (req, res) => {
       }))
     );
   } catch (error) {
-    console.error("[appointments] GET / failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve appointments." });
+        next(error);
   }
 });
 
 // 2. GET MY (Patient only)
-router.get("/my", verifyToken, requireRole("patient"), async (req, res) => {
+router.get("/my", verifyToken, requireRole("patient"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const pRows = await db
@@ -151,15 +149,12 @@ router.get("/my", verifyToken, requireRole("patient"), async (req, res) => {
 
     return res.status(200).json(myAppts);
   } catch (error) {
-    console.error("[appointments] GET /my failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve your appointments." });
+        next(error);
   }
 });
 
 // 2b. GET single appointment (Admin or own Patient)
-router.get("/:id", verifyToken, async (req, res) => {
+router.get("/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const rows = await db
@@ -199,15 +194,12 @@ router.get("/:id", verifyToken, async (req, res) => {
 
     return res.status(200).json(appt);
   } catch (error) {
-    console.error("[appointments] GET /:id failed", error);
-    return res
-      .status(500)
-      .json({ message: "Failed to retrieve appointment." });
+        next(error);
   }
 });
 
 // 3. GET Slots (Public)
-router.get("/slots", async (req, res) => {
+router.get("/slots", async (req, res, next) => {
   if (!requireDb(res)) return;
   const { date } = req.query;
   if (!date) {
@@ -244,13 +236,12 @@ router.get("/slots", async (req, res) => {
     const availableSlots = standardSlots.filter((slot) => !bookedTimes.has(slot));
     return res.status(200).json(availableSlots);
   } catch (error) {
-    console.error("[appointments] GET /slots failed", error);
-    return res.status(500).json({ message: "Failed to fetch slots." });
+    next(error);
   }
 });
 
 // 4. POST Create Booking — authenticated patients only.
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   if (req.user.role !== "patient" && req.user.role !== "admin") {
     return res.status(403).json({ message: "Forbidden." });
@@ -374,7 +365,7 @@ router.post("/", verifyToken, async (req, res) => {
         isRead: false,
       });
     } catch (msgErr) {
-      console.error("Failed to send booking message notification:", msgErr);
+      logger.warn({ err: msgErr }, "[appointments] booking notification message failed (non-fatal)");
     }
 
     // 7) Push-notify all admins so they see the request immediately
@@ -420,12 +411,12 @@ router.post("/", verifyToken, async (req, res) => {
     if (error?.status === 400) {
       return res.status(400).json({ message: error.message });
     }
-    return res.status(500).json({ message: `Booking failed: ${error.message}` });
+    return next(error);
   }
 });
 
 // 5. PUT Update details (Admin only)
-router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
+router.put("/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   const { appointmentDate, appointmentTime, notes, status } = req.body;
 
@@ -471,8 +462,7 @@ router.put("/:id", verifyToken, requireRole("admin"), async (req, res) => {
 
     return res.status(200).json(fullAppt[0]);
   } catch (error) {
-    console.error("[appointments] PUT /:id failed", error);
-    return res.status(500).json({ message: "Failed to update appointment." });
+    next(error);
   }
 });
 
@@ -481,7 +471,7 @@ router.put(
   "/:id/status",
   verifyToken,
   requireRole("admin"),
-  async (req, res) => {
+  async (req, res, next) => {
     if (!requireDb(res)) return;
     const { status, note } = req.body;
     if (!status) {
@@ -556,8 +546,7 @@ router.put(
 
       return res.status(200).json(fullAppt[0]);
     } catch (error) {
-      console.error("[appointments] PUT /:id/status failed", error);
-      return res.status(500).json({ message: "Failed to update status." });
+      next(error);
     }
   }
 );
@@ -573,7 +562,7 @@ const STATUS_FRIENDLY = {
 };
 
 // 7. PATCH Reschedule (Admin or own Patient).
-router.patch("/:id/reschedule", verifyToken, async (req, res) => {
+router.patch("/:id/reschedule", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   const { appointmentDate, appointmentTime, notes } = req.body || {};
   if (!appointmentDate || !appointmentTime) {
@@ -663,13 +652,12 @@ router.patch("/:id/reschedule", verifyToken, async (req, res) => {
 
     return res.status(200).json(updated);
   } catch (error) {
-    console.error("[appointments] PATCH /reschedule failed", error);
-    return res.status(500).json({ message: "Failed to reschedule appointment." });
+    next(error);
   }
 });
 
 // 8. DELETE Cancel (Admin or own Patient)
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
     const rows = await db
@@ -699,8 +687,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
     await db.delete(appointments).where(eq(appointments.id, req.params.id));
     return res.status(200).json({ message: "Appointment cancelled successfully." });
   } catch (error) {
-    console.error("[appointments] DELETE failed", error);
-    return res.status(500).json({ message: "Failed to cancel appointment." });
+    next(error);
   }
 });
 

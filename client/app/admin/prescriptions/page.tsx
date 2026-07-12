@@ -4,16 +4,7 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
-import {
-  Plus,
-  Trash2,
-  Edit3,
-  Eye,
-  X,
-  Pill,
-  Calendar,
-  RefreshCw,
-} from "lucide-react";
+import { Plus, Trash2, Edit3, Eye, X, Pill, Calendar, RefreshCw } from "lucide-react";
 
 interface PatientLite {
   id: string;
@@ -363,7 +354,7 @@ export default function AdminPrescriptionsPage() {
 
       {/* ─── Create Prescription Modal ─── */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-2xl w-full max-w-[500px] shadow-2xl animate-fade-up overflow-y-auto max-h-[95vh]">
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
               <div>
@@ -433,7 +424,7 @@ export default function AdminPrescriptionsPage() {
 /* ─── Shared components ─── */
 function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl w-full max-w-[480px] shadow-2xl animate-fade-up overflow-hidden max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h4 className="font-serif text-sm font-bold text-navy truncate pr-2">{title}</h4>

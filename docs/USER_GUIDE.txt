@@ -1,0 +1,66 @@
+========================================================================
+HOLLYHILL DENTAL CLINIC PLATFORM - THE USER'S GUIDE
+========================================================================
+
+Welcome to the ultimate dental clinic management platform! We've eliminated complex paperwork, phone tag, and scattered X-rays. 
+
+This platform is divided into two distinct, highly secure areas: one for the Patients, and one for Dr. Roghay and the Clinic Staff. Here is your quick, step-by-step guide to using the platform.
+
+1. GETTING STARTED (Dual Access)
+------------------------------------------------------------------------
+Just open this link on any browser (mobile or desktop):
+👉 https://hollydental-platform.vercel.app/
+
+When you arrive, you will see a simple login screen with two tabs:
+- Patient Portal: For individuals to manage their dental journey.
+- Staff Access: A secure gateway for Dr. Roghay and the clinic admins.
+
+========================================================================
+PART 1: FOR PATIENTS
+========================================================================
+
+2. THE PATIENT DASHBOARD (Your Home Base)
+------------------------------------------------------------------------
+The moment you log in, you see exactly what matters:
+- Upcoming Appointments: Know exactly when you need to be at the clinic.
+- Pending Requests: Track the status of any bookings you've requested.
+- Quick Actions: Instantly tap to Request an Appointment or View Invoices.
+
+3. THE INTERACTIVE DENTAL CHART (Your Digital Mouth)
+------------------------------------------------------------------------
+Want to know exactly what the dentist found? Tap on "My Dental Chart".
+- You will see a large, high-definition SVG map of your 32 adult teeth.
+- Tap any tooth (e.g., your top-right molar) to instantly slide open a panel showing the exact clinical notes from your last visit.
+- Green means healthy, blue means filled, and silver means crowned!
+
+4. BOOKING AN APPOINTMENT & AI SYMPTOM CHECKER
+------------------------------------------------------------------------
+- Need a checkup? Tap "Request Appointment", select a service, pick an available slot on the massive calendar, and hit submit. The clinic will review and approve it.
+- Dental Emergency? Tap the AI Symptom Checker. Describe your pain (e.g., "throbbing pain when drinking cold water") and the Gemini AI will provide immediate triage advice while you wait for the clinic to open.
+
+========================================================================
+PART 2: FOR CLINIC STAFF & ADMINS
+========================================================================
+
+5. THE COMMAND CENTER (Schedule & Approvals)
+------------------------------------------------------------------------
+When staff logs in, they land on the Approvals Queue. 
+- You instantly see patient booking requests. 
+- Tap the massive green "Approve" button to securely lock that slot into the daily interactive calendar and automatically notify the patient.
+
+6. LIVE MESSAGING & AI CLINICAL SCRIBE
+------------------------------------------------------------------------
+- Patient chatting with you? The Live Messaging Center auto-refreshes every few seconds. Just reply instantly.
+- Need to write a complex medical summary? Open the AI Scribe tool. Select the patient, hit "Generate with Gemini," and the AI will instantly write a perfectly formatted clinical brief based on the patient's history. It can also write SEO articles for the clinic's blog!
+
+7. ADMIN INTERACTIVE CHART (Logging Notes)
+------------------------------------------------------------------------
+When Dr. Roghay is examining a patient, she opens the Admin version of the Interactive Chart. 
+- She clicks the specific tooth, taps "Mark Filled", and types her clinical observations into the massive text box. 
+- Hitting "Save" permanently logs it to the patient's secure record.
+
+8. GDPR EXPORT & SETTINGS
+------------------------------------------------------------------------
+Patients and admins have absolute control over their data in the Settings menu.
+- Patients can tap "Export GDPR Data" to instantly download their entire medical history and X-rays as a secure JSON file.
+- Staff accounts are required to rotate their passwords (minimum 10 characters) for maximum security.

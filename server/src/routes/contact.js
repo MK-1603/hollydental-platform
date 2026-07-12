@@ -102,8 +102,7 @@ router.post("/", async (req, res) => {
         "Thanks — we received your enquiry. The clinic will be in touch within one business day.",
     });
   } catch (err) {
-    console.error("[contact] failed", err);
-    return res.status(500).json({ message: "Failed to send your enquiry." });
+    next(err);
   }
 });
 

@@ -4,23 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SERVICES, CLINIC } from "@/lib/constants";
-import {
-  Phone,
-  Calendar,
-  Menu,
-  X,
-  Home,
-  Briefcase,
-  ChevronDown,
-  ArrowRight,
-  ShieldAlert,
-  LogOut,
-  User as UserIcon,
-  MapPin,
-  Clock,
-  Sparkles,
-  MessageCircle,
-} from "lucide-react";
+import { Phone, Calendar, Menu, X, Home, Briefcase, ChevronDown, ArrowRight, ShieldAlert, LogOut, User as UserIcon, MapPin, Clock, Activity, MessageCircle } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import Logo from "@/components/public/Logo";
@@ -35,19 +19,14 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const { openLoginModal } = useUIStore();
+  const { openLoginModal, openBookingModal } = useUIStore();
 
   const servicesRef = useRef<HTMLDivElement | null>(null);
   const accountRef = useRef<HTMLDivElement | null>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const goToBooking = () => {
-    const target = "/portal/booking";
-    if (user) {
-      router.push(target);
-      return;
-    }
-    openLoginModal(() => router.push(target));
+    openBookingModal();
   };
 
   const goToDashboard = () => {
@@ -245,7 +224,7 @@ export default function Navbar() {
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(201,169,110,0.18),transparent_60%)]" />
                       <div className="relative space-y-3">
                         <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold text-gold bg-gold/10 border border-gold/30 rounded-full px-2.5 py-1">
-                          <Sparkles className="w-3 h-3" />
+                          <Activity className="w-3 h-3" />
                           Most loved
                         </span>
                         <h4 className="font-serif text-xl font-bold leading-tight">

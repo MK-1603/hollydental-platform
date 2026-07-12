@@ -75,7 +75,10 @@ router.get("/sitemap.xml", async (req, res) => {
         .where(eq(blogPosts.status, "published"))
         .orderBy(desc(blogPosts.publishedAt));
     } catch (err) {
-      console.error("[sitemap] failed to load posts", err);
+      // Non-fatal — sitemap still works without blog posts
+      import("../lib/logger.js").then(({ default: logger }) =>
+        logger.error({ err }, "[sitemap] failed to load posts")
+      );
     }
   }
 
@@ -138,7 +141,9 @@ router.get("/rss.xml", async (req, res) => {
         .orderBy(desc(blogPosts.publishedAt))
         .limit(20);
     } catch (err) {
-      console.error("[rss] failed to load posts", err);
+      import("../lib/logger.js").then(({ default: logger }) =>
+        logger.error({ err }, "[rss] failed to load posts")
+      );
     }
   }
 

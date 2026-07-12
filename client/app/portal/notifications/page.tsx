@@ -2,14 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import {
-  Bell,
-  CalendarCheck,
-  ClipboardList,
-  MessageSquare,
-  RefreshCw,
-  Sparkles
-} from "lucide-react";
+import { Bell, CalendarCheck, ClipboardList, MessageSquare, RefreshCw, Activity } from "lucide-react";
 import { useLiveData } from "@/lib/useLiveData";
 import PushToggle from "@/components/common/PushToggle";
 
@@ -92,7 +85,7 @@ export default function PortalNotificationsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <h3 className="text-xs font-extrabold text-navy flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-gold" /> Push Telemetry Subscriptions
+              <Activity className="w-4 h-4 text-gold" /> Push Telemetry Subscriptions
             </h3>
             <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
               Enable instant browser notification pings so you never miss clinic alerts or updates.

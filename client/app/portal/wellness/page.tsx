@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiRequest } from "@/lib/api";
-import { Flame, CheckCircle2, Circle, Sparkles, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart } from "lucide-react";
+import { Flame, CheckCircle2, Circle, Activity, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -305,7 +305,7 @@ function HabitTracker({ userId }: { userId: string }) {
 
       {todayComplete && (
         <div className="bg-linear-to-r from-gold/10 to-emerald-50 border border-gold/20 rounded-xl px-4 py-3 flex items-center gap-3">
-          <Sparkles className="w-5 h-5 text-gold shrink-0" />
+          <Activity className="w-5 h-5 text-gold shrink-0" />
           <div>
             <span className="block text-xs font-bold text-navy">All habits complete for today! 🎉</span>
             <span className="block text-[10px] text-gray-500">Your teeth will thank you. Keep the streak going tomorrow.</span>
