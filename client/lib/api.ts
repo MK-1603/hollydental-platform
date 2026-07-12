@@ -1,6 +1,11 @@
 const getApiUrl = () => {
   if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+    let url = process.env.NEXT_PUBLIC_API_URL;
+    // Strip trailing slash
+    if (url.endsWith('/')) url = url.slice(0, -1);
+    // Append /api if missing
+    if (!url.endsWith('/api')) url += '/api';
+    return url;
   }
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
