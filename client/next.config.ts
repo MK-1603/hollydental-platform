@@ -6,10 +6,17 @@ const nextConfig: NextConfig = {
   devIndicators: {
     position: "bottom-right",
   },
+  turbopack: {
+    root: '..',
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "media.istockphoto.com" },
+      { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "www.hollyhilldental.ie" },
+      { protocol: "https", hostname: "hollyhilldental.ie" },
     ],
   },
 };

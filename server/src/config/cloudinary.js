@@ -16,7 +16,7 @@ if (
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
   isCloudinaryConfigured = true;
-  console.log("Cloudinary configured successfully.");
+
 } else {
   console.warn("Cloudinary credentials missing. File uploads will run in MOCK mode.");
 }

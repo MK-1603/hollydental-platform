@@ -57,7 +57,7 @@ router.get("/stream", verifyToken, (req, res) => {
 // ---------------------------------
 
 // GET /api/notifications
-router.get("/", verifyToken, async (req, res, next) => {
+router.get(["/", "/me"], verifyToken, async (req, res, next) => {
   try {
     const { filter = "all", search = "" } = req.query;
     const userId = req.user.id;

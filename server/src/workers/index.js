@@ -70,5 +70,4 @@ export const notificationQueue = new MemoryQueue("Notifications", processNotific
 export const emailQueue = new MemoryQueue("Emails", processEmail);
 
 export function initWorkers() {
-  logger.info("[workers] Background queues initialised (in-process MemoryQueue)");
 }

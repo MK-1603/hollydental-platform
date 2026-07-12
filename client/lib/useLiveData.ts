@@ -51,6 +51,12 @@ export function useLiveData<T = unknown>(
   } = options;
 
   const hasDataRef = useRef(initialData !== undefined);
+  const selectRef = useRef(select);
+  
+  useEffect(() => {
+    selectRef.current = select;
+  }, [select]);
+
   const [data, setData] = useState<T | undefined>(() => {
     // Try to seed from the in-memory cache so navigation is instant.
     if (path && memoryCache.has(path)) {
@@ -136,7 +142,7 @@ export function useLiveData<T = unknown>(
         if (!mountedRef.current || controller.signal.aborted) return;
 
         consecutiveErrorsRef.current = 0;
-        const next = select ? select(raw) : (raw as T);
+        const next = selectRef.current ? selectRef.current(raw) : (raw as T);
         memoryCache.set(path, next);
         offlineCache.setItem(`live:${path}`, next);
         setData(next);
@@ -180,7 +186,7 @@ export function useLiveData<T = unknown>(
         if (mountedRef.current && showLoading) setLoading(false);
       }
     },
-    [path, enabled, select, intervalMs, maxBackoffMs, scheduleNext]
+    [path, enabled, intervalMs, maxBackoffMs, scheduleNext]
   );
 
   // Track mount

@@ -48,7 +48,7 @@ if (ENV.DATABASE_URL) {
   });
 
   db = drizzle(pool, { schema, logger: false });
-  logger.info({ pool: { max: pool.options?.max ?? 10 } }, "[db] Postgres pool initialised");
+
 } else {
   logger.warn("[db] DATABASE_URL is missing — routes that need persistence will return 503");
 

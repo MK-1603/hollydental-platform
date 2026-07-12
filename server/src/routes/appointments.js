@@ -153,6 +153,13 @@ router.get("/my", verifyToken, requireRole("patient"), async (req, res, next) =>
   }
 });
 
+// 3. GET Slots (Public)
+router.get("/slots", async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const { date } = req.query;
+  if (!date) {
+    return res.status(400).json({ message: "Date parameter is required." });
+
 // 2b. GET single appointment (Admin or own Patient)
 router.get("/:id", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
@@ -198,12 +205,7 @@ router.get("/:id", verifyToken, async (req, res, next) => {
   }
 });
 
-// 3. GET Slots (Public)
-router.get("/slots", async (req, res, next) => {
-  if (!requireDb(res)) return;
-  const { date } = req.query;
-  if (!date) {
-    return res.status(400).json({ message: "Date parameter is required." });
+
   }
 
   // Mon–Fri 09:00–17:00, Sat 09:00–13:30, Sun closed.

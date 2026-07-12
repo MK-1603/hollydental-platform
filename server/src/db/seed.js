@@ -238,7 +238,6 @@ export const seedDatabase = async () => {
     // 1. Services — required for booking, pricing pages, etc.
     let servicesAdded = 0;
     for (const service of SERVICES_TO_SEED) {
-      console.log(`[seed] Checking service ${service.slug}`);
       const existing = await db
         .select({ id: services.id })
         .from(services)
@@ -258,18 +257,14 @@ export const seedDatabase = async () => {
     // blog posts can be seeded automatically on startup.
     const defaultEmail = "doctor@hollyhilldental.ie";
 
-    console.log("[seed] Querying for admin user...");
     let admin = await db
       .select({ id: users.id })
       .from(users)
       .where(eq(users.role, "admin"))
       .limit(1);
-    console.log(`[seed] Admin user query complete. Found: ${admin.length}`);
 
     if (admin.length === 0) {
-      console.log("[seed] Hashing password...");
       const passwordHash = await bcrypt.hash("Admin1234!", 10);
-      console.log("[seed] Inserting admin user...");
       const [newAdmin] = await db.insert(users).values({
         email: defaultEmail,
         passwordHash,

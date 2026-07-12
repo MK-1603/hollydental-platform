@@ -161,11 +161,6 @@ function isOriginAllowed(origin) {
   return patternMatchers.some((re) => re.test(norm));
 }
 
-logger.info(
-  { allowList: Array.from(allowExact), patternCount: patternMatchers.length },
-  "[cors] configured"
-);
-
 app.use(
   cors({
     origin: (origin, cb) => {
