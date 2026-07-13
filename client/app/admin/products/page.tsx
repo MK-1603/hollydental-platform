@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
+    <div className="flex flex-col h-full bg-[#F8FAFC] relative overflow-hidden">
 
       {/* Page Header */}
       <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
@@ -207,7 +207,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Responsive Content Container */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
           {loading ? (
             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200 min-h-[200px]">
