@@ -13,6 +13,7 @@ import { generateTablePDF } from "@/lib/pdf";
 
 export default function AdminProductsPage() {
   const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
   const { confirm } = useDialog();
   const { data: products, loading, error, refetch } = useLiveData<any[]>("/products", { initialData: [], intervalMs: 60000 });
   
@@ -35,10 +36,11 @@ export default function AdminProductsPage() {
     if (error) toast.error("Failed to load clinical catalog.");
   }, [error]);
 
-  const filteredProducts = products?.filter(p => 
-    p.name.toLowerCase().includes(search.toLowerCase()) || 
-    p.category.toLowerCase().includes(search.toLowerCase())
-  ) || [];
+  const filteredProducts = products?.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase());
+    const matchesFilter = filterCategory === "all" || p.category === filterCategory;
+    return matchesSearch && matchesFilter;
+  }) || [];
 
   const handleOpenDetails = (product: any) => {
     setSelectedProduct(product);
@@ -154,26 +156,26 @@ export default function AdminProductsPage() {
     <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
         <div>
           <h1 className="text-[20px] font-bold text-gray-900 font-serif">Clinical Catalog & Inventory</h1>
           <p className="text-[13px] text-gray-500 mt-1">Manage procedures, materials, and retail items.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+          <button onClick={handleExport} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
             <Download className="w-4 h-4" /> Export
           </button>
-          <button onClick={handleOpenAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleOpenAdd} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Add Item
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
         {/* Search & Filters */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
-          <div className="relative w-full md:w-80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 shrink-0">
+          <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -188,89 +190,151 @@ export default function AdminProductsPage() {
               </button>
             )}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-            <Filter className="w-4 h-4" /> Filters
-          </button>
+          
+          <div className="relative w-full sm:w-auto">
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="w-full sm:w-auto appearance-none pl-9 pr-9 py-2.5 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              <option value="procedure">Clinical Procedure</option>
+              <option value="extra">Retail Extra</option>
+            </select>
+            <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
-        {/* Robust Table */}
-        <div className="flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-          <div className="overflow-x-auto flex-1 custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[900px]">
-              <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
-                <tr>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Item Details</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Type / Category</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Pricing</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Inventory / Stock</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-[13px] text-gray-500">Loading catalog...</td></tr>
-                ) : filteredProducts.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-12 text-center">
-                      <Package className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                      <p className="text-[14px] font-bold text-gray-900">No items found</p>
-                      <p className="text-[13px] text-gray-500 mt-1">Add a new procedure or item to the catalog.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredProducts.map((p) => (
-                    <tr key={p.id} onClick={() => handleOpenDetails(p)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-4">
-                          {p.imageUrl ? (
-                            <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-[8px] object-cover border border-gray-200 shadow-sm" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-[8px] bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 shadow-sm">
-                              <Package className="w-5 h-5 text-gray-400" />
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{p.name}</p>
-                            <p className="text-[11px] text-gray-500 font-mono mt-0.5">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
-                          </div>
+        {/* Responsive Content Container */}
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          
+          {loading ? (
+             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200">
+               <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading catalog...
+             </div>
+          ) : filteredProducts.length === 0 ? (
+             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm">
+                <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+                <p className="text-[16px] font-bold text-gray-900">No items found</p>
+                <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your search or filter, or add a new item.</p>
+             </div>
+          ) : (
+            <>
+              {/* Mobile Card Layout */}
+              <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-1 px-1">
+                {filteredProducts.map((p) => (
+                  <div 
+                    key={p.id} 
+                    onClick={() => handleOpenDetails(p)}
+                    className="bg-white rounded-[16px] p-4 border border-gray-200 shadow-sm cursor-pointer active:scale-[0.99] transition-transform"
+                  >
+                    <div className="flex items-start gap-4">
+                      {p.imageUrl ? (
+                        <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-[12px] object-cover border border-gray-100 shadow-sm shrink-0" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-[12px] bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 shadow-sm">
+                          <Package className="w-6 h-6 text-gray-400" />
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${
-                          p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
-                        }`}>
-                          {p.category === 'procedure' ? 'Clinical Procedure' : 'Retail Extra'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-[13px] font-bold text-gray-900">
-                          €{parseFloat(p.price).toFixed(2)}
-                          {p.priceTo ? ` - €${parseFloat(p.priceTo).toFixed(2)}` : ''}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {p.category === 'procedure' ? (
-                          <span className="text-[12px] font-medium text-gray-500 italic">Unlimited</span>
-                        ) : (
-                          <div className="flex flex-col">
-                            <span className={`text-[13px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="text-[14px] font-bold text-gray-900 leading-tight">{p.name}</h3>
+                          <span className="text-[14px] font-bold text-gray-900 shrink-0">
+                            €{parseFloat(p.price).toFixed(2)}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 font-mono mt-1 mb-2">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
+                        <div className="flex items-center justify-between">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide border ${
+                            p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                          }`}>
+                            {p.category === 'procedure' ? 'Procedure' : 'Retail'}
+                          </span>
+                          
+                          {p.category === 'procedure' ? (
+                            <span className="text-[11px] font-medium text-gray-500 italic">Unlimited</span>
+                          ) : (
+                            <span className={`text-[11px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
                               {p.stockCount} in stock
                             </span>
-                            {p.stockCount <= 5 && <span className="text-[11px] text-red-500 font-medium mt-0.5">Low inventory</span>}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:flex flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex-col">
+                <div className="overflow-x-auto flex-1 custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[900px]">
+                    <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
+                      <tr>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Item Details</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Type / Category</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Pricing</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Inventory / Stock</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredProducts.map((p) => (
+                        <tr key={p.id} onClick={() => handleOpenDetails(p)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-4">
+                              {p.imageUrl ? (
+                                <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-[8px] object-cover border border-gray-200 shadow-sm" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-[8px] bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 shadow-sm">
+                                  <Package className="w-5 h-5 text-gray-400" />
+                                </div>
+                              )}
+                              <div>
+                                <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{p.name}</p>
+                                <p className="text-[11px] text-gray-500 font-mono mt-0.5">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${
+                              p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                            }`}>
+                              {p.category === 'procedure' ? 'Clinical Procedure' : 'Retail Extra'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-[13px] font-bold text-gray-900">
+                              €{parseFloat(p.price).toFixed(2)}
+                              {p.priceTo ? ` - €${parseFloat(p.priceTo).toFixed(2)}` : ''}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {p.category === 'procedure' ? (
+                              <span className="text-[12px] font-medium text-gray-500 italic">Unlimited</span>
+                            ) : (
+                              <div className="flex flex-col">
+                                <span className={`text-[13px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                                  {p.stockCount} in stock
+                                </span>
+                                {p.stockCount <= 5 && <span className="text-[11px] text-red-500 font-medium mt-0.5">Low inventory</span>}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
