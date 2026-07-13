@@ -38,6 +38,7 @@ export const ENV = {
   COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || undefined,
   DATABASE_URL: process.env.DATABASE_URL || "",
   MAX_FILE_SIZE: parseInt(process.env.MAX_FILE_SIZE || "10485760", 10),
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
 };
 
 /** Cookie options shared by every auth-issuing endpoint. */

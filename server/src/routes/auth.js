@@ -23,6 +23,9 @@ import { logActivity, AuditActions } from "../lib/auditLog.js";
 import { sendPush } from "../lib/push.js";
 import { ENV, cookieOptions } from "../config/env.js";
 import logger from "../lib/logger.js";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(ENV.GOOGLE_CLIENT_ID);
 
 const router = express.Router();
 const JWT_SECRET = ENV.JWT_SECRET;
@@ -216,6 +219,120 @@ router.post("/login", authLimiter, async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+// 2b. Google OAuth Login/Register
+router.post("/google", authLimiter, async (req, res, next) => {
+  const { accessToken } = req.body;
+  if (!accessToken) {
+    return res.status(400).json({ message: "Google access token is required." });
+  }
+
+  try {
+    // Verify the access token by fetching user info from Google securely
+    const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to fetch user info from Google");
+    }
+    
+    const payload = await response.json();
+    
+    if (!payload || !payload.email) {
+      return res.status(400).json({ message: "Invalid Google token payload." });
+    }
+
+    const email = payload.email.toLowerCase();
+    const googleFirstName = payload.given_name || "";
+    const googleLastName = payload.family_name || "";
+    const googleProfilePic = payload.picture || null;
+
+    // Check if user exists
+    let rows = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    let user = rows[0];
+
+    // If user does not exist, automatically register them
+    if (!user) {
+      const userId = crypto.randomUUID();
+      const patientId = crypto.randomUUID();
+      // Generate a highly secure random password since they login via Google
+      const randomPassword = crypto.randomBytes(32).toString("hex") + "A1!";
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      await db.insert(users).values({
+        id: userId,
+        email,
+        passwordHash,
+        role: "patient",
+        profilePicUrl: googleProfilePic,
+      });
+
+      await db.insert(patients).values({
+        id: patientId,
+        userId,
+        firstName: googleFirstName || "New",
+        lastName: googleLastName || "Patient",
+        phone: "", // Cannot get phone from basic Google profile
+        email,
+        gdprConsent: true,
+        consentDate: new Date(),
+      });
+
+      rows = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      user = rows[0];
+      
+      await logActivity({ ...req, user: { id: userId, role: "patient" } }, AuditActions.AUTH_REGISTER, {
+        targetType: "user",
+        targetId: userId,
+        metadata: { email, via: "google_oauth" },
+      });
+    } else {
+      // User exists but might be deactivated
+      if (!user.isActive) {
+        return res.status(401).json({ message: "ACCOUNT_DEACTIVATED" });
+      }
+    }
+
+    // Sign Token for the user
+    const token = jwt.sign(
+      { id: user.id, role: user.role, mustChangePassword: !!user.mustChangePassword },
+      JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    res.cookie("token", token, cookieOptions);
+
+    let patientProfile = null;
+    if (user.role === "patient") {
+      const pRows = await db.select().from(patients).where(eq(patients.userId, user.id)).limit(1);
+      patientProfile = pRows[0];
+    }
+
+    await logActivity({ ...req, user: { id: user.id, role: user.role } }, AuditActions.AUTH_LOGIN_SUCCESS, {
+      targetType: "user",
+      targetId: user.id,
+      metadata: { via: "google_oauth" },
+    });
+
+    return res.status(200).json({
+      message: "Logged in successfully with Google.",
+      mustChangePassword: !!user.mustChangePassword,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        mustChangePassword: !!user.mustChangePassword,
+        patientProfile,
+        profilePicUrl: user.profilePicUrl,
+        displayName: user.displayName || null,
+      },
+    });
+  } catch (error) {
+    logger.error({ err: error }, "[google-oauth] failed to verify token");
+    return res.status(401).json({ message: "Google authentication failed. Please try again." });
   }
 });
 

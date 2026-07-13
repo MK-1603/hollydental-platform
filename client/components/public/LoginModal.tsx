@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import { apiRequest } from "@/lib/api";
+import { useGoogleLogin } from "@react-oauth/google";
 import { Lock, Mail, Eye, EyeOff, ShieldAlert, Activity, X, ArrowLeft, CheckCircle2, Check, FileText, ShieldCheck } from "lucide-react";
 import LoginOverlay from "@/components/common/LoginOverlay";
 import ProcessingView from "@/components/public/ProcessingView";
@@ -127,6 +128,43 @@ export default function LoginModal() {
       setProcessState('idle');
     }
   };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setProcessState('processing');
+      setError("");
+      try {
+        const data = await apiRequest("/auth/google", {
+          method: "POST",
+          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
+        });
+        if (data.mustChangePassword) {
+          setLoginModalView("force-change-password");
+          setProcessState('idle');
+          return;
+        }
+        login(data.user);
+        setProcessState('success');
+        setTimeout(() => {
+          if (onLoginSuccess) onLoginSuccess();
+          else if (data.user.role === "admin") router.push("/admin/dashboard");
+          else if (data.user.role === "patient") router.push("/portal/dashboard");
+          closeLoginModal();
+        }, 1500);
+      } catch (err: any) {
+        if (err.message === "ACCOUNT_DEACTIVATED") {
+          setError("ACCOUNT_DEACTIVATED");
+          setProcessState('idle');
+          return;
+        }
+        setError(err.message || "Google authentication failed.");
+        setProcessState('idle');
+      }
+    },
+    onError: () => {
+      setError("Google authentication was cancelled or failed.");
+    }
+  });
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,6 +289,7 @@ export default function LoginModal() {
                   capsLockOn={capsLockOn}
                   onEmail={setEmail} onPassword={setPassword} onToggleShow={() => setShowPassword((v: boolean) => !v)}
                   onSubmit={handleLogin} onForgot={() => setLoginModalView("forgot")} onRegister={() => openRegisterModal(onLoginSuccess || undefined)}
+                  onGoogleLogin={() => loginWithGoogle()}
                   onReactivate={handleReactivate}
                 />
               )}
