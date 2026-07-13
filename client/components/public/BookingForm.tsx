@@ -20,6 +20,7 @@ import {
   CLINIC_SCHEDULE,
 } from "@/lib/bookingHours";
 import { Calendar, Clock, CheckCircle, Search, Info, ShieldCheck, ArrowRight, ArrowLeft, ChevronRight, User, Star, ChevronLeft, CalendarDays, Lock, CreditCard, Mail, ShieldAlert, Activity, ChevronDown, Filter } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const bookingSchema = z.object({
   serviceId: z.string().min(1, "Please select a service"),
@@ -268,6 +269,33 @@ export default function BookingForm({ compact = false, onClose }: BookingFormPro
       setLoginLoading(false);
     }
   };
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoginLoading(true);
+      setLoginError("");
+      try {
+        const data = await apiRequest("/auth/google", {
+          method: "POST",
+          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
+        });
+        if (data.mustChangePassword) {
+          setLoginError("Please login via the main portal to change your password first.");
+          setLoginLoading(false);
+          return;
+        }
+        useAuthStore.getState().login(data.user);
+        setShowInlineLogin(false);
+      } catch (err: any) {
+        setLoginError(err.message || "Google authentication failed.");
+      } finally {
+        setLoginLoading(false);
+      }
+    },
+    onError: () => {
+      setLoginError("Google authentication was cancelled or failed.");
+    }
+  });
 
   const goNext = async () => {
     if (step === 2) {
@@ -764,6 +792,7 @@ export default function BookingForm({ compact = false, onClose }: BookingFormPro
 
                   <button
                     type="button"
+                    onClick={() => loginWithGoogle()}
                     className="w-full bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-slate-700 font-semibold text-sm py-3.5 px-6 rounded-xl transition-all shadow-sm flex items-center justify-center gap-3"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
