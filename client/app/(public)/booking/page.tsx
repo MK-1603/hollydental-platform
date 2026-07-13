@@ -36,7 +36,7 @@ export default function BookingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#FAFBFC] flex flex-col lg:flex-row overflow-hidden relative">
+    <div className="min-h-[100dvh] w-full bg-[#FAFBFC] flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
       
       {/* LEFT PANEL (35%) - Informative Sidebar */}
       <aside className="hidden lg:flex w-[35%] max-w-[480px] bg-white border-r border-[#E7ECF2] flex-col overflow-y-auto custom-scrollbar relative">
@@ -167,7 +167,7 @@ export default function BookingPage() {
       )}
 
       {/* RIGHT PANEL (65%) - Booking Wizard */}
-      <main className="flex-1 flex flex-col relative h-[100dvh] bg-[#FAFBFC] overflow-hidden">
+      <main className="flex-1 flex flex-col relative min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] bg-[#FAFBFC] overflow-visible lg:overflow-hidden">
         
         {/* Header (Desktop + Mobile) */}
         <header className="flex items-center justify-between lg:justify-end px-6 lg:px-10 py-5 shrink-0 bg-white lg:bg-transparent border-b border-[#E7ECF2] lg:border-none z-40">
@@ -182,7 +182,7 @@ export default function BookingPage() {
             </button>
         </header>
 
-        <div className="flex-1 flex flex-col px-4 sm:px-8 md:px-12 pb-4 overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col px-4 sm:px-8 md:px-12 pb-4 overflow-visible lg:overflow-hidden min-h-0">
            <div className="max-w-lg mx-auto w-full h-full flex flex-col">
               <BookingForm compact={true} />
            </div>

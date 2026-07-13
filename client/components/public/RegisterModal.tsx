@@ -388,7 +388,7 @@ export default function RegisterModal() {
           </div>
 
           {/* RIGHT PANEL (58%) */}
-          <div className="w-full md:w-[58%] px-5 pb-6 pt-[84px] sm:p-8 lg:p-10 flex flex-col justify-start md:justify-center relative bg-white h-[100dvh] md:h-auto md:min-h-0 overflow-y-auto md:overflow-visible transition-all duration-200 ease-in-out">
+          <div className="w-full md:w-[58%] px-5 pb-8 pt-[84px] sm:p-8 lg:p-10 flex flex-col justify-start md:justify-center relative bg-white min-h-[100dvh] md:h-auto md:min-h-0 overflow-y-auto md:overflow-visible transition-none md:transition-all duration-200 ease-in-out">
             <button
               onClick={closeRegisterModal}
               className="absolute top-6 right-5 md:top-8 md:right-8 p-2 rounded-full hover:bg-[#F1F5F9] text-[#94A3B8] hover:text-[#0F172A] transition-colors focus:outline-none bg-white md:bg-transparent shadow-sm md:shadow-none z-20"
