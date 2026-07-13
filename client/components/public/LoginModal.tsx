@@ -215,7 +215,7 @@ export default function LoginModal() {
           </div>
 
           {/* RIGHT PANEL */}
-          <div className="w-full md:w-[58%] p-6 sm:p-10 lg:p-12 flex flex-col justify-center relative bg-white h-[100dvh] md:h-auto md:min-h-0 overflow-y-auto md:overflow-visible transition-all duration-200 ease-in-out">
+          <div className="w-full md:w-[58%] px-6 pb-8 pt-[84px] sm:p-10 lg:p-12 flex flex-col justify-start md:justify-center relative bg-white min-h-[100dvh] md:h-auto md:min-h-0 overflow-y-auto md:overflow-visible transition-none md:transition-all duration-200 ease-in-out">
 
             <button
               onClick={closeLoginModal}
