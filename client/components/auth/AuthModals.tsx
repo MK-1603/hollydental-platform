@@ -12,8 +12,20 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
  * their corresponding flag is set in the UI store, so this is cheap.
  */
 export default function AuthModals() {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  if (!clientId) {
+    return (
+      <>
+        <LoginModal />
+        <RegisterModal />
+        <BookingModal />
+      </>
+    );
+  }
+
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+    <GoogleOAuthProvider clientId={clientId}>
       <LoginModal />
       <RegisterModal />
       <BookingModal />
