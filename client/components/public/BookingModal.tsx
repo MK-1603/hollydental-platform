@@ -28,7 +28,7 @@ export default function BookingModal() {
 
   const handleClose = () => {
     const currentStep = useBookingStore.getState().step;
-    if (currentStep < 8) {
+    if (currentStep > 1 && currentStep < 8) {
       setShowAbortModal(true);
     } else {
       useBookingStore.getState().clearBookingData();
