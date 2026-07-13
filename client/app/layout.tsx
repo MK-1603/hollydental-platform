@@ -8,7 +8,7 @@ import OfflineSyncManager from "@/components/common/OfflineSyncManager";
 import Chatbot from "@/components/common/Chatbot";
 
 export const metadata: Metadata = {
-  title: "Hollyhill Dental Cork | Dr. Roghay Alizadeh | Confident Smiles",
+  title: "Hollyhill Dental Cork",
   description:
     "Experience premium, luxury clinical care at Hollyhill Dental Clinic, Cork. Specializing in teeth whitening, clear aligners, bonding, and emergency dentistry under Dr. Roghay Alizadeh.",
   keywords: [

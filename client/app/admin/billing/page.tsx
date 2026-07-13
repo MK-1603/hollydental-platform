@@ -188,6 +188,7 @@ export default function AdminBillingPage() {
     }
   };
 
+  return (
     <div className="flex flex-col flex-1 bg-[#F8FAFC] relative pb-24 md:pb-10">
       
       {/* Page Header */}
