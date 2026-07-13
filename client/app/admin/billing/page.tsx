@@ -480,9 +480,9 @@ export default function AdminBillingPage() {
                       </button>
                     </div>
                     {lineItems.map((item, index) => (
-                      <div key={index} className="flex items-start gap-3 relative bg-gray-50 p-3 rounded-[10px] border border-gray-100">
-                        <div className="flex-1 space-y-3">
-                          <div>
+                      <div key={index} className="flex items-center gap-2 relative bg-white p-2 rounded-[10px] border border-gray-200">
+                        <div className="flex-1 grid grid-cols-3 gap-2">
+                          <div className="col-span-2">
                             <input 
                               type="text" 
                               value={item.description} 
@@ -491,11 +491,12 @@ export default function AdminBillingPage() {
                                 newItems[index].description = e.target.value;
                                 setLineItems(newItems);
                               }} 
-                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" 
-                              placeholder="Description (e.g. Checkup)" 
+                              className="w-full px-3 py-2 bg-gray-50 border-none rounded-[6px] text-[13px] text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner" 
+                              placeholder="Description" 
                             />
                           </div>
-                          <div>
+                          <div className="col-span-1 relative">
+                            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 text-[13px] font-medium">€</span>
                             <input 
                               type="number" 
                               step="0.01" 
@@ -505,15 +506,15 @@ export default function AdminBillingPage() {
                                 newItems[index].price = e.target.value;
                                 setLineItems(newItems);
                               }} 
-                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" 
-                              placeholder="Amount (€)" 
+                              className="w-full pl-6 pr-2 py-2 bg-gray-50 border-none rounded-[6px] text-[13px] text-gray-900 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-inner" 
+                              placeholder="0.00" 
                             />
                           </div>
                         </div>
                         {lineItems.length > 1 && (
                           <button 
                             onClick={() => setLineItems(lineItems.filter((_, i) => i !== index))}
-                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white rounded-[6px] transition-colors shrink-0 mt-0.5"
+                            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[6px] transition-colors shrink-0"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -521,8 +522,11 @@ export default function AdminBillingPage() {
                       </div>
                     ))}
                   </div>
-                  <button onClick={handleSaveInvoice} disabled={isSaving} className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-[10px] text-[14px] font-bold hover:bg-blue-700 hover:shadow-md active:scale-[0.98] transition-all shadow-sm disabled:opacity-50">
-                    Create & Send Invoice
+                  <button onClick={handleSaveInvoice} disabled={isSaving} className="group relative w-full mt-6 mb-2 flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-[12px] text-[15px] font-bold transition-all shadow-[0_5px_0_0_#1d4ed8,0_10px_15px_-3px_rgba(37,99,235,0.4)] hover:bg-blue-400 active:translate-y-[5px] active:shadow-[0_0px_0_0_#1d4ed8,0_0px_0px_0px_rgba(37,99,235,0)] disabled:opacity-50 disabled:translate-y-0 disabled:shadow-[0_5px_0_0_#1d4ed8]">
+                    <span className="relative z-10 flex items-center gap-2">
+                       Create & Send Invoice
+                       <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </span>
                   </button>
                 </div>
               ) : selectedInvoice ? (
