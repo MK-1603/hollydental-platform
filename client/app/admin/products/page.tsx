@@ -227,10 +227,10 @@ export default function AdminProductsPage() {
                   <div 
                     key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-[14px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform flex flex-col overflow-hidden"
+                    className="bg-white rounded-[12px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform overflow-hidden h-auto"
                   >
                     {/* Image Container */}
-                    <div className="w-full h-32 bg-gray-50 relative shrink-0 flex items-center justify-center border-b border-gray-100">
+                    <div className="w-full aspect-[4/3] bg-gray-50 relative flex items-center justify-center border-b border-gray-100">
                       {p.imageUrl ? (
                         <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
@@ -246,17 +246,17 @@ export default function AdminProductsPage() {
                     </div>
                     
                     {/* Text Details Container */}
-                    <div className="flex flex-col flex-1 p-3">
-                      <h3 className="text-[13px] font-bold text-gray-900 leading-tight line-clamp-2 mb-1.5">{p.name}</h3>
-                      <div className="mt-auto flex items-end justify-between gap-1">
-                        <span className="text-[15px] font-black text-gray-900">
+                    <div className="p-2.5 w-full bg-white">
+                      <h3 className="text-[12px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[36px]">{p.name}</h3>
+                      <div className="flex items-center justify-between gap-1 mt-1.5">
+                        <span className="text-[14px] font-black text-gray-900">
                           €{parseFloat(p.price).toFixed(2)}
                         </span>
                         {p.category === 'procedure' ? (
                            <span className="text-[10px] font-bold text-gray-400">Unlimited</span>
                         ) : (
                            <span className={`text-[10px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
-                             {p.stockCount > 0 ? `${p.stockCount} left` : 'Out of stock'}
+                             {p.stockCount > 0 ? `${p.stockCount} left` : 'Sold out'}
                            </span>
                         )}
                       </div>
