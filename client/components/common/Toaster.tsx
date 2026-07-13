@@ -52,26 +52,26 @@ export default function Toaster() {
 
   return (
     <>
-      {/* Toast stack — bottom-right on desktop, bottom-center on mobile */}
-      <div className="pointer-events-none fixed bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 z-[100] flex flex-col gap-2 sm:max-w-sm w-auto">
+      {/* Toast stack — bottom-right on desktop, top-center on mobile */}
+      <div className="pointer-events-none fixed top-4 sm:top-auto sm:bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 z-[200] flex flex-col gap-2 sm:max-w-sm w-auto">
         {toasts.map((t) => {
           const style = VARIANT_STYLES[t.variant];
           return (
             <div
               key={t.id}
               role="status"
-              className={`pointer-events-auto bg-white shadow-xl border ${style.ring} rounded-2xl px-4 py-3 flex items-start gap-3 animate-fade-up`}
+              className={`pointer-events-auto bg-white shadow-xl border ${style.ring} rounded-[14px] px-3.5 py-2.5 flex items-start gap-2.5 animate-in slide-in-from-top-4 sm:slide-in-from-bottom-4 fade-in duration-300`}
             >
               <span
-                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${style.iconBg}`}
+                className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${style.iconBg}`}
               >
                 {style.icon}
               </span>
-              <div className="flex-1 min-w-0 text-navy">
-                <p className="text-xs font-bold leading-tight">
+              <div className="flex-1 min-w-0 text-navy pt-0.5">
+                <p className="text-[12px] font-bold leading-tight">
                   {t.title || style.title}
                 </p>
-                <p className="text-xs text-gray-600 leading-snug mt-0.5 break-words">
+                <p className="text-[11px] text-gray-500 font-medium leading-snug mt-0.5 break-words">
                   {t.message}
                 </p>
               </div>
