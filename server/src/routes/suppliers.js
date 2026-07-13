@@ -27,12 +27,12 @@ router.get("/", verifyToken, verifyAdmin, async (req, res, next) => {
  */
 router.post("/", verifyToken, verifyAdmin, async (req, res, next) => {
   try {
-    const { name, contact, phone, email, status } = req.body;
+    const { name, contactName, phone, email, status } = req.body;
     if (!name) return res.status(400).json({ message: "Name is required" });
 
     const newSupplier = await db.insert(suppliers).values({
       name,
-      contactName: contact,
+      contactName,
       phone,
       email,
       status: status || "active"
@@ -50,11 +50,11 @@ router.post("/", verifyToken, verifyAdmin, async (req, res, next) => {
 router.put("/:id", verifyToken, verifyAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, contact, phone, email, status } = req.body;
+    const { name, contactName, phone, email, status } = req.body;
 
     const updated = await db.update(suppliers).set({
       name,
-      contactName: contact,
+      contactName,
       phone,
       email,
       status,

@@ -102,36 +102,36 @@ export default function SuppliersPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative pb-10">
+    <div className="flex flex-col h-full bg-[#F8FAFC] relative overflow-hidden">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
-        <div>
-          <h1 className="text-[20px] font-bold text-gray-900 font-serif">Supplier Management</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Manage vendor profiles, purchase history, and contact details.</p>
+      <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Supplier Management</h1>
+          <p className="text-[12px] md:text-[13px] text-gray-500 mt-0.5 truncate hidden sm:block">Manage vendor profiles, purchase history, and contact details.</p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-            <Download className="w-4 h-4" /> Export
+        <div className="flex gap-2 shrink-0">
+          <button className="justify-center flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] md:text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
           </button>
-          <button onClick={handleOpenAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleOpenAdd} className="justify-center flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] md:text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Add Supplier
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-4 sm:p-6 min-w-0">
+      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
         {/* Search & Filters */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
-          <div className="relative w-full md:w-80">
+        <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search suppliers..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-[10px] pl-9 pr-8 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
+              className="w-full bg-white border border-gray-200 rounded-[8px] pl-9 pr-8 py-2 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
             />
             {search && (
               <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
@@ -139,81 +139,129 @@ export default function SuppliersPage() {
               </button>
             )}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-            <Filter className="w-4 h-4" /> Filters
-          </button>
+          <div className="relative shrink-0">
+            <select
+              className="appearance-none pl-8 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <Filter className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronRight className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none rotate-90" />
+          </div>
         </div>
 
-        {/* Robust Table */}
-        <div className="bg-white border border-gray-200 rounded-[16px] shadow-sm flex flex-col overflow-hidden w-full">
-          <div className="overflow-x-auto w-full custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
-                <tr>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Supplier</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Contact Details</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Last Order</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-[13px] text-gray-500">Loading suppliers...</td></tr>
-                ) : filteredSuppliers.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-12 text-center">
-                      <Building2 className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                      <p className="text-[14px] font-bold text-gray-900">No suppliers found</p>
-                      <p className="text-[13px] text-gray-500 mt-1">Add a new supplier to get started.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredSuppliers.map((s) => (
-                    <tr key={s.id} onClick={() => handleOpenDetails(s)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-[10px] bg-blue-50/50 border border-blue-100 flex items-center justify-center shrink-0">
-                            <Building2 className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{s.name}</p>
-                            <p className="text-[12px] text-gray-500 font-mono mt-0.5">ID: {s.id.slice(0, 8).toUpperCase()}</p>
-                          </div>
+        {/* Responsive Content Container */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {loading ? (
+             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200 min-h-[200px]">
+               Loading suppliers...
+             </div>
+          ) : filteredSuppliers.length === 0 ? (
+             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm min-h-[200px]">
+               <Building2 className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+               <p className="text-[16px] font-bold text-gray-900">No suppliers found</p>
+               <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Add a new supplier to get started.</p>
+             </div>
+          ) : (
+            <>
+              {/* Mobile Card Layout */}
+              <div className="md:hidden flex-1 overflow-y-auto flex flex-col gap-3 pb-[120px] custom-scrollbar pt-2 px-1">
+                {filteredSuppliers.map((s) => (
+                  <div 
+                    key={s.id} 
+                    onClick={() => handleOpenDetails(s)}
+                    className="bg-white rounded-[12px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform p-4 flex flex-col"
+                  >
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-[8px] bg-blue-50 flex items-center justify-center shrink-0">
+                          <Building2 className="w-5 h-5 text-blue-600" />
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
-                          <p className="text-[13px] font-bold text-gray-700">{s.contactName || "No Contact Person"}</p>
-                          <div className="flex items-center gap-3 text-[12px] text-gray-500">
-                            {s.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {s.phone}</span>}
-                            {s.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {s.email}</span>}
-                          </div>
+                        <div className="min-w-0">
+                          <h3 className="text-[13px] font-bold text-gray-900 leading-snug line-clamp-1">{s.name}</h3>
+                          <p className="text-[11px] text-gray-500 font-mono mt-0.5">ID: {s.id.slice(0, 8).toUpperCase()}</p>
                         </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-[13px] font-medium text-gray-700">
-                          {s.lastOrder ? new Date(s.lastOrder).toLocaleDateString() : "No Orders"}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${
-                          s.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-50 text-gray-600 border-gray-200'
-                        }`}>
-                          {s.status.charAt(0).toUpperCase() + s.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide border ${
+                        s.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-300'
+                      }`}>
+                        {s.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-1 border-t border-gray-100 pt-3 mt-auto">
+                       <p className="text-[12px] font-bold text-gray-900">{s.contactName || "No Contact Person"}</p>
+                       <div className="flex items-center gap-3">
+                         {s.phone && <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5"><Phone className="w-3 h-3"/> {s.phone}</p>}
+                         {s.email && <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5"><Mail className="w-3 h-3"/> {s.email}</p>}
+                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:flex flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex-col">
+                <div className="overflow-x-auto w-full custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
+                      <tr>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Supplier</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Contact Details</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Last Order</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredSuppliers.map((s) => (
+                        <tr key={s.id} onClick={() => handleOpenDetails(s)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-[10px] bg-blue-50/50 border border-blue-100 flex items-center justify-center shrink-0">
+                                <Building2 className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{s.name}</p>
+                                <p className="text-[12px] text-gray-500 font-mono mt-0.5">ID: {s.id.slice(0, 8).toUpperCase()}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="space-y-1">
+                              <p className="text-[13px] font-bold text-gray-700">{s.contactName || "No Contact Person"}</p>
+                              <div className="flex items-center gap-3 text-[12px] text-gray-500">
+                                {s.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {s.phone}</span>}
+                                {s.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {s.email}</span>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-[13px] font-medium text-gray-700">
+                              {s.lastOrder ? new Date(s.lastOrder).toLocaleDateString() : "No Orders"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${
+                              s.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-300'
+                            }`}>
+                              {s.status === 'active' ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
+                              Manage
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
