@@ -265,14 +265,19 @@ export default function SuppliersPage() {
         </div>
       </div>
 
-      {/* iOS Style Modal */}
+      {/* iOS Style Bottom Sheet / Modal */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-6">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" onClick={handleCloseDrawer} />
           
-          <div className="relative w-full max-w-md bg-white rounded-[20px] shadow-2xl flex flex-col max-h-full overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="relative w-full sm:max-w-md bg-white rounded-t-[24px] sm:rounded-[20px] shadow-2xl flex flex-col max-h-[90vh] sm:max-h-full overflow-hidden animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 pb-[env(safe-area-inset-bottom)]">
+            {/* iOS Drag Handle (Mobile Only) */}
+            <div className="sm:hidden flex justify-center pt-3 pb-1 w-full bg-white shrink-0" onClick={handleCloseDrawer}>
+              <div className="w-10 h-1.5 bg-gray-200 rounded-full" />
+            </div>
+
             {/* Modal Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 sm:pt-4 pt-1 border-b border-gray-100 bg-white shrink-0">
               <h2 className="text-[18px] md:text-[20px] font-serif font-bold text-gray-900">
                 {isAdding ? "New Supplier" : isEditing ? "Edit Supplier" : "Supplier Details"}
               </h2>

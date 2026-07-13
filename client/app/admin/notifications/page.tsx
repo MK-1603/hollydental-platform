@@ -237,86 +237,79 @@ export default function NotificationsPage() {
   ];
 
   return (
-    <div className="h-[calc(100vh-88px)] bg-white flex flex-col font-inter w-full overflow-hidden">
-      {/* 1. Page Header (Toolbar & Filters) - STICKY & FIXED */}
-      <div className="bg-white border-b border-gray-200 shrink-0 flex flex-col z-40 relative">
-        {/* Top Action Bar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between px-4 sm:px-8 py-4 sm:py-5 gap-4 md:gap-0">
-          <div className="flex flex-col justify-center min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <h1 className="text-[18px] font-semibold text-gray-900 tracking-tight leading-none">Notifications</h1>
-              {connectionState === "connecting" && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-100 text-amber-700">Connecting...</span>}
-              {connectionState === "disconnected" && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-red-100 text-red-700">Reconnecting...</span>}
-            </div>
-            <p className="text-[13px] text-gray-500 leading-tight">System alerts, appointments, billing and clinical updates.</p>
+    <div className="flex flex-col h-full bg-[#F8FAFC] relative overflow-hidden font-inter">
+      {/* Page Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0 z-40">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Notifications</h1>
+            {connectionState === "connecting" && <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide bg-amber-50 text-amber-700 border border-amber-200">Connecting...</span>}
+            {connectionState === "disconnected" && <span className="inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide bg-red-50 text-red-700 border border-red-200">Reconnecting...</span>}
           </div>
-          
-          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto w-full md:w-auto">
-            {/* Search */}
-            <div className="relative hidden md:block">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input 
-                type="text" 
-                placeholder="Search notifications..." 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-[260px] pl-9 pr-4 h-[36px] bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm" 
-              />
-            </div>
-
-            <div className="w-[1px] h-[20px] bg-gray-200 mx-1 hidden md:block" />
-
-            <button onClick={() => fetchNotifications()} className="h-[36px] w-[36px] bg-white border border-gray-200 rounded-[8px] hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center shadow-sm" title="Refresh">
-              <RefreshCw className={cn("w-4 h-4 text-gray-600", loading && "animate-spin")} />
-            </button>
-            
-            <button onClick={handleMarkAllRead} className="h-[36px] px-4 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-[8px] hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2 shadow-sm">
-              <Check className="w-4 h-4 text-gray-500" />
-              <span>Mark all read</span>
-            </button>
-          </div>
+          <p className="text-[12px] md:text-[13px] text-gray-500 mt-0.5 truncate hidden sm:block">System alerts, appointments, billing and clinical updates.</p>
         </div>
-
-        {/* Filter Bar */}
-        <div className="px-4 sm:px-8 pb-3">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-            {tabs.map(tab => {
-              const isActive = filter === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilter(tab.id)}
-                  className={cn(
-                    "px-4 py-1.5 text-[13px] font-medium rounded-full transition-all whitespace-nowrap",
-                    isActive 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-transparent text-gray-600 hover:bg-gray-100"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              )
-            })}
+        <div className="flex items-center gap-2 shrink-0 w-full md:w-auto">
+          {/* Search */}
+          <div className="relative flex-1 md:w-64">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input 
+              type="text" 
+              placeholder="Search notifications..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 rounded-[8px] pl-9 pr-4 py-2 text-[13px] focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all" 
+            />
           </div>
+
+          <button onClick={() => fetchNotifications()} className="h-[36px] w-[36px] bg-white border border-gray-200 rounded-[8px] hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center shadow-sm shrink-0" title="Refresh">
+            <RefreshCw className={cn("w-4 h-4 text-gray-600", loading && "animate-spin")} />
+          </button>
+          
+          <button onClick={handleMarkAllRead} className="h-[36px] px-4 bg-white border border-gray-200 text-gray-700 text-[12px] font-bold rounded-[8px] hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm shrink-0">
+            <Check className="w-4 h-4 text-gray-500" />
+            <span className="hidden sm:inline">Mark all read</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. Scrollable Content Area */}
-      <div className="flex-1 overflow-y-auto w-full p-8">
+      {/* Filter Tabs */}
+      <div className="px-4 md:px-6 pt-4 pb-2 bg-[#F8FAFC] shrink-0">
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
+          {tabs.map(tab => {
+            const isActive = filter === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setFilter(tab.id)}
+                className={cn(
+                  "px-4 py-1.5 text-[12px] font-bold rounded-full transition-all whitespace-nowrap border shadow-sm",
+                  isActive 
+                    ? "bg-blue-600 text-white border-blue-600" 
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+                )}
+              >
+                {tab.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto w-full p-4 md:p-6 custom-scrollbar">
         {/* Timeline Rows */}
-        <div className="bg-white rounded-[12px] border border-gray-200 shadow-sm overflow-hidden min-h-[400px]">
+        <div className="bg-white rounded-[16px] border border-gray-200 shadow-sm overflow-hidden min-h-[400px]">
           {loading && notifications.length === 0 ? (
              <div className="p-12 flex justify-center"><div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div></div>
           ) : notifications.length === 0 ? (
              <div className="py-24 text-center flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                <div className="w-16 h-16 rounded-full bg-blue-50/50 border border-blue-100 flex items-center justify-center mb-4">
                    <Check className="w-8 h-8 text-blue-500" />
                 </div>
-                <h3 className="text-[16px] font-semibold text-gray-900 tracking-tight">You're all caught up.</h3>
+                <h3 className="text-[16px] font-bold text-gray-900 tracking-tight">You're all caught up.</h3>
                 <p className="text-[13px] text-gray-500 mt-1 max-w-[250px]">No new notifications. Take a breath and relax.</p>
                 <div className="flex items-center gap-3 mt-6">
-                  <button onClick={() => fetchNotifications()} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-[8px] hover:bg-gray-50 shadow-sm">Refresh</button>
-                  <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-[13px] font-medium rounded-[8px] hover:bg-gray-50 shadow-sm">Notification Preferences</button>
+                  <button onClick={() => fetchNotifications()} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-[12px] font-bold rounded-[8px] hover:bg-gray-50 shadow-sm transition-colors">Refresh</button>
                 </div>
              </div>
           ) : (
@@ -328,8 +321,8 @@ export default function NotificationsPage() {
                     <div className="px-5 py-2 bg-gray-50/80 border-y border-gray-100 text-[12px] font-bold text-gray-500 uppercase tracking-wider sticky top-0 z-10 backdrop-blur-sm">
                       {groupName}
                     </div>
-                    <div className="flex flex-col divide-y divide-gray-100">
-                      {items.map((notification) => {
+                    <div className="flex flex-col">
+                      {items.map((notification, index) => {
                         const config = getCategoryConfig(notification.type);
                         const Icon = config.icon;
                         const isUnread = !notification.isRead;
@@ -341,36 +334,39 @@ export default function NotificationsPage() {
                               if (isUnread) handleMarkAsRead(notification.id);
                             }}
                             className={cn(
-                              "group relative flex items-center gap-4 px-5 py-3 min-h-[72px] transition-all hover:bg-slate-50 cursor-pointer",
-                              isUnread ? "bg-[#F4F9FF]" : "bg-white"
+                              "group relative flex items-center gap-4 px-4 md:px-6 py-4 transition-all hover:bg-slate-50 cursor-pointer border-b border-gray-100 last:border-b-0",
+                              isUnread ? "bg-[#F8FAFC]" : "bg-white"
                             )}
                           >
                             {/* Left Blue Indicator */}
-                            {isUnread && <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-600 rounded-r" />}
+                            {isUnread && <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-blue-600" />}
 
-                            {/* Unread Dot (Replaces indicator inside text) */}
-                            <div className="w-2 flex justify-center shrink-0">
-                              {isUnread ? <div className="w-2 h-2 rounded-full bg-blue-600" /> : <div className="w-2" />}
+                            {/* Unread Dot (Mobile friendly) */}
+                            <div className="hidden sm:flex w-2 justify-center shrink-0">
+                              {isUnread ? <div className="w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.4)]" /> : <div className="w-2" />}
                             </div>
 
                             {/* Colored Icon */}
-                            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0", config.bg)}>
-                              <Icon className={cn("w-5 h-5", config.color)} />
+                            <div className={cn("w-10 h-10 md:w-12 md:h-12 rounded-[12px] md:rounded-[14px] flex items-center justify-center shrink-0 shadow-sm border border-white", config.bg)}>
+                              <Icon className={cn("w-5 h-5 md:w-6 md:h-6", config.color)} />
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0 pr-4 flex flex-col justify-center">
-                              <div className="flex items-center gap-2 mb-0.5">
-                                <h4 className={cn("text-[14px] truncate", isUnread ? "font-semibold text-gray-900" : "font-medium text-gray-700")}>
+                            <div className="flex-1 min-w-0 pr-2 md:pr-4 flex flex-col justify-center">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <h4 className={cn("text-[14px] md:text-[15px] truncate", isUnread ? "font-bold text-gray-900" : "font-semibold text-gray-700")}>
                                   {notification.title}
                                 </h4>
+                                <span className="text-[11px] md:text-[12px] text-gray-400 font-medium whitespace-nowrap shrink-0 sm:hidden">
+                                  {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                               </div>
-                              <p className="text-[13px] text-gray-500 truncate">{notification.message}</p>
+                              <p className="text-[13px] md:text-[14px] text-gray-500 line-clamp-2 md:line-clamp-1 leading-snug">{notification.message}</p>
                               
                               {notification.metadata && Object.keys(notification.metadata).length > 0 && (
-                                <div className="flex items-center gap-2 mt-1.5">
+                                <div className="flex flex-wrap items-center gap-2 mt-2">
                                   {Object.entries(notification.metadata).map(([key, value]) => (
-                                    <span key={key} className="inline-flex items-center px-1.5 py-0.5 rounded-[4px] text-[10px] font-medium bg-gray-100 text-gray-600 uppercase tracking-wide">
+                                    <span key={key} className="inline-flex items-center px-2 py-1 rounded-[6px] text-[10px] md:text-[11px] font-bold bg-white border border-gray-200 text-gray-600 uppercase tracking-wider shadow-sm">
                                       {key}: {String(value)}
                                     </span>
                                   ))}
