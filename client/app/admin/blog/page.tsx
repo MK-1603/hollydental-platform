@@ -10,7 +10,7 @@ import {
   MoreHorizontal, Inbox, Clock, Trash2, CheckCircle2, FileEdit,
   CalendarDays, Tag, Users, Filter, Download, Upload, ArrowUpDown,
   Eye, Save, History, Image as ImageIcon, Link as LinkIcon, BarChart2,
-  Sparkle, Loader2, Folder, X
+  Sparkle, Loader2, Folder, X, CornerUpLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDialog } from "@/components/DialogProvider";

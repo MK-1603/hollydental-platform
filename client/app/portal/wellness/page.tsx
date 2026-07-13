@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, JSX } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiRequest } from "@/lib/api";
-import { Flame, CheckCircle2, Circle, Activity, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart, Sun, Moon, Sparkles, Zap, Snowflake, Droplet, Frown } from "lucide-react";
+import { Flame, CheckCircle2, Circle, Activity, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart, Sun, Moon, Sparkle, Zap, Snowflake, Droplet, Frown } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -276,7 +276,7 @@ function HabitTracker({ userId }: { userId: string }) {
         {([
           { key: "morningBrush", label: "Morning Brush", icon: <Sun className="w-6 h-6 text-amber-500" />, desc: "2 min fluoride brush" },
           { key: "nightBrush", label: "Night Brush", icon: <Moon className="w-6 h-6 text-indigo-500" />, desc: "2 min before bed" },
-          { key: "floss", label: "Floss", icon: <Sparkles className="w-6 h-6 text-sky-400" />, desc: "Clean between teeth" },
+          { key: "floss", label: "Floss", icon: <Sparkle className="w-6 h-6 text-sky-400" />, desc: "Clean between teeth" },
         ] as const).map(({ key, label, icon, desc }) => {
           const done = todayLog[key];
           return (
