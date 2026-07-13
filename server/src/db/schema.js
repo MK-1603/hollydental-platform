@@ -442,3 +442,14 @@ export const blogTags = pgTable("blog_tags", {
   slug: varchar("slug", { length: 255 }).notNull().unique(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// 30. Notification Tokens Table — stores FCM tokens for multiple devices per user
+export const notificationTokens = pgTable("notification_tokens", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull(),
+  device: varchar("device", { length: 100 }),
+  browser: varchar("browser", { length: 100 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});

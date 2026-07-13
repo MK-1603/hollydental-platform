@@ -6,6 +6,7 @@ import Preloader from "@/components/public/Preloader";
 import PwaRegister from "@/components/public/PwaRegister";
 import OfflineSyncManager from "@/components/common/OfflineSyncManager";
 import Chatbot from "@/components/common/Chatbot";
+import NotificationManager from "@/components/common/NotificationManager";
 
 export const metadata: Metadata = {
   title: "Hollyhill Dental Cork",
@@ -61,6 +62,7 @@ export default function RootLayout({
           <Preloader />
           <PwaRegister />
           <OfflineSyncManager />
+          <NotificationManager />
           {children}
           <AuthModals />
           <Toaster />
