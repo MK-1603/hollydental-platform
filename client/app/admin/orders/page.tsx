@@ -139,138 +139,174 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative pb-10">
+    <div className="flex flex-col h-full bg-[#F8FAFC] relative overflow-hidden">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
-        <div>
-          <h1 className="text-[20px] font-bold text-gray-900 font-serif">Order Management</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Process patient prescriptions, retail orders, and fulfillments.</p>
+      <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Order Management</h1>
+          <p className="text-[12px] md:text-[13px] text-gray-500 mt-0.5 truncate hidden sm:block">Process patient prescriptions, retail orders, and fulfillments.</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-            <Download className="w-4 h-4" /> Export
+        <div className="flex gap-2 shrink-0">
+          <button onClick={handleExport} className="justify-center flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] md:text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-4 sm:p-6 min-w-0">
+      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
         
-        {/* Tabs & Search */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
-          <div className="flex flex-wrap items-center p-1 bg-gray-100 rounded-[10px] shadow-inner">
-            {TABS.map((tab) => (
-              <button
-                key={tab.value}
-                onClick={() => setActiveTab(tab.value)}
-                className={`px-4 py-1.5 text-[12px] font-bold rounded-[8px] transition-all ${
-                  activeTab === tab.value 
-                    ? "bg-white text-blue-600 shadow-sm" 
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {tab.label}
+        {/* Search & Filters */}
+        <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
+          <div className="relative flex-1 min-w-0">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search orders..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-[8px] pl-9 pr-8 py-2 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
               </button>
-            ))}
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="relative w-full md:w-64">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search orders..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-[10px] pl-9 pr-8 py-2 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
-              />
-              {search && (
-                <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-            <button className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-              <Filter className="w-4 h-4" />
-            </button>
+          <div className="relative shrink-0">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="appearance-none pl-8 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
+            >
+              {TABS.map((tab) => (
+                <option key={tab.value} value={tab.value}>{tab.label}</option>
+              ))}
+            </select>
+            <Filter className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
-        {/* Robust Table */}
-        <div className="bg-white border border-gray-200 rounded-[16px] shadow-sm flex flex-col overflow-hidden w-full">
-          <div className="overflow-x-auto w-full custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[900px]">
-              <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
-                <tr>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Order ID & Item</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Patient Details</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Payment</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-[13px] text-gray-500">Loading orders...</td></tr>
-                ) : filteredOrders.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-12 text-center">
-                      <Package className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                      <p className="text-[14px] font-bold text-gray-900">No orders found</p>
-                      <p className="text-[13px] text-gray-500 mt-1">Try adjusting your filters or search query.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredOrders.map((o) => {
-                     const meta = STATUS_META[o.status] || STATUS_META.pending;
-                     return (
-                      <tr key={o.id} onClick={() => handleOpenDetails(o)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-[10px] bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-                              <Package className="w-5 h-5 text-indigo-600" />
-                            </div>
-                            <div>
-                              <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{o.productName}</p>
-                              <p className="text-[11px] text-gray-500 font-mono mt-0.5">#{o.id.slice(0, 8).toUpperCase()} • Qty: {o.quantity}</p>
-                            </div>
+        {/* Responsive Content Container */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200 min-h-[200px]">
+              <Activity className="w-5 h-5 animate-spin mr-2" /> Loading orders...
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm min-h-[200px]">
+              <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+              <p className="text-[16px] font-bold text-gray-900">No orders found</p>
+              <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your filters or search query.</p>
+            </div>
+          ) : (
+            <>
+              {/* Mobile Card Layout */}
+              <div className="md:hidden flex-1 overflow-y-auto flex flex-col gap-3 pb-[120px] custom-scrollbar pt-2 px-1">
+                {filteredOrders.map((o) => {
+                  const meta = STATUS_META[o.status] || STATUS_META.pending;
+                  return (
+                    <div 
+                      key={o.id} 
+                      onClick={() => handleOpenDetails(o)}
+                      className="bg-white rounded-[12px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform p-4 flex flex-col"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div className="flex gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-[8px] bg-indigo-50 flex items-center justify-center shrink-0">
+                            <Package className="w-5 h-5 text-indigo-600" />
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                             <User className="w-4 h-4 text-gray-400" />
-                             <div>
-                                <p className="text-[13px] font-bold text-gray-900">{o.customerName || "Walk-in Patient"}</p>
-                                {o.customerPhone && <p className="text-[11px] text-gray-500">{o.customerPhone}</p>}
-                             </div>
+                          <div className="min-w-0">
+                            <h3 className="text-[13px] font-bold text-gray-900 leading-snug line-clamp-2">{o.productName}</h3>
+                            <p className="text-[11px] text-gray-500 font-mono mt-0.5">#{o.id.slice(0, 8).toUpperCase()} • Qty: {o.quantity}</p>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div>
-                            <span className="text-[13px] font-bold text-gray-900">€{parseFloat(o.totalAmount.toString()).toFixed(2)}</span>
-                            <div className="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500 uppercase tracking-wide">
-                               <CreditCard className="w-3 h-3" /> {o.paymentMethod}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
-                            {meta.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
-                            Manage
-                          </button>
-                        </td>
+                        </div>
+                        <span className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
+                          {meta.label}
+                        </span>
+                      </div>
+                      <div className="flex items-end justify-between border-t border-gray-100 pt-3 mt-auto">
+                        <div>
+                           <p className="text-[12px] font-bold text-gray-900">{o.customerName || "Walk-in Patient"}</p>
+                           <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5 uppercase tracking-wider"><CreditCard className="w-3 h-3"/> {o.paymentMethod}</p>
+                        </div>
+                        <span className="text-[15px] font-black text-gray-900">
+                          €{parseFloat(o.totalAmount.toString()).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:flex flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex-col">
+                <div className="overflow-x-auto w-full custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[900px]">
+                    <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
+                      <tr>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Order ID & Item</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Patient Details</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Payment</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                       </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredOrders.map((o) => {
+                         const meta = STATUS_META[o.status] || STATUS_META.pending;
+                         return (
+                          <tr key={o.id} onClick={() => handleOpenDetails(o)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-[10px] bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+                                  <Package className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                <div>
+                                  <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{o.productName}</p>
+                                  <p className="text-[11px] text-gray-500 font-mono mt-0.5">#{o.id.slice(0, 8).toUpperCase()} • Qty: {o.quantity}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                 <User className="w-4 h-4 text-gray-400" />
+                                 <div>
+                                    <p className="text-[13px] font-bold text-gray-900">{o.customerName || "Walk-in Patient"}</p>
+                                    {o.customerPhone && <p className="text-[11px] text-gray-500">{o.customerPhone}</p>}
+                                 </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div>
+                                <span className="text-[13px] font-bold text-gray-900">€{parseFloat(o.totalAmount.toString()).toFixed(2)}</span>
+                                <div className="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500 uppercase tracking-wide">
+                                   <CreditCard className="w-3 h-3" /> {o.paymentMethod}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
+                                {meta.label}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
+                                Manage
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
