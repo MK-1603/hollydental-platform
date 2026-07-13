@@ -346,8 +346,12 @@ export default function AdminBillingPage() {
                           <h3 className="text-[14px] font-semibold text-gray-900 leading-snug">{patientName(inv.patientId)}</h3>
                           <p className="text-[11px] text-gray-400 font-mono mt-0.5">#{inv.invoiceNumber}</p>
                         </div>
-                        <span className="text-[15px] font-bold text-gray-900 shrink-0">
-                          €{parseFloat(inv.totalAmount.toString()).toFixed(2)}
+                        <span className="text-[15px] font-bold text-gray-900 shrink-0 flex items-center h-full">
+                          {inv.status === 'cancelled' ? (
+                             <span className="text-[11px] text-red-500 uppercase tracking-widest font-bold">Cancelled</span>
+                          ) : (
+                             `€${parseFloat(inv.totalAmount.toString()).toFixed(2)}`
+                          )}
                         </span>
                       </div>
                       
@@ -400,7 +404,11 @@ export default function AdminBillingPage() {
                               {patientName(inv.patientId)}
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-[14px] font-bold text-gray-900">€{parseFloat(inv.totalAmount.toString()).toFixed(2)}</span>
+                              {inv.status === 'cancelled' ? (
+                                <span className="text-[11px] font-bold text-red-500 uppercase tracking-widest">Cancelled</span>
+                              ) : (
+                                <span className="text-[14px] font-bold text-gray-900">€{parseFloat(inv.totalAmount.toString()).toFixed(2)}</span>
+                              )}
                             </td>
                             <td className="px-6 py-4">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
@@ -593,7 +601,13 @@ export default function AdminBillingPage() {
                             )}
                             <tr className="bg-gray-50/50">
                                <td colSpan={2} className="px-4 py-3 text-[12px] font-bold text-gray-700 uppercase tracking-wider text-right">Total Due</td>
-                               <td className="px-4 py-3 text-[15px] font-bold text-gray-900 text-right">€{parseFloat(selectedInvoice.totalAmount.toString()).toFixed(2)}</td>
+                               <td className="px-4 py-3 text-[15px] font-bold text-gray-900 text-right">
+                                 {selectedInvoice.status === 'cancelled' ? (
+                                   <span className="text-red-500 font-bold uppercase tracking-widest text-[12px]">Cancelled</span>
+                                 ) : (
+                                   `€${parseFloat(selectedInvoice.totalAmount.toString()).toFixed(2)}`
+                                 )}
+                               </td>
                             </tr>
                          </tbody>
                       </table>

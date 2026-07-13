@@ -7,7 +7,8 @@ import { toast } from "@/lib/toast";
 import { useDialog } from "@/components/DialogProvider";
 import { 
   Search, X, Check, Package, CreditCard, User, Clock, Filter, 
-  Download, FileText, FileDown, Activity, ChevronRight, Ban
+  Download, FileText, FileDown, Activity, ChevronRight, Ban,
+  ChevronDown
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { generateTablePDF } from "@/lib/pdf";
@@ -231,7 +232,11 @@ export default function AdminOrdersPage() {
                       <div className="flex items-end justify-between border-t border-gray-100 pt-3 mt-auto">
                         <div>
                            <p className="text-[12px] font-bold text-gray-900">{o.customerName || "Walk-in Patient"}</p>
-                           <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5 uppercase tracking-wider"><CreditCard className="w-3 h-3"/> {o.paymentMethod}</p>
+                           {o.status === 'cancelled' ? (
+                             <p className="text-[11px] text-red-500 font-bold mt-0.5 uppercase tracking-wider">Cancelled</p>
+                           ) : (
+                             <p className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5 uppercase tracking-wider"><CreditCard className="w-3 h-3"/> {o.paymentMethod}</p>
+                           )}
                         </div>
                         <span className="text-[15px] font-black text-gray-900">
                           €{parseFloat(o.totalAmount.toString()).toFixed(2)}
@@ -283,9 +288,15 @@ export default function AdminOrdersPage() {
                             <td className="px-6 py-4">
                               <div>
                                 <span className="text-[13px] font-bold text-gray-900">€{parseFloat(o.totalAmount.toString()).toFixed(2)}</span>
-                                <div className="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500 uppercase tracking-wide">
-                                   <CreditCard className="w-3 h-3" /> {o.paymentMethod}
-                                </div>
+                                {o.status === 'cancelled' ? (
+                                  <div className="flex items-center gap-1 mt-0.5 text-[11px] text-red-500 font-bold uppercase tracking-wide">
+                                     Cancelled
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 mt-0.5 text-[11px] text-gray-500 uppercase tracking-wide">
+                                     <CreditCard className="w-3 h-3" /> {o.paymentMethod}
+                                  </div>
+                                )}
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -345,7 +356,11 @@ export default function AdminOrdersPage() {
                   </div>
                   <div className="text-right">
                      <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider mb-0.5">Total</p>
-                     <p className="text-[18px] font-bold text-gray-900">€{parseFloat(selectedOrder.totalAmount.toString()).toFixed(2)}</p>
+                     {selectedOrder.status === 'cancelled' ? (
+                       <p className="text-[14px] font-bold text-red-500 uppercase tracking-widest">Cancelled</p>
+                     ) : (
+                       <p className="text-[18px] font-bold text-gray-900">€{parseFloat(selectedOrder.totalAmount.toString()).toFixed(2)}</p>
+                     )}
                   </div>
                </div>
 
@@ -368,20 +383,26 @@ export default function AdminOrdersPage() {
                   </div>
                   <div className="bg-gray-50 border border-gray-100 rounded-[12px] p-4">
                      <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Payment Info</h4>
-                     <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-[13px]">
-                           <CreditCard className="w-4 h-4 text-gray-400" />
-                           <span className="font-bold text-gray-900 uppercase">{selectedOrder.paymentMethod}</span>
-                        </div>
-                        {selectedOrder.upiReference && (
-                           <div className="text-[12px] text-gray-500 pl-6 font-mono break-all">Ref: {selectedOrder.upiReference}</div>
-                        )}
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ml-6 ${
-                           ['paid', 'ready', 'completed'].includes(selectedOrder.status) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
-                           {['paid', 'ready', 'completed'].includes(selectedOrder.status) ? "Paid" : "Pending"}
-                        </span>
-                     </div>
+                     {selectedOrder.status === 'cancelled' ? (
+                       <div className="flex h-[40px] items-center text-red-500 font-bold text-[12px] uppercase tracking-widest">
+                         Order Cancelled
+                       </div>
+                     ) : (
+                       <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-[13px]">
+                             <CreditCard className="w-4 h-4 text-gray-400" />
+                             <span className="font-bold text-gray-900 uppercase">{selectedOrder.paymentMethod}</span>
+                          </div>
+                          {selectedOrder.upiReference && (
+                             <div className="text-[12px] text-gray-500 pl-6 font-mono break-all">Ref: {selectedOrder.upiReference}</div>
+                          )}
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-[4px] text-[10px] font-bold uppercase tracking-wide border ml-6 ${
+                             ['paid', 'ready', 'completed'].includes(selectedOrder.status) ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                             {['paid', 'ready', 'completed'].includes(selectedOrder.status) ? "Paid" : "Pending"}
+                          </span>
+                       </div>
+                     )}
                   </div>
                </div>
 
