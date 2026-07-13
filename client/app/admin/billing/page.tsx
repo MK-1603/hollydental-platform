@@ -547,7 +547,7 @@ export default function AdminBillingPage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 pb-2">
+                  <div className="pt-4 border-t border-gray-100 pb-2">
                      <button onClick={() => {
                         generateInvoicePDF({
                           invoiceNumber: selectedInvoice.invoiceNumber,
@@ -560,11 +560,8 @@ export default function AdminBillingPage() {
                           totalAmount: selectedInvoice.totalAmount
                         });
                         toast.success("Downloading PDF...");
-                     }} className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors">
+                     }} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors active:scale-[0.98]">
                         <Download className="w-4 h-4" /> Download PDF
-                     </button>
-                     <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors">
-                        <Send className="w-4 h-4" /> Email Patient
                      </button>
                   </div>
 
