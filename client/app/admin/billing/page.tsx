@@ -413,11 +413,13 @@ export default function AdminBillingPage() {
             </div>
 
             {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white md:bg-gray-50/50 shrink-0">
-              <h2 className="text-[16px] md:text-[18px] font-bold text-gray-900">
-                {isAdding ? "Create New Invoice" : `Invoice #${selectedInvoice?.invoiceNumber}`}
-              </h2>
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white md:bg-gray-50/50 shrink-0 gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-[16px] md:text-[18px] font-bold text-gray-900 truncate">
+                  {isAdding ? "Create New Invoice" : `Invoice #${selectedInvoice?.invoiceNumber}`}
+                </h2>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
                 {!isAdding && selectedInvoice && (
                   <>
                     <button onClick={() => handleDelete(selectedInvoice.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[8px] transition-colors" title="Delete">

@@ -229,4 +229,30 @@ router.get("/revenue", verifyToken, requireRole("admin"), async (req, res, next)
   }
 });
 
+// 8. DELETE Invoice (Admin only)
+router.delete("/invoices/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  try {
+    const [inv] = await db
+      .select()
+      .from(invoices)
+      .where(eq(invoices.id, req.params.id))
+      .limit(1);
+      
+    if (!inv) return res.status(404).json({ message: "Invoice not found." });
+
+    await db.delete(invoices).where(eq(invoices.id, req.params.id));
+    
+    await logActivity(req, "invoice.deleted", {
+      targetType: "invoice",
+      targetId: req.params.id,
+      metadata: { invoiceNumber: inv.invoiceNumber }
+    });
+    
+    return res.status(200).json({ message: "Invoice deleted successfully." });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
