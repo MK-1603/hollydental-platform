@@ -451,16 +451,31 @@ export default function AdminBillingPage() {
               ) : selectedInvoice ? (
                 <div className="space-y-6">
                   
-                  {/* Status Banner */}
-                  <div className={`p-4 rounded-[12px] border ${STATUS_CONFIG[selectedInvoice.status].bg} ${STATUS_CONFIG[selectedInvoice.status].border}`}>
-                    <div className="flex items-center gap-2">
+                  {/* Status Management (Top Placed) */}
+                  <div className="flex flex-col gap-2.5 p-3 rounded-[12px] border border-gray-200 bg-gray-50">
+                    <div className="flex items-center gap-1.5 mb-0.5">
                        {(() => {
                          const Icon = STATUS_CONFIG[selectedInvoice.status].icon;
-                         return <Icon className={`w-5 h-5 ${STATUS_CONFIG[selectedInvoice.status].text}`} />;
+                         return <Icon className={`w-3.5 h-3.5 ${STATUS_CONFIG[selectedInvoice.status].text}`} />;
                        })()}
-                       <h3 className={`text-[15px] font-bold ${STATUS_CONFIG[selectedInvoice.status].text}`}>
-                          This invoice is {selectedInvoice.status.toUpperCase()}
-                       </h3>
+                       <span className={`text-[11px] font-bold ${STATUS_CONFIG[selectedInvoice.status].text} uppercase tracking-wider`}>
+                          Current Status: {selectedInvoice.status}
+                       </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                       <div className="relative flex-1">
+                         <select value={invoiceStatus} onChange={e => setInvoiceStatus(e.target.value as any)} className="w-full pl-2.5 pr-8 py-1.5 bg-white border border-gray-200 rounded-[6px] text-[12px] font-medium text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm appearance-none cursor-pointer">
+                           <option value="pending">Pending</option>
+                           <option value="paid">Paid (Record Payment)</option>
+                           <option value="overdue">Overdue</option>
+                           <option value="cancelled">Cancelled</option>
+                         </select>
+                         <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+                       </div>
+                       <button onClick={handleUpdateStatus} disabled={isSaving || invoiceStatus === selectedInvoice.status} className="px-3 py-1.5 bg-blue-600 text-white rounded-[6px] text-[11px] font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 shrink-0 uppercase tracking-wider">
+                          Update
+                       </button>
                     </div>
                   </div>
 
@@ -505,7 +520,7 @@ export default function AdminBillingPage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 pb-2">
                      <button onClick={() => {
                         generateInvoicePDF({
                           invoiceNumber: selectedInvoice.invoiceNumber,
@@ -524,22 +539,6 @@ export default function AdminBillingPage() {
                      <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 shadow-sm transition-colors">
                         <Send className="w-4 h-4" /> Email Patient
                      </button>
-                  </div>
-
-                  {/* Update Status */}
-                  <div className="pt-6 border-t border-gray-100">
-                    <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Record Payment / Update Status</h4>
-                    <div className="flex items-center gap-3">
-                       <select value={invoiceStatus} onChange={e => setInvoiceStatus(e.target.value as any)} className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm appearance-none">
-                         <option value="pending">Pending</option>
-                         <option value="paid">Paid (Record Payment)</option>
-                         <option value="overdue">Overdue</option>
-                         <option value="cancelled">Cancelled</option>
-                       </select>
-                       <button onClick={handleUpdateStatus} disabled={isSaving || invoiceStatus === selectedInvoice.status} className="px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm">
-                         Update
-                       </button>
-                    </div>
                   </div>
 
                 </div>
