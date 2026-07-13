@@ -100,7 +100,7 @@ export default function Chatbot() {
   }
 
   return (
-    <div className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 flex-col items-end hidden md:flex" data-ai-chatbot>
+    <div className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 flex flex-col items-end" data-ai-chatbot>
       <AnimatePresence>
         {isOpen && (
           <motion.div
