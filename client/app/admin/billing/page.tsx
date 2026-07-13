@@ -277,19 +277,37 @@ export default function AdminBillingPage() {
             )}
           </div>
           
-          <div className="relative shrink-0">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="appearance-none pl-8 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
+          <div className="relative shrink-0 dropdown-container">
+            <button
+              onClick={(e) => {
+                const target = e.currentTarget.nextElementSibling;
+                if (target) target.classList.toggle('hidden');
+              }}
+              onBlur={(e) => {
+                const target = e.currentTarget.nextElementSibling;
+                setTimeout(() => { if (target) target.classList.add('hidden'); }, 150);
+              }}
+              className="flex items-center gap-2 pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer transition-colors hover:bg-gray-50"
             >
-              <option value="all">All</option>
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="overdue">Overdue</option>
-            </select>
-            <Filter className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <Filter className="w-3.5 h-3.5 text-gray-500" />
+              <span className="capitalize">{filterStatus}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </button>
+            <div className="absolute right-0 top-[110%] w-32 bg-white border border-gray-100 shadow-xl rounded-[10px] py-1 z-30 hidden overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              {['all', 'paid', 'pending', 'overdue'].map(status => (
+                <button
+                  key={status}
+                  onClick={() => {
+                    setFilterStatus(status);
+                    const el = document.activeElement as HTMLElement;
+                    if (el) el.blur();
+                  }}
+                  className={`w-full text-left px-4 py-2 text-[13px] capitalize font-medium transition-colors ${filterStatus === status ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'}`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
