@@ -71,6 +71,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
         { name: "Notifications", href: "/admin/notifications", icon: Bell },
         { name: "Activity", href: "/admin/activity", icon: Activity },
         { name: "Approvals", href: "/admin/approvals", icon: ClipboardCheck },
+        { name: "Settings", href: "/admin/settings", icon: Settings },
       ]
     }
   ], []);
@@ -103,7 +104,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
             <div className="relative shrink-0 flex items-center justify-center w-8 h-8">
               <img src="/logo-mark.png" alt="Hollyhill Dental" className="w-full h-full object-contain drop-shadow-sm" draggable={false} />
             </div>
-            <span className="font-sans font-bold tracking-tight text-navy text-[16px] truncate leading-none">
+            <span className="font-sans font-bold tracking-tight text-navy text-[16px] truncate whitespace-nowrap leading-none">
               Hollyhill <span className="text-[#009BDE]">Dental</span>
             </span>
           </div>

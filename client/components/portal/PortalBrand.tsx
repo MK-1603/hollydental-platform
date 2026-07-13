@@ -32,7 +32,7 @@ export default function PortalBrand({ className = "", size = 28, asLink = true }
       
       {/* Clean SaaS Wordmark */}
       <div className="flex flex-col leading-none justify-center">
-        <span className="font-sans font-bold tracking-tight text-navy" style={{ fontSize: Math.max(size * 0.55, 15) }}>
+        <span className="font-sans font-bold tracking-tight text-navy whitespace-nowrap" style={{ fontSize: Math.max(size * 0.55, 15) }}>
           Hollyhill <span className="text-[#009BDE]">Dental</span>
         </span>
       </div>

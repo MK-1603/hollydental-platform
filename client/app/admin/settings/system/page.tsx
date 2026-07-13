@@ -96,7 +96,7 @@ export default function SystemSettingsPage() {
             </div>
             <h3 className="text-[13px] font-bold text-gray-700">System Load</h3>
           </div>
-          <p className="text-[24px] font-black text-gray-900 tracking-tight">{health?.loadAvg?.[0]?.toFixed(2) || "0.00"}</p>
+          <p className="text-[24px] font-black text-gray-900 tracking-tight">{Number(health?.loadAvg?.[0] || 0).toFixed(2)}</p>
           <p className="text-[12px] text-gray-500 mt-1">{health?.cpus || 1} Cores Available</p>
         </div>
       </div>

@@ -5,42 +5,53 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
-import { Bell, Menu, LogOut, Settings, UserCircle, HelpCircle, Keyboard, MessagesSquare, ChevronDown, Moon, Sun } from "lucide-react";
-import GlobalSearch from "@/components/admin/GlobalSearch";
+import { Bell, Menu, LogOut, Settings, UserCircle, MessagesSquare, Phone } from "lucide-react";
+import PortalGlobalSearch from "@/components/portal/PortalGlobalSearch";
+import PushToggle from "@/components/common/PushToggle";
+import PortalBrand from "@/components/portal/PortalBrand";
 
-interface AdminHeaderProps {
+interface PortalHeaderProps {
   onToggleSidebar: () => void;
 }
 
-export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
+export default function PortalHeader({ onToggleSidebar }: PortalHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, performLogoutTransition } = useAuthStore();
 
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
-  const workspaceRef = useRef<HTMLDivElement>(null);
 
-  const { data: messages = [] } = useLiveData<any[]>("/messages", {
-    intervalMs: 30000,
-    initialData: [],
-  });
-
-  const unreadMsgs = useMemo(
-    () => messages.reduce((acc, t) => acc + (t.unreadFromPatient || 0), 0),
-    [messages]
+  const { data: notifications = [] } = useLiveData<any[]>(
+    user?.role === "patient" ? "/notifications/me" : null,
+    { intervalMs: 15000, initialData: [] }
   );
+
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
+
+  useEffect(() => {
+    if (pathname === "/portal/notifications") {
+      localStorage.setItem("lastSeenNotifications", new Date().toISOString());
+      setUnreadNotifsCount(0);
+    } else {
+      const lastSeen = localStorage.getItem("lastSeenNotifications");
+      if (!lastSeen) {
+        setUnreadNotifsCount(notifications.length > 0 ? 1 : 0);
+      } else {
+        const lastSeenDate = new Date(lastSeen).getTime();
+        setUnreadNotifsCount(notifications.filter((n: any) => new Date(n.timestamp).getTime() > lastSeenDate).length);
+      }
+    }
+  }, [notifications, pathname]);
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as Node;
       if (notifRef.current && !notifRef.current.contains(target)) setShowNotifDropdown(false);
       if (profileRef.current && !profileRef.current.contains(target)) setShowProfileDropdown(false);
-      if (workspaceRef.current && !workspaceRef.current.contains(target)) setShowWorkspaceDropdown(false);
     };
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
@@ -48,15 +59,11 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
   if (!user) return null;
 
-  // Dynamic titles based on pathname for Breadcrumbs
-  const breadcrumbSection = pathname.split('/').filter(Boolean)[1];
-  const breadcrumbLabel = breadcrumbSection ? breadcrumbSection.charAt(0).toUpperCase() + breadcrumbSection.slice(1) : 'Dashboard';
-
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-100 h-16 flex items-center shrink-0 font-sans px-4 sm:px-6 md:px-8 transition-all">
       <div className="flex items-center justify-between w-full h-full">
         
-        {/* Left: Mobile Menu & Breadcrumbs */}
+        {/* Left: Mobile Menu & Brand */}
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <button
             onClick={onToggleSidebar}
@@ -64,22 +71,31 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           >
             <Menu className="w-5 h-5" />
           </button>
+          <div className="xl:hidden">
+            <PortalBrand size={24} asLink={false} />
+          </div>
         </div>
 
         {/* Center: Global Search */}
         <div className="flex justify-center w-full max-w-[640px] px-4">
-          <GlobalSearch />
+          <PortalGlobalSearch />
         </div>
 
-        {/* Right: Theme, Notifs, Profile */}
+        {/* Right: Actions, Notifs, Profile */}
         <div className="flex items-center justify-end gap-2 sm:gap-4 md:gap-5 flex-1 shrink-0">
 
-          <div className="h-5 w-px bg-gray-100 hidden md:block mx-1"></div>
+          <a 
+            href="tel:+353214303072" 
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-[10px] bg-blue-50 text-blue-700 font-semibold text-[13px] tracking-wide whitespace-nowrap hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          >
+            <Phone className="w-4 h-4" strokeWidth={2.2} /> Call Clinic
+          </a>
 
-          {/* Theme Toggle (Placeholder for now) */}
-          <button className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors hidden sm:flex focus:outline-none">
-            <Moon className="w-5 h-5" />
-          </button>
+          <div className="hidden sm:block">
+            <PushToggle />
+          </div>
+
+          <div className="h-5 w-px bg-gray-100 hidden md:block mx-1"></div>
 
           {/* Notifications */}
           <div className="relative" ref={notifRef}>
@@ -88,7 +104,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors relative focus:outline-none"
             >
               <Bell className="w-4 h-4 md:w-5 md:h-5" />
-              {unreadMsgs > 0 && (
+              {unreadNotifsCount > 0 && (
                 <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
               )}
             </button>
@@ -99,14 +115,14 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
                   <h4 className="text-[13px] font-semibold text-gray-900">Notifications</h4>
                 </div>
                 <div className="max-h-64 overflow-y-auto px-1.5 pb-1">
-                  {unreadMsgs > 0 ? (
-                    <Link href="/admin/messages" onClick={() => setShowNotifDropdown(false)} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors">
+                  {unreadNotifsCount > 0 ? (
+                    <Link href="/portal/notifications" onClick={() => setShowNotifDropdown(false)} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors">
                       <div className="w-7 h-7 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-                        <MessagesSquare className="w-3.5 h-3.5" />
+                        <Bell className="w-3.5 h-3.5" />
                       </div>
                       <div>
-                        <p className="text-[13px] font-medium text-gray-900 leading-tight">{unreadMsgs} Unread Messages</p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">You have unread patient messages.</p>
+                        <p className="text-[13px] font-medium text-gray-900 leading-tight">{unreadNotifsCount} New Notifications</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5">You have unread updates.</p>
                       </div>
                     </Link>
                   ) : (
@@ -123,30 +139,22 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               className="flex items-center hover:opacity-80 transition-all focus:outline-none ring-2 ring-transparent hover:ring-blue-100 rounded-full"
             >
-              {user?.profilePicUrl ? (
-                <img src={user.profilePicUrl} alt="Profile" className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-100 shadow-sm" referrerPolicy="no-referrer" />
-              ) : (
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 flex items-center justify-center font-bold text-[12px] md:text-[13px] text-white shadow-sm ring-2 ring-white">
-                  {user?.displayName?.[0] || "A"}
-                </div>
-              )}
+              <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-50 border border-blue-100 text-blue-700 flex items-center justify-center font-bold text-[12px] md:text-[13px] shadow-sm">
+                {((user.patientProfile?.firstName?.[0] || "") + (user.patientProfile?.lastName?.[0] || "")).toUpperCase() || "P"}
+              </div>
             </button>
             
             {showProfileDropdown && (
               <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
                 <div className="px-3 py-2 mb-1 border-b border-gray-100">
-                  <p className="text-[13px] font-semibold text-gray-900 truncate">{user?.displayName || "Admin User"}</p>
+                  <p className="text-[13px] font-semibold text-gray-900 truncate">
+                    {user?.patientProfile?.firstName} {user?.patientProfile?.lastName}
+                  </p>
                   <p className="text-[11px] text-gray-500 truncate mt-0.5">{user?.email}</p>
                 </div>
                 <div className="px-1 py-1">
-                  <Link href="/admin/settings/my-account" onClick={() => setShowProfileDropdown(false)} className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[13px] text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                  <Link href="/portal/profile" onClick={() => setShowProfileDropdown(false)} className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[13px] text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
                     <UserCircle className="w-4 h-4 text-gray-400" /> My Profile
-                  </Link>
-                  <Link href="/admin/settings" onClick={() => setShowProfileDropdown(false)} className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[13px] text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                    <Settings className="w-4 h-4 text-gray-400" /> Settings
-                  </Link>
-                  <Link href="/admin/settings" onClick={() => setShowProfileDropdown(false)} className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[13px] text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
-                    <Keyboard className="w-4 h-4 text-gray-400" /> Shortcuts
                   </Link>
                 </div>
                 <div className="h-px bg-gray-100 my-1 mx-1" />

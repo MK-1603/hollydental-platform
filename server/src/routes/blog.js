@@ -33,9 +33,13 @@ router.get("/", async (req, res, next) => {
   const { status } = req.query;
 
   try {
-    const filter = status
-      ? eq(blogPosts.status, String(status))
-      : eq(blogPosts.status, "published");
+    let filter;
+    if (status && status !== "all") {
+      filter = eq(blogPosts.status, String(status));
+    } else if (!status) {
+      filter = eq(blogPosts.status, "published");
+    }
+
     const records = await db
       .select()
       .from(blogPosts)
@@ -47,7 +51,62 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-/* 2. GET post by slug (public). */
+/* 2. Categories CRUD */
+router.get("/categories", async (req, res, next) => {
+  try {
+    const list = await db.select().from(blogCategories).orderBy(desc(blogCategories.displayOrder));
+    res.json(list);
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+router.post("/categories", verifyToken, requireRole("admin"), async (req, res, next) => {
+  try {
+    const { name, slug, color, icon, displayOrder } = req.body;
+    const finalSlug = slug || slugify(name);
+    const [inserted] = await db.insert(blogCategories).values({ name, slug: finalSlug, color, icon, displayOrder }).returning();
+    res.json(inserted);
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+router.put("/categories/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  try {
+    const { name, slug, color, icon, displayOrder } = req.body;
+    const [updated] = await db.update(blogCategories).set({ name, slug, color, icon, displayOrder, updatedAt: new Date() }).where(eq(blogCategories.id, req.params.id)).returning();
+    res.json(updated);
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+router.delete("/categories/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  try {
+    await db.delete(blogCategories).where(eq(blogCategories.id, req.params.id));
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+/* 3. Tags CRUD */
+router.get("/tags", async (req, res, next) => {
+  try {
+    const list = await db.select().from(blogTags).orderBy(desc(blogTags.createdAt));
+    res.json(list);
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+router.post("/tags", verifyToken, requireRole("admin"), async (req, res, next) => {
+  try {
+    const { name, slug } = req.body;
+    const [inserted] = await db.insert(blogTags).values({ name, slug: slug || slugify(name) }).returning();
+    res.json(inserted);
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+router.delete("/tags/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  try {
+    await db.delete(blogTags).where(eq(blogTags.id, req.params.id));
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ message: "Failed" }); }
+});
+
+/* 4. GET post by slug (public). */
 router.get("/:slug", async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
@@ -199,59 +258,6 @@ router.post("/bulk", verifyToken, requireRole("admin"), async (req, res, next) =
   }
 });
 
-/* 7. Categories CRUD */
-router.get("/categories", async (req, res, next) => {
-  try {
-    const list = await db.select().from(blogCategories).orderBy(desc(blogCategories.displayOrder));
-    res.json(list);
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
 
-router.post("/categories", verifyToken, requireRole("admin"), async (req, res, next) => {
-  try {
-    const { name, slug, color, icon, displayOrder } = req.body;
-    const finalSlug = slug || slugify(name);
-    const [inserted] = await db.insert(blogCategories).values({ name, slug: finalSlug, color, icon, displayOrder }).returning();
-    res.json(inserted);
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
-
-router.put("/categories/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
-  try {
-    const { name, slug, color, icon, displayOrder } = req.body;
-    const [updated] = await db.update(blogCategories).set({ name, slug, color, icon, displayOrder, updatedAt: new Date() }).where(eq(blogCategories.id, req.params.id)).returning();
-    res.json(updated);
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
-
-router.delete("/categories/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
-  try {
-    await db.delete(blogCategories).where(eq(blogCategories.id, req.params.id));
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
-
-/* 8. Tags CRUD */
-router.get("/tags", async (req, res, next) => {
-  try {
-    const list = await db.select().from(blogTags).orderBy(desc(blogTags.createdAt));
-    res.json(list);
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
-
-router.post("/tags", verifyToken, requireRole("admin"), async (req, res, next) => {
-  try {
-    const { name, slug } = req.body;
-    const [inserted] = await db.insert(blogTags).values({ name, slug: slug || slugify(name) }).returning();
-    res.json(inserted);
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
-
-router.delete("/tags/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
-  try {
-    await db.delete(blogTags).where(eq(blogTags.id, req.params.id));
-    res.json({ success: true });
-  } catch (err) { res.status(500).json({ message: "Failed" }); }
-});
 
 export default router;

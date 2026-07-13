@@ -48,46 +48,46 @@ export default function PortalNotificationsPage() {
   const items = useMemo(() => data ?? [], [data]);
 
   return (
-    <div className="space-y-6 pb-12 max-w-4xl mr-auto px-1 xl:px-4 select-none">
+    <div className="space-y-6 pb-12 max-w-7xl mx-auto px-1 xl:px-4 select-none">
       
       {/* ── Header Bar ── */}
-      <div className="flex items-center justify-between border-b border-gray-250 pb-4 gap-4 flex-wrap shrink-0">
+      <div className="flex items-center justify-between border-b border-gray-100 pb-4 gap-4 flex-wrap shrink-0">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-navy flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gold/10 flex items-center justify-center">
-              <Bell className="w-4.5 h-4.5 text-gold" />
+          <h1 className="font-serif text-3xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100">
+              <Bell className="w-5 h-5 text-blue-600" />
             </div>
             Notification Center
           </h1>
-          <p className="text-gray-400 text-xs mt-1 ml-10.5 hidden sm:block">
+          <p className="text-gray-500 text-sm mt-2 hidden sm:block">
             Real-time telemetry stream on your visits, scripts, and dental charts.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 border border-emerald-100 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1.5 border border-emerald-100 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Live Sync
           </span>
           
           <button
             onClick={refetch}
-            className="bg-white hover:bg-gray-50 text-navy border border-gray-200 hover:border-navy font-bold px-3.5 py-1.5 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
+            className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 hover:border-gray-300 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-sm active:scale-95 shrink-0"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-gold" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-blue-600" : ""}`} />
             Refresh
           </button>
         </div>
       </div>
 
       {/* ── Push notifications settings console ── */}
-      <div className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-2xs">
+      <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="text-xs font-extrabold text-navy flex items-center gap-2">
-              <Activity className="w-4 h-4 text-gold" /> Push Telemetry Subscriptions
+          <div className="space-y-1.5">
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              <Activity className="w-4.5 h-4.5 text-blue-500" /> Push Telemetry Subscriptions
             </h3>
-            <p className="text-[10px] text-gray-400 font-medium leading-relaxed">
+            <p className="text-xs text-gray-500 font-medium leading-relaxed">
               Enable instant browser notification pings so you never miss clinic alerts or updates.
             </p>
           </div>
@@ -101,28 +101,28 @@ export default function PortalNotificationsPage() {
       {loading && items.length === 0 ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-16 shimmer rounded-xl bg-white border border-gray-100" />
+            <div key={i} className="h-20 shimmer rounded-[20px] bg-white border border-gray-100" />
           ))}
         </div>
       ) : error ? (
-        <div className="border border-red-150 bg-red-50/40 rounded-2xl p-6 text-xs text-red-700 flex items-center gap-3 animate-fade-in shadow-2xs">
-          <Bell className="w-5 h-5 text-red-500 shrink-0" />
+        <div className="border border-red-200 bg-red-50 rounded-[20px] p-6 text-sm text-red-700 flex items-center gap-3 animate-fade-in shadow-sm">
+          <Bell className="w-6 h-6 text-red-500 shrink-0" />
           <span className="font-bold">We couldn't synchronize your notifications center. Verify your credentials.</span>
         </div>
       ) : items.length === 0 ? (
-        <div className="border border-gray-250/60 rounded-2xl bg-white p-16 text-center max-w-md mr-auto mt-6 space-y-4 shadow-2xs">
-          <div className="w-14 h-14 rounded-2xl bg-gold/10 text-gold mx-auto flex items-center justify-center border border-gold/15 shadow-inner">
-            <Bell className="w-6 h-6 text-gold" />
+        <div className="border border-dashed border-gray-200 rounded-[20px] bg-white p-16 text-center mx-auto mt-6 space-y-4 shadow-sm">
+          <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 mx-auto flex items-center justify-center border border-blue-100 shadow-sm">
+            <Bell className="w-8 h-8 text-blue-600" />
           </div>
-          <h3 className="font-serif text-base font-extrabold text-navy">
+          <h3 className="font-serif text-xl font-bold text-gray-900">
             You're all caught up!
           </h3>
-          <p className="text-gray-400 text-xs leading-relaxed max-w-[280px] mx-auto font-medium">
+          <p className="text-gray-500 text-sm leading-relaxed max-w-sm mx-auto font-medium">
             New updates on clinical summaries, invoices, or appointment bookings will land here dynamically.
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200/80 shadow-2xs rounded-2xl overflow-hidden divide-y divide-gray-150/70">
+        <div className="bg-white border border-gray-100 shadow-sm rounded-[20px] overflow-hidden divide-y divide-gray-50">
           {items.map((n) => {
             const isUnread = !n.read;
             return (
@@ -130,18 +130,18 @@ export default function PortalNotificationsPage() {
                 key={n.id}
                 href={n.href}
                 className={`block transition-colors ${
-                  isUnread ? "bg-gold/[0.02]" : "bg-white"
-                } hover:bg-gray-50/50`}
+                  isUnread ? "bg-blue-50/30" : "bg-white"
+                } hover:bg-gray-50/80`}
               >
-                <div className="px-5 py-4 flex items-start gap-4">
+                <div className="p-6 flex items-start gap-5">
                   {/* Icon Indicator */}
                   <div
-                    className={`w-8.5 h-8.5 rounded-xl flex items-center justify-center shrink-0 border ${
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border ${
                       n.type === "appointment"
-                        ? "bg-emerald-50/70 border-emerald-100/50"
+                        ? "bg-emerald-50 border-emerald-100 text-emerald-600"
                         : n.type === "prescription"
-                        ? "bg-amber-50/70 border-amber-100/50"
-                        : "bg-navy/5 border-navy/10"
+                        ? "bg-amber-50 border-amber-100 text-amber-600"
+                        : "bg-blue-50 border-blue-100 text-blue-600"
                     }`}
                   >
                     {ICONS[n.type]}
@@ -150,20 +150,20 @@ export default function PortalNotificationsPage() {
                   {/* Context Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline justify-between gap-4">
-                      <p className={`text-xs font-bold text-navy ${isUnread ? "font-extrabold" : ""}`}>
+                      <p className={`text-sm font-bold text-gray-900 ${isUnread ? "font-extrabold" : ""}`}>
                         {n.title}
                       </p>
-                      <span className="text-[9px] uppercase tracking-wider font-extrabold text-gray-400 shrink-0">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 shrink-0">
                         {formatRelative(n.timestamp)}
                       </span>
                     </div>
-                    <p className="text-[11px] text-gray-500 font-medium leading-relaxed mt-0.5">
+                    <p className="text-xs text-gray-500 font-medium leading-relaxed mt-1">
                       {n.body}
                     </p>
                     
                     {/* Badge details */}
                     {isUnread && (
-                      <span className="inline-flex items-center gap-1 text-[8px] uppercase tracking-widest font-extrabold text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/15 mt-2">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100 mt-3">
                         New update
                       </span>
                     )}
@@ -171,8 +171,8 @@ export default function PortalNotificationsPage() {
 
                   {/* Pulse bullet indicator on the far right */}
                   {isUnread && (
-                    <div className="self-center shrink-0 ml-2">
-                      <div className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                    <div className="self-center shrink-0 ml-3">
+                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />
                     </div>
                   )}
                 </div>

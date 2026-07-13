@@ -103,7 +103,7 @@ export default function PushToggle({
         type="button"
         onClick={isOn ? handleDisable : handleEnable}
         disabled={busy || state === "denied"}
-        className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full transition-colors disabled:opacity-50 ${
+        className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap disabled:opacity-50 ${
           isOn
             ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
             : "bg-gold/10 text-gold hover:bg-gold/20"

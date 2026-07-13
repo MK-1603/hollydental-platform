@@ -33,7 +33,7 @@ function createLimiter(options) {
  */
 export const globalLimiter = createLimiter({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 5000,
 });
 
 /**

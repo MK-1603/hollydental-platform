@@ -19,7 +19,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 export default function AdminBlogPage() {
   const { confirm } = useDialog();
   
-  const { data: postsData, loading: postsLoading } = useLiveData<any[]>("/blog?status=all", { initialData: [] });
+  const { data: postsData, loading: postsLoading, refetch: refetchPosts } = useLiveData<any[]>("/blog?status=all", { initialData: [] });
   const { data: categoriesData } = useLiveData<any[]>("/blog/categories", { initialData: [] });
   const { data: tagsData } = useLiveData<any[]>("/blog/tags", { initialData: [] });
   
@@ -110,12 +110,13 @@ export default function AdminBlogPage() {
         body: "<p>Start writing...</p>",
         status: "draft",
       };
-      // For immediate creation, we call the API. If offline, this will fail and we should use queueMutation.
-      // Since it's a creation that needs an ID returned to open the editor, we use apiRequest directly.
+      
       const result = await apiRequest("/blog", {
         method: "POST",
         body: JSON.stringify(newPost),
       });
+
+      await refetchPosts(); // Ensure the new post is in the local state before opening
 
       setActivePostId(result.post.id);
       setActiveFilter("draft");
@@ -222,51 +223,48 @@ export default function AdminBlogPage() {
   return (
     <div className="h-[calc(100vh-88px)] flex flex-col bg-white w-full max-w-none overflow-hidden font-inter">
       
-      {/* ── TOP HEADER TOOLBAR ── */}
-      <div className="bg-white border-b border-gray-200 shrink-0 px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 z-40 relative shadow-sm">
-        <div className="flex items-center justify-between w-full md:w-auto gap-6">
-          <div>
-            <h1 className="text-[18px] font-bold text-gray-900 tracking-tight leading-none mb-1">Publishing & CMS</h1>
-            <p className="text-[12px] text-gray-500 font-medium">Manage articles, news, and clinic updates</p>
+      {/* ── LUXURY HEADER ── */}
+      <div className="bg-white px-4 md:px-6 py-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] sticky top-0 z-40 border-b border-[#E2E8F0] shrink-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
+            <div className="flex items-center gap-2 md:gap-3">
+              <h1 className="text-sm md:text-base font-bold text-[#0A1628] tracking-tight font-serif leading-none truncate">Publishing & CMS</h1>
+            </div>
           </div>
-          <div className="h-8 w-[1px] bg-gray-200 hidden md:block"></div>
           
-          {selectedIds.size > 0 ? (
-            <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200">
-              <span className="text-[13px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-[6px]">{selectedIds.size} selected</span>
-              <button onClick={() => handleBulkAction('publish')} className="h-[32px] px-3 bg-white border border-gray-200 rounded-[8px] hover:bg-gray-50 shadow-sm text-[12px] font-bold text-gray-700">Publish</button>
-              <button onClick={() => handleBulkAction('archive')} className="h-[32px] px-3 bg-white border border-gray-200 rounded-[8px] hover:bg-gray-50 shadow-sm text-[12px] font-bold text-gray-700">Archive</button>
-              <button onClick={() => handleBulkAction('delete')} className="h-[32px] px-3 bg-red-50 border border-red-200 rounded-[8px] hover:bg-red-100 shadow-sm text-[12px] font-bold text-red-600">Delete</button>
-              <button onClick={() => setSelectedIds(new Set())} className="h-[32px] px-2 text-gray-400 hover:text-gray-700"><X className="w-4 h-4" /></button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 hidden lg:flex">
-              <button className="h-[36px] px-3 bg-white border border-gray-200 rounded-[8px] hover:bg-gray-50 transition-all flex items-center gap-2 shadow-sm text-gray-700 font-medium text-[13px]">
-                <Filter className="w-4 h-4 text-gray-400" /> Filter
-              </button>
-              <div className="relative">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input 
-                  type="text" 
-                  placeholder="Search articles..." 
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-[200px] xl:w-[280px] pl-9 pr-4 h-[36px] bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all shadow-sm" 
-                />
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+            {selectedIds.size > 0 ? (
+              <div className="flex items-center gap-2 animate-in fade-in zoom-in duration-200 shrink-0">
+                <span className="text-[11px] md:text-xs font-bold text-[#C9A84C] bg-[#C9A84C]/10 px-2 py-1 rounded-md">{selectedIds.size} selected</span>
+                <button onClick={() => handleBulkAction('publish')} className="h-[28px] md:h-8 px-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md hover:bg-[#F1F5F9] transition-all text-[11px] md:text-xs font-medium text-[#0A1628]">Publish</button>
+                <button onClick={() => handleBulkAction('archive')} className="h-[28px] md:h-8 px-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md hover:bg-[#F1F5F9] transition-all text-[11px] md:text-xs font-medium text-[#0A1628]">Archive</button>
+                <button onClick={() => handleBulkAction('delete')} className="h-[28px] md:h-8 px-3 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 transition-all text-[11px] md:text-xs font-medium text-red-600">Delete</button>
+                <button onClick={() => setSelectedIds(new Set())} className="h-[28px] md:h-8 px-2 text-[#94A3B8] hover:text-[#0A1628]"><X className="w-3.5 h-3.5" /></button>
               </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={handleCreatePost} 
-            disabled={btnLoading}
-            className="h-[36px] px-4 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold rounded-[8px] transition-all flex items-center gap-2 shadow-sm disabled:opacity-50"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Article</span>
-          </button>
+            ) : (
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-[#94A3B8] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input 
+                    type="text" 
+                    placeholder="Search articles..." 
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-[140px] md:w-[200px] pl-8 pr-3 h-[28px] md:h-8 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-[11px] md:text-xs font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#C9A84C]/30 transition-all placeholder:text-[#94A3B8]" 
+                  />
+                </div>
+                
+                <button 
+                  onClick={handleCreatePost} 
+                  disabled={btnLoading}
+                  className="h-[28px] md:h-[32px] px-3 bg-gradient-to-r from-[#0A1628] to-[#1a2b45] hover:opacity-90 text-white rounded-md transition-all flex items-center justify-center shadow-md shadow-navy/20 text-[11px] md:text-xs font-medium gap-1.5 shrink-0 disabled:opacity-50"
+                >
+                  <Plus className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#C9A84C]" />
+                  <span>New Article</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -595,9 +593,9 @@ export default function AdminBlogPage() {
               <button 
                 onClick={handleCreatePost} 
                 disabled={btnLoading}
-                className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[13px] font-bold rounded-[10px] shadow-sm transition-all flex items-center gap-2"
+                className="px-6 py-2.5 bg-gradient-to-r from-[#0A1628] to-[#1a2b45] hover:opacity-90 text-white text-[13px] font-bold rounded-[10px] shadow-sm shadow-navy/20 transition-all flex items-center gap-2 disabled:opacity-50"
               >
-                <Plus className="w-4 h-4" /> New Article
+                <Plus className="w-4 h-4 text-[#C9A84C]" /> New Article
               </button>
             </div>
           )}

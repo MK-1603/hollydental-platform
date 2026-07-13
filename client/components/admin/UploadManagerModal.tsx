@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { X, UploadCloud, File, FileText, Image as ImageIcon, CheckCircle2, AlertCircle, Play, Pause, RefreshCw } from "lucide-react";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 import { toast } from "@/lib/toast";
 
 import { apiUpload } from "@/lib/api";
@@ -108,10 +109,12 @@ export default function UploadManagerModal({ isOpen, onClose, onUploadSuccess, p
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end sm:items-center sm:justify-center sm:p-6">
       <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onClick={uploadStatus === 'uploading' ? undefined : onClose} />
       
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col h-[600px] max-h-[90vh]">
+      <div className="relative bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col h-[85vh] sm:h-[600px] sm:max-h-[90vh] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-8 duration-300 ease-out">
+        {/* Mobile Drag Handle Indicator */}
+        <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 mb-2 sm:hidden shrink-0" />
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between shrink-0 bg-gray-50/50">
@@ -207,16 +210,13 @@ export default function UploadManagerModal({ isOpen, onClose, onUploadSuccess, p
                   </div>
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Patient *</label>
-                    <select 
+                    <CustomSelect 
                       className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-[14px]"
                       value={selectedPatientId}
-                      onChange={(e) => setSelectedPatientId(e.target.value)}
-                    >
-                      <option value="">Select Patient</option>
-                      {patients.map(p => (
-                        <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-                      ))}
-                    </select>
+                      onChange={setSelectedPatientId}
+                      options={patients.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }))}
+                      placeholder="Select Patient"
+                    />
                   </div>
                 </div>
 

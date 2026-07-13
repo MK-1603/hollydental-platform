@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { useDialog } from "@/components/DialogProvider";
 import FolderModal from "@/components/admin/FolderModal";
 import UploadManagerModal from "@/components/admin/UploadManagerModal";
+import { CustomSelect } from "@/components/ui/CustomSelect";
 
 interface PatientLite {
   id: string;
@@ -319,102 +320,107 @@ export default function AdminFilesPage() {
         </div>
       )}
 
-      {/* Toolbar */}
-      <div className="border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between p-4 gap-4 shrink-0 bg-white">
-        
-        {/* Left: Patient Selector & Breadcrumb */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto overflow-hidden">
-          <select
-            value={selectedPatientId}
-            onChange={(e) => { setSelectedPatientId(e.target.value); setCurrentPath(""); }}
-            disabled={patientsLoading || patients.length === 0}
-            className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 text-[13px] font-medium text-gray-700 outline-none hover:bg-gray-100 transition-colors max-w-[200px] truncate"
-          >
-            {patients.length === 0 ? <option value="">No patients...</option> : patients.map(p => (
-              <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-            ))}
-          </select>
+      {/* ── LUXURY HEADER ── */}
+      <div className="bg-white px-4 md:px-6 py-3 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.02)] sticky top-0 z-40 border-b border-[#E2E8F0]">
+        <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto w-full">
+          <div className="flex items-center gap-2 md:gap-3">
+            <h1 className="text-sm md:text-base font-bold text-[#0A1628] tracking-tight font-serif leading-none truncate">Drive</h1>
+          </div>
           
-          <div className="h-4 w-px bg-gray-200" />
-          
-          <div className="flex items-center text-[13px] font-medium text-gray-600">
-            <button onClick={() => setCurrentPath("")} className="hover:bg-gray-100 p-1 rounded transition-colors flex items-center">
-              <HardDrive className="w-4 h-4 mr-1.5" /> Drive
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+            <CustomSelect
+              value={selectedPatientId}
+              onChange={(val) => { setSelectedPatientId(val); setCurrentPath(""); }}
+              disabled={patientsLoading || patients.length === 0}
+              options={patients.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName}` }))}
+              placeholder="No patients..."
+              className="h-[28px] md:h-[32px] bg-[#F8FAFC] border border-[#E2E8F0] rounded-md px-2 text-[11px] md:text-xs font-medium text-[#0A1628] hover:bg-[#F1F5F9] transition-colors max-w-[120px] md:max-w-[200px]"
+            />
+
+            <button onClick={() => setIsFolderModalOpen(true)} className="h-[28px] md:h-[32px] px-2 md:px-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md hover:bg-[#F1F5F9] transition-all flex items-center justify-center text-[#475569] hover:text-[#0A1628] shadow-sm text-[10px] md:text-xs font-medium gap-1.5">
+              <FolderPlus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+              <span className="hidden sm:inline">New Folder</span>
             </button>
-            {currentPath.split("/").filter(Boolean).map((part, idx, arr) => {
-              const pathSoFar = arr.slice(0, idx + 1).join("/");
-              return (
-                <div key={pathSoFar} className="flex items-center">
-                  <ChevronRight className="w-3.5 h-3.5 mx-0.5 text-gray-400" />
-                  <button 
-                    onClick={() => setCurrentPath(pathSoFar)} 
-                    className={cn("hover:bg-gray-100 p-1 rounded transition-colors", idx === arr.length - 1 ? "text-gray-900 font-semibold" : "")}
-                  >
-                    {part}
-                  </button>
-                </div>
-              );
-            })}
+            <button
+              onClick={() => setIsUploadManagerOpen(true)}
+              disabled={!selectedPatientId}
+              className="h-[28px] md:h-[32px] px-2 md:px-3 bg-gradient-to-r from-[#0A1628] to-[#1a2b45] hover:opacity-90 text-white text-[10px] md:text-xs font-bold rounded-md transition-all flex items-center gap-1.5 shadow-sm disabled:opacity-50 shrink-0"
+            >
+              <Upload className="w-3 h-3 text-[#C9A84C]" />
+              <span className="hidden sm:inline">Upload</span>
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
-          <div className="relative group flex-1 md:flex-none min-w-[120px]">
-            <Search className="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+      {/* ── TOOLBAR & BREADCRUMBS ── */}
+      <div className="bg-white border-b border-[#E2E8F0] px-4 md:px-6 py-3 flex flex-col md:flex-row md:items-center justify-between z-30 shrink-0 shadow-[0_4px_10px_rgba(0,0,0,0.02)] w-full sticky top-[52px] md:top-[56px] gap-3">
+        <div className="flex items-center text-[12px] md:text-[13px] font-medium text-gray-600 shrink-0 overflow-x-auto no-scrollbar pb-1 md:pb-0">
+          <button onClick={() => setCurrentPath("")} className="hover:bg-gray-100 p-1 rounded transition-colors flex items-center shrink-0">
+            <HardDrive className="w-4 h-4 mr-1.5" /> Drive
+          </button>
+          {currentPath.split("/").filter(Boolean).map((part, idx, arr) => {
+            const pathSoFar = arr.slice(0, idx + 1).join("/");
+            return (
+              <div key={pathSoFar} className="flex items-center shrink-0">
+                <ChevronRight className="w-3.5 h-3.5 mx-0.5 text-gray-400" />
+                <button 
+                  onClick={() => setCurrentPath(pathSoFar)} 
+                  className={cn("hover:bg-gray-100 p-1 rounded transition-colors", idx === arr.length - 1 ? "text-[#0A1628] font-bold" : "")}
+                >
+                  {part}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col md:flex-row items-center gap-2 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+          <div className="relative w-full md:w-48 shrink-0">
+            <Search className="w-3.5 h-3.5 text-[#94A3B8] absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input 
               type="text" 
               placeholder="Search files..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full md:w-48 pl-8 pr-3 h-8 bg-gray-50 border border-gray-200 rounded-md text-[13px] focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400" 
+              className="w-full pl-8 pr-3 h-[28px] md:h-8 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md text-[11px] md:text-xs font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#C9A84C]/30 transition-all placeholder:text-[#94A3B8]" 
             />
           </div>
           
-          <select 
-            value={sortBy} 
-            onChange={e => setSortBy(e.target.value as any)}
-            className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 text-[12px] font-medium text-gray-700 outline-none hover:bg-gray-100 hidden sm:block"
-          >
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="az">A-Z</option>
-            <option value="za">Z-A</option>
-            <option value="size">Size</option>
-          </select>
-          
-          <select 
-            value={filterCategory} 
-            onChange={e => setFilterCategory(e.target.value)}
-            className="h-8 bg-gray-50 border border-gray-200 rounded-md px-2 text-[12px] font-medium text-gray-700 outline-none hover:bg-gray-100 hidden sm:block"
-          >
-            <option value="all">All Types</option>
-            <option value="photo">Photos</option>
-            <option value="xray">X-Rays</option>
-            <option value="document">Reports</option>
-          </select>
-          
-          <div className="h-4 w-px bg-gray-200 mx-1" />
-          
-          <div className="flex items-center bg-gray-100 rounded-md p-0.5 border border-gray-200">
-            <button onClick={() => setViewMode("list")} className={cn("p-1 rounded-sm transition-colors", viewMode === "list" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700")}>
-              <List className="w-4 h-4" />
-            </button>
-            <button onClick={() => setViewMode("grid")} className={cn("p-1 rounded-sm transition-colors", viewMode === "grid" ? "bg-white shadow-sm text-gray-900" : "text-gray-500 hover:text-gray-700")}>
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-          </div>
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <CustomSelect 
+              value={sortBy} 
+              onChange={(v) => setSortBy(v as any)}
+              options={[
+                { value: "newest", label: "Newest" },
+                { value: "oldest", label: "Oldest" },
+                { value: "az", label: "A-Z" },
+                { value: "za", label: "Z-A" },
+                { value: "size", label: "Size" },
+              ]}
+              className="flex-1 md:w-28 h-[28px] md:h-8 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md px-2 text-[11px] md:text-xs font-medium text-gray-700 hover:bg-gray-100"
+            />
+            
+            <CustomSelect 
+              value={filterCategory} 
+              onChange={setFilterCategory}
+              options={[
+                { value: "all", label: "All Types" },
+                { value: "photo", label: "Photos" },
+                { value: "xray", label: "X-Rays" },
+                { value: "document", label: "Reports" },
+              ]}
+              className="flex-1 md:w-32 h-[28px] md:h-8 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md px-2 text-[11px] md:text-xs font-medium text-gray-700 hover:bg-gray-100"
+            />
 
-          <div className="h-4 w-px bg-gray-200 mx-1" />
-
-          <button onClick={() => setIsFolderModalOpen(true)} className="h-8 px-3 bg-white border border-gray-200 hover:bg-gray-50 rounded-md text-[13px] font-medium text-gray-700 transition-colors flex items-center gap-1.5 shadow-sm">
-            <FolderPlus className="w-4 h-4" /> New Folder
-          </button>
-          
-          <div className="relative">
-            <button onClick={() => setIsUploadManagerOpen(true)} disabled={!selectedPatientId} className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-[13px] font-medium transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50">
-              <Plus className="w-4 h-4" /> Upload
-            </button>
+            <div className="flex items-center bg-[#F8FAFC] rounded-md p-0.5 border border-[#E2E8F0] shrink-0">
+              <button onClick={() => setViewMode("list")} className={cn("p-1 rounded-sm transition-colors", viewMode === "list" ? "bg-white shadow-sm text-[#0A1628]" : "text-[#94A3B8] hover:text-gray-700")}>
+                <List className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              </button>
+              <button onClick={() => setViewMode("grid")} className={cn("p-1 rounded-sm transition-colors", viewMode === "grid" ? "bg-white shadow-sm text-[#0A1628]" : "text-[#94A3B8] hover:text-gray-700")}>
+                <LayoutGrid className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -466,7 +472,8 @@ export default function AdminFilesPage() {
                 <p className="text-[13px] text-gray-500 mt-1 mb-6">
                   Drag and drop files here, or use the "New" button to upload documents.
                 </p>
-                <button onClick={() => setShowUpload(true)} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-medium rounded-lg shadow-sm transition-colors">
+                <button onClick={() => setIsUploadManagerOpen(true)} className="px-5 py-2.5 bg-gradient-to-r from-[#0A1628] to-[#1a2b45] hover:opacity-90 text-white text-[13px] font-bold rounded-xl shadow-lg shadow-navy/20 transition-all flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-[#C9A84C]" />
                   Upload File
                 </button>
               </div>
