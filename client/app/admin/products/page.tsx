@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative md:overflow-hidden md:h-full">
 
       {/* Page Header */}
       <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
@@ -207,14 +207,14 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Responsive Content Container */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 md:overflow-hidden">
 
           {loading ? (
-            <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200">
+            <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200 min-h-[200px]">
               <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading catalog...
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm">
+            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm min-h-[200px]">
               <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
               <p className="text-[16px] font-bold text-gray-900">No items found</p>
               <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your search or filter, or add a new item.</p>
@@ -222,7 +222,7 @@ export default function AdminProductsPage() {
           ) : (
             <>
               {/* Mobile Card Layout */}
-              <div className="md:hidden flex-1 overflow-y-auto grid grid-cols-2 gap-3 pb-[80px] custom-scrollbar pt-2 px-1">
+              <div className="md:hidden grid grid-cols-2 gap-3 pb-[100px] pt-2 px-1">
                 {filteredProducts.map((p) => (
                   <div 
                     key={p.id} 
