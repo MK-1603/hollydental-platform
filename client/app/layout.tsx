@@ -46,6 +46,7 @@ export const viewport = {
 };
 
 import { DialogProvider } from "@/components/DialogProvider";
+import GoogleOAuthWrapper from "@/components/auth/GoogleOAuthWrapper";
 
 export default function RootLayout({
   children,
@@ -58,16 +59,18 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-white text-navy selection:bg-gold/30"
         suppressHydrationWarning
       >
-        <DialogProvider>
-          <Preloader />
-          <PwaRegister />
-          <OfflineSyncManager />
-          <NotificationManager />
-          {children}
-          <AuthModals />
-          <Toaster />
-          <Chatbot />
-        </DialogProvider>
+        <GoogleOAuthWrapper>
+          <DialogProvider>
+            <Preloader />
+            <PwaRegister />
+            <OfflineSyncManager />
+            <NotificationManager />
+            {children}
+            <AuthModals />
+            <Toaster />
+            <Chatbot />
+          </DialogProvider>
+        </GoogleOAuthWrapper>
       </body>
     </html>
   );
