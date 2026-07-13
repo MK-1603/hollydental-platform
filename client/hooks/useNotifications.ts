@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { requestFirebaseNotificationPermission, onMessageListener } from '../lib/firebase';
+import { requestFirebaseNotificationPermission, onMessageListener } from '@/lib/firebase';
 import { apiRequest } from '@/lib/api';
 import { toast } from '@/lib/toast';
 
@@ -25,11 +25,11 @@ export const useNotifications = () => {
           // Send to backend
           await apiRequest('/notifications/register', {
             method: 'POST',
-            body: {
+            body: JSON.stringify({
               token,
               device,
               browser: navigator.userAgent.substring(0, 50)
-            }
+            })
           });
         }
       } catch (error) {
