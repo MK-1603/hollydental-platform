@@ -111,6 +111,48 @@ router.post("/invoices", verifyToken, requireRole("admin"), async (req, res, nex
   }
 });
 
+// 3.5 PUT Update Invoice (Admin only)
+router.put("/invoices/:id", verifyToken, requireRole("admin"), async (req, res, next) => {
+  if (!requireDb(res)) return;
+  try {
+    const { status } = req.body;
+    const [inv] = await db
+      .select()
+      .from(invoices)
+      .where(eq(invoices.id, req.params.id))
+      .limit(1);
+    
+    if (!inv) return res.status(404).json({ message: "Invoice not found." });
+
+    const updateData = {};
+    if (status) updateData.status = status;
+    
+    // Automatically set or unset paidAt if status changes
+    if (status === "paid" && inv.status !== "paid") updateData.paidAt = new Date();
+    if (status !== "paid" && inv.status === "paid") updateData.paidAt = null;
+
+    if (Object.keys(updateData).length === 0) {
+       return res.status(200).json(inv);
+    }
+
+    const [updated] = await db
+      .update(invoices)
+      .set(updateData)
+      .where(eq(invoices.id, req.params.id))
+      .returning();
+
+    await logActivity(req, "invoice.updated", {
+      targetType: "invoice",
+      targetId: req.params.id,
+      metadata: { invoiceNumber: inv.invoiceNumber, status }
+    });
+
+    return res.status(200).json(updated);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // 4. PUT Mark Invoice as Paid (Admin or Patient who owns it)
 router.put("/invoices/:id/pay", verifyToken, async (req, res, next) => {
   if (!requireDb(res)) return;
