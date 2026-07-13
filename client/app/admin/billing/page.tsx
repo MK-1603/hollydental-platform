@@ -73,8 +73,7 @@ export default function AdminBillingPage() {
 
   // Form State
   const [patientId, setPatientId] = useState("");
-  const [itemDesc, setItemDesc] = useState("");
-  const [itemCost, setItemCost] = useState("");
+  const [lineItems, setLineItems] = useState([{ description: "", price: "" }]);
   const [invoiceStatus, setInvoiceStatus] = useState<Invoice["status"]>("pending");
 
   useEffect(() => {
@@ -119,8 +118,7 @@ export default function AdminBillingPage() {
 
   const handleOpenAdd = () => {
     setSelectedInvoice(null);
-    setItemDesc("");
-    setItemCost("");
+    setLineItems([{ description: "", price: "" }]);
     setIsAdding(true);
     setIsDrawerOpen(true);
   };
@@ -135,8 +133,16 @@ export default function AdminBillingPage() {
 
   const handleSaveInvoice = async () => {
     if (!patientId) return toast.warning("Select a patient.");
-    const cost = parseFloat(itemCost);
-    if (isNaN(cost) || cost <= 0) return toast.warning("Valid cost required.");
+    
+    const validItems = lineItems.map(item => ({
+      description: item.description || "Dental Services",
+      quantity: 1,
+      price: parseFloat(item.price) || 0
+    })).filter(item => item.price > 0);
+
+    if (validItems.length === 0) return toast.warning("At least one valid item cost is required.");
+    
+    const totalCost = validItems.reduce((acc, curr) => acc + curr.price, 0);
     
     setIsSaving(true);
     try {
@@ -145,9 +151,9 @@ export default function AdminBillingPage() {
         body: JSON.stringify({
           patientId,
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          items: [{ description: itemDesc || "Dental Services", quantity: 1, price: cost }],
-          subtotal: cost,
-          totalAmount: cost,
+          items: validItems,
+          subtotal: totalCost,
+          totalAmount: totalCost,
           status: "pending"
         })
       });
@@ -463,13 +469,57 @@ export default function AdminBillingPage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Item Description</label>
-                    <input type="text" value={itemDesc} onChange={e => setItemDesc(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. Routine Dental Checkup" />
-                  </div>
-                  <div>
-                    <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Amount (€) <span className="text-red-500">*</span></label>
-                    <input type="number" step="0.01" value={itemCost} onChange={e => setItemCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-[12px] font-bold text-gray-700">Line Items <span className="text-red-500">*</span></label>
+                      <button 
+                        onClick={() => setLineItems([...lineItems, { description: "", price: "" }])}
+                        className="text-[11px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" /> Add Item
+                      </button>
+                    </div>
+                    {lineItems.map((item, index) => (
+                      <div key={index} className="flex items-start gap-3 relative bg-gray-50 p-3 rounded-[10px] border border-gray-100">
+                        <div className="flex-1 space-y-3">
+                          <div>
+                            <input 
+                              type="text" 
+                              value={item.description} 
+                              onChange={e => {
+                                const newItems = [...lineItems];
+                                newItems[index].description = e.target.value;
+                                setLineItems(newItems);
+                              }} 
+                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" 
+                              placeholder="Description (e.g. Checkup)" 
+                            />
+                          </div>
+                          <div>
+                            <input 
+                              type="number" 
+                              step="0.01" 
+                              value={item.price} 
+                              onChange={e => {
+                                const newItems = [...lineItems];
+                                newItems[index].price = e.target.value;
+                                setLineItems(newItems);
+                              }} 
+                              className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" 
+                              placeholder="Amount (€)" 
+                            />
+                          </div>
+                        </div>
+                        {lineItems.length > 1 && (
+                          <button 
+                            onClick={() => setLineItems(lineItems.filter((_, i) => i !== index))}
+                            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white rounded-[6px] transition-colors shrink-0 mt-0.5"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                   <button onClick={handleSaveInvoice} disabled={isSaving} className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-[10px] text-[14px] font-bold hover:bg-blue-700 hover:shadow-md active:scale-[0.98] transition-all shadow-sm disabled:opacity-50">
                     Create & Send Invoice
