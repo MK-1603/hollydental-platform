@@ -25,6 +25,7 @@ export default function LoginModal() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [processState, setProcessState] = useState<'idle'|'processing'|'success'>('idle');
   const [error, setError] = useState("");
@@ -50,14 +51,24 @@ export default function LoginModal() {
   useEffect(() => {
     if (isLoginModalOpen) {
       let prefilled = "";
+      let remembered = false;
       if (typeof window !== "undefined") {
         try {
           const params = new URLSearchParams(window.location.search);
           const fromUrl = params.get("email");
-          if (fromUrl) prefilled = fromUrl;
+          if (fromUrl) {
+            prefilled = fromUrl;
+          } else {
+            const storedEmail = localStorage.getItem("rememberedEmail");
+            if (storedEmail) {
+              prefilled = storedEmail;
+              remembered = true;
+            }
+          }
         } catch { }
       }
       setEmail(prefilled);
+      setRememberMe(remembered);
       setPassword("");
       setShowPassword(false);
       setError("");
@@ -132,6 +143,11 @@ export default function LoginModal() {
         return;
       }
       login(data.user);
+      if (rememberMe) {
+        localStorage.setItem("rememberedEmail", email);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+      }
       setProcessState('success');
       setTimeout(() => {
         if (onLoginSuccess) onLoginSuccess();
@@ -286,7 +302,7 @@ export default function LoginModal() {
               ) : (
                 <SignInView
                   email={email} password={password} showPassword={showPassword} loading={loading} error={error}
-                  capsLockOn={capsLockOn}
+                  capsLockOn={capsLockOn} rememberMe={rememberMe} onRememberMe={setRememberMe}
                   onEmail={setEmail} onPassword={setPassword} onToggleShow={() => setShowPassword((v: boolean) => !v)}
                   onSubmit={handleLogin} onForgot={() => setLoginModalView("forgot")} onRegister={() => openRegisterModal(onLoginSuccess || undefined)}
                   onGoogleLogin={() => loginWithGoogle()}
@@ -306,7 +322,7 @@ export default function LoginModal() {
 /* -------------------- Views -------------------- */
 
 function SignInView({ 
-  email, password, showPassword, loading, error, capsLockOn,
+  email, password, showPassword, loading, error, capsLockOn, rememberMe, onRememberMe,
   onEmail, onPassword, onToggleShow, onSubmit, onForgot, onRegister, onGoogleLogin, onReactivate 
 }: any) {
   const buttonClass = "w-full bg-[#0F172A] hover:bg-[#1E293B] text-white text-[14px] font-bold py-[14px] rounded-[14px] shadow-[0_2px_4px_rgba(15,23,42,0.06)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.1)] transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed";
@@ -369,7 +385,7 @@ function SignInView({
 
         <div className="flex items-center justify-between mb-[24px]">
           <label className="flex items-center gap-2 cursor-pointer group">
-            <input type="checkbox" className="w-[16px] h-[16px] rounded-[4px] border-[#E2E8F0] text-[#2563EB] focus:ring-[#2563EB]/20 transition-all cursor-pointer" />
+            <input type="checkbox" checked={rememberMe} onChange={(e) => onRememberMe(e.target.checked)} className="w-[16px] h-[16px] rounded-[4px] border-[#E2E8F0] text-[#2563EB] focus:ring-[#2563EB]/20 transition-all cursor-pointer" />
             <span className="text-[13px] font-medium text-[#64748B] group-hover:text-[#0F172A] transition-colors">Remember Me</span>
           </label>
           <button type="button" onClick={onForgot} className="text-[13px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] transition-colors">
