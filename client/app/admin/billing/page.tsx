@@ -198,9 +198,9 @@ export default function AdminBillingPage() {
     <div className="flex flex-col flex-1 bg-[#F8FAFC] relative pb-24 md:pb-10">
       
       {/* Page Header */}
-      <div className="flex items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
+      <div className="flex items-center justify-between gap-2 md:gap-4 p-4 md:p-6 border-b border-gray-200 bg-white sticky top-0 z-20">
         <div className="min-w-0 pr-2">
-          <h1 className="text-[14px] md:text-[20px] font-bold text-gray-900 font-serif whitespace-nowrap overflow-hidden text-ellipsis">Financial Dashboard</h1>
+          <h1 className="text-[13px] md:text-[20px] font-bold text-gray-900 font-serif leading-tight">Financial Dashboard</h1>
           <p className="text-[10px] md:text-[13px] text-gray-500 mt-0.5 md:mt-1 truncate">Manage patient invoices, payments, and revenue insights.</p>
         </div>
         <div className="flex shrink-0">
