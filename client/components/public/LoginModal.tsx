@@ -78,6 +78,43 @@ export default function LoginModal() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setProcessState('processing');
+      setError("");
+      try {
+        const data = await apiRequest("/auth/google", {
+          method: "POST",
+          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
+        });
+        if (data.mustChangePassword) {
+          setLoginModalView("force-change-password");
+          setProcessState('idle');
+          return;
+        }
+        login(data.user);
+        setProcessState('success');
+        setTimeout(() => {
+          if (onLoginSuccess) onLoginSuccess();
+          else if (data.user.role === "admin") router.push("/admin/dashboard");
+          else if (data.user.role === "patient") router.push("/portal/dashboard");
+          closeLoginModal();
+        }, 1500);
+      } catch (err: any) {
+        if (err.message === "ACCOUNT_DEACTIVATED") {
+          setError("ACCOUNT_DEACTIVATED");
+          setProcessState('idle');
+          return;
+        }
+        setError(err.message || "Google authentication failed.");
+        setProcessState('idle');
+      }
+    },
+    onError: () => {
+      setError("Google authentication was cancelled or failed.");
+    }
+  });
+
   if (!isLoginModalOpen) return null;
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -128,43 +165,6 @@ export default function LoginModal() {
       setProcessState('idle');
     }
   };
-
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setProcessState('processing');
-      setError("");
-      try {
-        const data = await apiRequest("/auth/google", {
-          method: "POST",
-          body: JSON.stringify({ accessToken: tokenResponse.access_token }),
-        });
-        if (data.mustChangePassword) {
-          setLoginModalView("force-change-password");
-          setProcessState('idle');
-          return;
-        }
-        login(data.user);
-        setProcessState('success');
-        setTimeout(() => {
-          if (onLoginSuccess) onLoginSuccess();
-          else if (data.user.role === "admin") router.push("/admin/dashboard");
-          else if (data.user.role === "patient") router.push("/portal/dashboard");
-          closeLoginModal();
-        }, 1500);
-      } catch (err: any) {
-        if (err.message === "ACCOUNT_DEACTIVATED") {
-          setError("ACCOUNT_DEACTIVATED");
-          setProcessState('idle');
-          return;
-        }
-        setError(err.message || "Google authentication failed.");
-        setProcessState('idle');
-      }
-    },
-    onError: () => {
-      setError("Google authentication was cancelled or failed.");
-    }
-  });
 
   const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault();
