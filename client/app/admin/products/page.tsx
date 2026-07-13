@@ -7,7 +7,7 @@ import { toast } from "@/lib/toast";
 import { useDialog } from "@/components/DialogProvider";
 import { 
   Search, Plus, Package, Edit3, Trash2, X, Filter, Download, 
-  Image as ImageIcon, RefreshCw, Save, Archive, History, Check, Copy
+  Image as ImageIcon, RefreshCw, Save, Archive, History, Check, Copy, ChevronDown
 } from "lucide-react";
 import { generateTablePDF } from "@/lib/pdf";
 
