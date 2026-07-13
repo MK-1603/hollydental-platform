@@ -241,17 +241,17 @@ export default function NotificationsPage() {
       {/* 1. Page Header (Toolbar & Filters) - STICKY & FIXED */}
       <div className="bg-white border-b border-gray-200 shrink-0 flex flex-col z-40 relative">
         {/* Top Action Bar */}
-        <div className="flex items-center justify-between px-8 py-5">
-          <div className="flex flex-col justify-center">
-            <div className="flex items-center gap-2 mb-1.5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-4 sm:px-8 py-4 sm:py-5 gap-4 md:gap-0">
+          <div className="flex flex-col justify-center min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
               <h1 className="text-[18px] font-semibold text-gray-900 tracking-tight leading-none">Notifications</h1>
               {connectionState === "connecting" && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-100 text-amber-700">Connecting...</span>}
               {connectionState === "disconnected" && <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-red-100 text-red-700">Reconnecting...</span>}
             </div>
-            <p className="text-[13px] text-gray-500 leading-none">System alerts, appointments, billing and clinical updates.</p>
+            <p className="text-[13px] text-gray-500 leading-tight">System alerts, appointments, billing and clinical updates.</p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 self-start md:self-auto w-full md:w-auto">
             {/* Search */}
             <div className="relative hidden md:block">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -278,7 +278,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="px-8 pb-3">
+        <div className="px-4 sm:px-8 pb-3">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             {tabs.map(tab => {
               const isActive = filter === tab.id;

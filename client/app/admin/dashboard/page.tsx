@@ -75,9 +75,18 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="w-full">
+    <div className="pb-6 w-full">
+      {/* Header */}
+      <div className="flex items-start justify-between border-b border-gray-200 py-4 px-4 md:px-6 gap-3">
+        <div className="min-w-0">
+          <h1 className="font-serif text-xl sm:text-2xl font-bold text-navy">Dashboard</h1>
+          <p className="text-gray-500 text-xs mt-1">Overview of your clinic's performance and daily operations.</p>
+        </div>
+      </div>
+
       {/* 12-Column Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div className="px-4 md:px-6 pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
         {/* TOP ROW: KPIs (Each takes 3 cols on desktop) */}
         <div className="md:col-span-3 bg-white rounded-[20px] p-5 shadow-admin-soft border border-gray-100 flex flex-col justify-between h-[120px]">
@@ -134,10 +143,10 @@ export default function AdminDashboardPage() {
 
 
         {/* MIDDLE ROW: Main Chart (8 cols) & Schedule (4 cols) */}
-        <div className="md:col-span-8 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[420px]">
-          <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="md:col-span-8 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[420px] min-w-0">
+          <div className="px-4 sm:px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-[16px] font-bold text-gray-900">Performance Overview</h3>
+              <h3 className="text-[16px] font-serif font-bold text-gray-900">Performance Overview</h3>
               <p className="text-[13px] text-gray-500 mt-1">Monthly financial and clinical metrics</p>
             </div>
             <div className="flex items-center gap-1 bg-gray-50 p-1 rounded-lg border border-gray-200/60">
@@ -200,10 +209,10 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        <div className="md:col-span-4 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[420px]">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+        <div className="md:col-span-4 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[420px] min-w-0">
+          <div className="px-4 sm:px-6 py-5 border-b border-gray-100 flex items-center justify-between">
              <div>
-               <h3 className="text-[16px] font-bold text-gray-900">Today's Schedule</h3>
+               <h3 className="text-[16px] font-serif font-bold text-gray-900">Today's Schedule</h3>
                <p className="text-[13px] text-gray-500 mt-1">Next upcoming appointments</p>
              </div>
              <Link href="/admin/appointments" className="text-[13px] font-semibold text-blue-600 hover:text-blue-700">View All</Link>
@@ -242,10 +251,10 @@ export default function AdminDashboardPage() {
 
 
         {/* BOTTOM ROW: Activity (6 cols) & Side widgets (6 cols split) */}
-        <div className="md:col-span-6 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[400px]">
-          <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+        <div className="md:col-span-6 bg-white rounded-[20px] shadow-admin-soft border border-gray-100 flex flex-col h-[400px] min-w-0">
+          <div className="px-4 sm:px-6 py-5 border-b border-gray-100 flex items-center justify-between">
              <div>
-               <h3 className="text-[16px] font-bold text-gray-900">Recent Activity</h3>
+               <h3 className="text-[16px] font-serif font-bold text-gray-900">Recent Activity</h3>
                <p className="text-[13px] text-gray-500 mt-1">Latest actions across the platform</p>
              </div>
           </div>
@@ -282,7 +291,7 @@ export default function AdminDashboardPage() {
         <div className="md:col-span-3 flex flex-col gap-6">
           {/* System Health */}
           <div className="bg-white rounded-[20px] shadow-admin-soft border border-gray-100 p-6 flex-1 flex flex-col">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-4">System Health</h3>
+            <h3 className="text-[15px] font-serif font-bold text-gray-900 mb-4">System Health</h3>
             <div className="space-y-4 flex-1">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -321,7 +330,7 @@ export default function AdminDashboardPage() {
         <div className="md:col-span-3 flex flex-col gap-6">
           {/* Quick Actions */}
           <div className="bg-white rounded-[20px] shadow-admin-soft border border-gray-100 p-6 flex-1 flex flex-col">
-            <h3 className="text-[15px] font-bold text-gray-900 mb-4">Quick Actions</h3>
+            <h3 className="text-[15px] font-serif font-bold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-2 gap-3 flex-1">
               <Link href="/admin/patients/new" className="flex flex-col items-center justify-center gap-2 p-4 bg-blue-50 hover:bg-blue-100 border border-blue-100 rounded-xl transition-colors text-blue-700">
                 <UserPlus className="w-5 h-5" />
@@ -343,6 +352,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        </div>
       </div>
     </div>
   );

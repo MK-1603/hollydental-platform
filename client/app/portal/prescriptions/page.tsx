@@ -42,7 +42,7 @@ export default function PatientPrescriptionsPage() {
   const [selectedRx, setSelectedRx] = useState<Prescription | null>(null);
 
   return (
-    <div className="space-y-6 font-sans pb-12 max-w-5xl mx-auto px-1 select-none">
+    <div className="space-y-6 font-sans pb-12 max-w-5xl mr-auto px-1 xl:px-4 select-none">
       
       {/* ── Header Bar ── */}
       <header className="flex items-center justify-between border-b border-gray-250 pb-4 gap-3">
@@ -81,7 +81,7 @@ export default function PatientPrescriptionsPage() {
           ))}
         </div>
       ) : prescriptions.length === 0 ? (
-        <div className="border border-gray-250/60 rounded-3xl bg-white p-16 text-center max-w-md mx-auto mt-6 space-y-4 shadow-2xs">
+        <div className="border border-gray-250/60 rounded-3xl bg-white p-16 text-center max-w-md mr-auto mt-6 space-y-4 shadow-2xs">
           <div className="w-14 h-14 rounded-2xl bg-gold/10 text-gold mx-auto flex items-center justify-center border border-gold/15 shadow-inner">
             <ClipboardList className="w-6 h-6 text-gold" />
           </div>

@@ -181,14 +181,14 @@ export default function AdminPrescriptionsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="pb-6 w-full">
       {/* Header */}
-      <div className="flex items-start justify-between border-b border-gray-200 pb-4 gap-3">
+      <div className="flex flex-col md:flex-row md:items-start justify-between border-b border-gray-200 py-4 px-4 md:px-6 gap-3">
         <div className="min-w-0">
           <h1 className="font-serif text-xl sm:text-2xl font-bold text-navy">Prescriptions Manager</h1>
           <p className="text-gray-500 text-xs mt-1">Generate drug scripts, pre-fill template dosages, and send to patient portals.</p>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex gap-2 shrink-0 self-start md:self-auto">
           <button
             onClick={() => setShowForm(true)}
             disabled={patients.length === 0}
@@ -204,6 +204,7 @@ export default function AdminPrescriptionsPage() {
         </div>
       </div>
 
+      <div className="px-4 md:px-6 pt-6 space-y-6">
       {/* List */}
       {loading && prescriptions.length === 0 ? (
         <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-24 shimmer rounded-2xl" />)}</div>
@@ -275,6 +276,7 @@ export default function AdminPrescriptionsPage() {
           ))}
         </div>
       )}
+      </div>
 
       {/* ─── View Modal ─── */}
       {viewRx && (

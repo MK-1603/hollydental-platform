@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import PortalSidebar from "@/components/portal/PortalSidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, CalendarDays, MessageSquare, User, Bell, LogOut, Menu, Heart, Send, Activity, X } from "lucide-react";
+import PortalBrand from "@/components/portal/PortalBrand";
+import { LayoutDashboard, CalendarDays, MessageSquare, User, Bell, LogOut, Menu, Heart, Send, Activity, X, Phone } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import SessionWatcher from "@/components/auth/SessionWatcher";
 import PushToggle from "@/components/common/PushToggle";
@@ -113,50 +114,68 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
       <div className="flex-1 flex flex-col min-w-0 h-full">
         {/* Fixed header */}
-        <header className="h-[60px] bg-white border-b border-gray-100 flex items-center justify-between px-4 xl:px-6 shrink-0 sticky top-0 z-30">
-          <div className="flex items-center gap-2.5">
+        <header className="h-[68px] bg-white/80 backdrop-blur-xl border-b border-gray-200/50 flex items-center justify-between px-5 xl:px-8 shrink-0 sticky top-0 z-30 transition-all">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="xl:hidden p-1.5 rounded-lg hover:bg-gray-100 text-navy transition-colors focus:outline-none"
+              className="xl:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-600 transition-colors focus:outline-none active:scale-95"
               aria-label="Toggle Sidebar"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="font-serif text-sm font-bold text-navy">Patient Portal</span>
+            <div className="xl:hidden">
+              <PortalBrand size={24} asLink={false} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <a 
+              href="tel:+353214303072" 
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#F4FBFF] text-[#009BDE] font-semibold text-[13.5px] tracking-wide border border-[#D2EAF8] shadow-sm shadow-[#009BDE]/5 hover:bg-[#EAF6FD] hover:border-[#BCE0F5] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all"
+            >
+              <Phone className="w-[18px] h-[18px]" strokeWidth={2.2} /> Call
+            </a>
+
             <PushToggle />
 
-            <Link href="/portal/notifications" className="relative p-1.5 rounded-full hover:bg-gray-100 transition-colors" aria-label="Notifications">
-              <Bell className="w-5 h-5 text-navy" />
+            <Link 
+              href="/portal/notifications" 
+              className="relative w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 hover:text-navy transition-all active:scale-95" 
+              aria-label="Notifications"
+            >
+              <Bell className="w-5 h-5" strokeWidth={2} />
               {unreadNotifsCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-gold text-navy text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center border-2 border-white animate-pulse">
+                <span className="absolute top-1.5 right-1.5 bg-[#EF4444] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm border border-white">
                   {unreadNotifsCount}
                 </span>
               )}
             </Link>
 
-            <a href="tel:+353214303072" className="hidden sm:inline-flex items-center gap-1 text-gold font-bold text-xs bg-gold/10 px-3 py-1.5 rounded-full hover:bg-gold/20 transition-all whitespace-nowrap">
-              📞 Call
-            </a>
+            <div className="h-7 w-[1px] bg-gray-200 hidden sm:block rounded-full" />
 
-            <div className="flex items-center gap-2 border-l border-gray-100 pl-2 sm:pl-3">
-              <div className="hidden md:block text-right">
-                <span className="block text-xs font-bold text-navy whitespace-nowrap">
+            <div className="flex items-center gap-3 sm:gap-4 pl-1">
+              <div className="hidden md:flex flex-col items-end justify-center">
+                <span className="text-[13px] font-bold text-navy leading-tight tracking-wide">
                   {user.patientProfile?.firstName} {user.patientProfile?.lastName}
                 </span>
-                <span className="block text-[9px] text-gold font-bold uppercase tracking-wider">Patient</span>
+                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">
+                  Patient
+                </span>
               </div>
-              <Link href="/portal/profile" className="w-8 h-8 rounded-full bg-gold/20 text-navy flex items-center justify-center font-bold text-xs border border-gold/40 shrink-0 select-none hover:bg-gold/30 transition-colors">
+              
+              <Link 
+                href="/portal/profile" 
+                className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#009BDE] to-[#60C6FF] text-white flex items-center justify-center font-bold text-[13px] shadow-sm shadow-[#009BDE]/20 hover:shadow-md hover:scale-105 transition-all select-none border border-[#009BDE]/10"
+              >
                 {((user.patientProfile?.firstName?.[0] || "") + (user.patientProfile?.lastName?.[0] || "")).toUpperCase() || "P"}
               </Link>
+              
               <button
                 onClick={() => performLogoutTransition(router)}
-                className="p-1.5 rounded-full hover:bg-red-50 text-red-500 transition-colors border border-red-100 hover:border-red-200 shrink-0"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:bg-[#FEF2F2] hover:text-[#EF4444] transition-colors active:scale-95"
                 title="Sign Out"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-5 h-5" strokeWidth={2} />
               </button>
             </div>
           </div>

@@ -320,10 +320,10 @@ export default function AdminFilesPage() {
       )}
 
       {/* Toolbar */}
-      <div className="h-14 border-b border-gray-200 flex items-center justify-between px-4 shrink-0 bg-white">
+      <div className="border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between p-4 gap-4 shrink-0 bg-white">
         
         {/* Left: Patient Selector & Breadcrumb */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto overflow-hidden">
           <select
             value={selectedPatientId}
             onChange={(e) => { setSelectedPatientId(e.target.value); setCurrentPath(""); }}
@@ -359,15 +359,15 @@ export default function AdminFilesPage() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
-          <div className="relative group">
+        <div className="flex items-center gap-2 flex-wrap w-full md:w-auto">
+          <div className="relative group flex-1 md:flex-none min-w-[120px]">
             <Search className="w-4 h-4 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input 
               type="text" 
               placeholder="Search files..." 
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 pl-8 pr-3 h-8 bg-gray-50 border border-gray-200 rounded-md text-[13px] focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400" 
+              className="w-full md:w-48 pl-8 pr-3 h-8 bg-gray-50 border border-gray-200 rounded-md text-[13px] focus:bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-gray-400" 
             />
           </div>
           

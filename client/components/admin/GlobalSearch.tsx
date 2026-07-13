@@ -123,18 +123,18 @@ export default function GlobalSearch() {
   const showDropdown = isFocused;
 
   return (
-    <div className="relative w-full max-w-[560px] hidden md:block" ref={containerRef}>
+    <div className="relative w-full hidden md:block" ref={containerRef}>
       <div 
-        className={`flex items-center gap-2.5 px-3.5 h-[40px] border transition-all shadow-sm ${
+        className={`flex items-center gap-3 px-4 h-[44px] border transition-all duration-200 ${
           isFocused 
-            ? "bg-white border-blue-500 ring-4 ring-blue-500/10 rounded-t-[12px] rounded-b-none" 
-            : "bg-gray-50/50 hover:bg-gray-100/80 border-gray-200 hover:border-gray-300 rounded-[12px]"
+            ? "bg-white border-blue-500 shadow-[0_4px_20px_-4px_rgba(59,130,246,0.15)] rounded-t-[14px] rounded-b-none" 
+            : "bg-gray-50/80 hover:bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm shadow-sm rounded-[14px]"
         }`}
       >
         {isSearching ? (
-          <Loader2 className="w-4 h-4 shrink-0 text-blue-500 animate-spin" />
+          <Loader2 className="w-[18px] h-[18px] shrink-0 text-blue-500 animate-spin" />
         ) : (
-          <Search className={`w-4 h-4 shrink-0 transition-colors ${isFocused ? "text-blue-500" : "text-gray-400"}`} />
+          <Search className={`w-[18px] h-[18px] shrink-0 transition-colors ${isFocused ? "text-blue-500" : "text-gray-400"}`} />
         )}
         
         <input
@@ -145,7 +145,7 @@ export default function GlobalSearch() {
           onFocus={() => setIsFocused(true)}
           onKeyDown={handleInputKeyDown}
           placeholder="Search patients, appointments, invoices, prescriptions..."
-          className="flex-1 bg-transparent text-[13px] text-gray-900 placeholder-gray-400 focus:outline-none"
+          className="flex-1 bg-transparent text-[14px] text-gray-900 placeholder-gray-400 focus:outline-none"
         />
         
         {query.length > 0 && (
@@ -163,13 +163,13 @@ export default function GlobalSearch() {
         
         {!isFocused && query.length === 0 && (
           <div className="ml-auto flex items-center gap-1 shrink-0 pointer-events-none">
-            <kbd className="px-2 py-0.5 rounded-[4px] bg-white border border-gray-200 text-[10px] font-semibold text-gray-500 shadow-sm">⌘ K</kbd>
+            <kbd className="px-2 py-1 rounded-[6px] bg-white border border-gray-200 text-[11px] font-semibold text-gray-500 shadow-sm">⌘ K</kbd>
           </div>
         )}
       </div>
 
       {showDropdown && (
-        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 border-t-0 rounded-b-[12px] shadow-xl z-50 flex flex-col overflow-hidden max-h-[420px]">
+        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 border-t-0 rounded-b-[14px] shadow-xl z-50 flex flex-col overflow-hidden max-h-[420px]">
           <div ref={scrollRef} className="overflow-y-auto custom-scrollbar p-1.5 flex-1">
             
             {query.length >= 2 ? (

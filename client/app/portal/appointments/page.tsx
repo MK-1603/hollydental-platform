@@ -99,7 +99,7 @@ export default function PortalAppointmentsPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-blue-900 rounded-2xl p-6 text-white shadow-xl">
+      <div className="relative overflow-hidden bg-[#0A1628] border border-gray-800 rounded-3xl p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-48 h-48 bg-gold/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none" />
         <div className="relative flex items-start justify-between gap-3">

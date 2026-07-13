@@ -9,6 +9,10 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import BeforeAfterSlider from "@/components/public/BeforeAfterSlider";
 import Testimonials3D from "@/components/public/Testimonials3D";
+import { GlowCard } from "@/components/ui/spotlight-card";
+import { GooeyText } from "@/components/ui/gooey-text-morphing";
+import IntroAnimation from "@/components/ui/scroll-morph-hero";
+import { motion } from "framer-motion";
 
 /* -------------------- 3D Scroll Animation Wrapper -------------------- */
 function Scroll3D({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -420,49 +424,76 @@ export default function HomeClient() {
       <Scroll3D>
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="text-center space-y-3 max-w-3xl mx-auto">
-            <h2 className="font-serif text-3xl font-bold text-navy tracking-tight leading-tight">
-              Patient-Centered Excellence
-            </h2>
+            <div className="h-16 flex items-center justify-center -mt-2 mb-4">
+              <GooeyText
+                texts={["Patient-Centered", "Excellence"]}
+                morphTime={1.5}
+                cooldownTime={2.5}
+                textClassName="!text-4xl md:!text-5xl font-serif font-bold text-navy tracking-tight leading-tight"
+                className="w-full font-serif"
+              />
+            </div>
             <p className="text-gray-500 text-xs md:text-sm max-w-xl mx-auto leading-relaxed font-light">
               We believe dental care should be more than just procedures. It's about building relationships based on trust, comfort, and exceptional results.
             </p>
           </div>
 
           {/* Feature Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 overflow-hidden">
 
             {/* Card 1 */}
-            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <Heart className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Compassionate Care</h3>
-              <p className="text-xs text-gray-500 leading-relaxed font-light">
-                Our team is dedicated to making every clinical step easy, quiet, and pain-free for children and adults alike.
-              </p>
-            </div>
+            <motion.div
+              initial={{ x: 150, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0 }}
+            >
+              <GlowCard customSize className="group h-full bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Heart className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Compassionate Care</h3>
+                <p className="text-xs text-gray-500 leading-relaxed font-light">
+                  Our team is dedicated to making every clinical step easy, quiet, and pain-free for children and adults alike.
+                </p>
+              </GlowCard>
+            </motion.div>
 
             {/* Card 2 */}
-            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <Activity className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Advanced Tech</h3>
-              <p className="text-xs text-gray-500 leading-relaxed font-light">
-                From low-radiation digital x-rays to intraoral imaging, we select advanced technology to guarantee accuracy and minimize discomfort.
-              </p>
-            </div>
+            <motion.div
+              initial={{ x: 150, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+            >
+              <GlowCard customSize className="group h-full bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Activity className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Advanced Tech</h3>
+                <p className="text-xs text-gray-500 leading-relaxed font-light">
+                  From low-radiation digital x-rays to intraoral imaging, we select advanced technology to guarantee accuracy and minimize discomfort.
+                </p>
+              </GlowCard>
+            </motion.div>
 
             {/* Card 3 */}
-            <div className="group bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Tailored Plans</h3>
-              <p className="text-xs text-gray-500 leading-relaxed font-light">
-                No two smiles are the same. We develop custom treatment plans that align with your oral health goals and budget.
-              </p>
-            </div>
+            <motion.div
+              initial={{ x: 150, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.6 }}
+            >
+              <GlowCard customSize className="group h-full bg-white rounded-[28px] border border-[#E7ECF2] p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 flex flex-col gap-5 items-start hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-[#1E73BE]/10 text-[#1E73BE] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-navy uppercase tracking-wider">Tailored Plans</h3>
+                <p className="text-xs text-gray-500 leading-relaxed font-light">
+                  No two smiles are the same. We develop custom treatment plans that align with your oral health goals and budget.
+                </p>
+              </GlowCard>
+            </motion.div>
           </div>
         </section>
       </Scroll3D>
@@ -490,110 +521,9 @@ export default function HomeClient() {
             </Link>
           </div>
 
-          {/* Masonry Layout Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-
-            {/* Card 1: General Dentistry */}
-            <div
-              onClick={() => router.push("/services/general-dentistry")}
-              className="lg:col-span-2 group relative rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2] h-[300px] cursor-pointer"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&q=80&w=800"
-                alt="General Dentistry Room"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
-                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-white bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1 rounded-full inline-block">
-                  PREVENTATIVE
-                </span>
-                <h3 className="font-serif text-2xl font-bold">General Dentistry</h3>
-                <p className="text-gray-200 text-sm leading-relaxed max-w-lg font-light line-clamp-2">
-                  Routine check-ups, fillings, and cleanings to maintain your healthy smile.
-                </p>
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white group-hover:underline mt-2">
-                  Learn More <ArrowRight className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Card 2: Cosmetic Dentistry */}
-            <div
-              onClick={() => router.push("/services/teeth-whitening")}
-              className="lg:col-span-1 group relative rounded-[28px] overflow-hidden cursor-pointer h-[300px] shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2]"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&q=80&w=600"
-                alt="Cosmetic Dentistry"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/60 to-[#102D52]/20" />
-
-              <div className="absolute inset-0 p-8 flex flex-col justify-end text-white space-y-3">
-                <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mb-2 border border-white/20">
-                  <Smile className="w-5 h-5 text-white" />
-                </div>
-                <h3 className="font-serif text-2xl font-bold">Cosmetic</h3>
-                <p className="text-white/90 text-sm leading-relaxed font-light">
-                  Veneers, whitening, and bonding for a radiant appearance.
-                </p>
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white group-hover:underline mt-2">
-                  View Treatments <ArrowRight className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Card 3: Dental Implants */}
-            <div
-              onClick={() => router.push("/services/dental-crowns")}
-              className="lg:col-span-1 group relative rounded-[28px] overflow-hidden shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] border border-[#E7ECF2] h-[260px] cursor-pointer"
-            >
-              <img
-                src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=600"
-                alt="Dental Implants"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#102D52] via-[#102D52]/40 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3 text-white">
-                <h3 className="font-serif text-2xl font-bold">
-                  Implants
-                </h3>
-                <p className="text-gray-200 text-sm leading-relaxed font-light">
-                  Permanent, natural-looking replacements for missing teeth.
-                </p>
-                <span className="inline-flex items-center gap-2 text-sm font-semibold text-white mt-1 group-hover:underline">
-                  Learn More <ArrowRight className="w-4 h-4" />
-                </span>
-              </div>
-            </div>
-
-            {/* Card 4: Pediatric & Kids Dentistry */}
-            <div
-              onClick={() => router.push("/childrens-dentistry")}
-              className="lg:col-span-2 group rounded-[28px] p-8 bg-white border border-[#E7ECF2] grid grid-cols-1 md:grid-cols-12 gap-8 items-center h-[260px] shadow-[0_12px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_80px_rgba(15,23,42,0.08)] transition-all duration-300 cursor-pointer"
-            >
-              <div className="md:col-span-8 space-y-4">
-                <h3 className="font-serif text-2xl font-bold text-navy">Pediatric Care</h3>
-                <p className="text-gray-500 text-sm leading-relaxed font-light">
-                  A calm, fear-free environment specialized for the littlest smiles in your family. We make dental care simple and comfortable.
-                </p>
-                <button className="bg-navy hover:bg-[#173B6D] text-white font-semibold py-3 px-8 rounded-full text-sm shadow-md hover:-translate-y-1 transition-all duration-300 mt-2">
-                  Schedule Child's Program
-                </button>
-              </div>
-
-              <div className="md:col-span-4 flex justify-center">
-                <div className="w-32 h-32 rounded-full border border-[#E7ECF2] shadow-sm overflow-hidden bg-white shrink-0 group-hover:scale-105 transition-transform duration-500">
-                  <img
-                    src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=400"
-                    alt="Child patient smiling"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-
+          {/* Scrolling Services Animation */}
+          <div className="w-full h-[500px] md:h-[600px] mt-8 relative border border-[#E7ECF2] rounded-[28px] shadow-[0_12px_40px_rgba(15,23,42,0.06)] bg-white">
+            <IntroAnimation />
           </div>
         </section>
       </Scroll3D>
@@ -760,7 +690,13 @@ export default function HomeClient() {
               </p>
 
               <div className="space-y-8 pt-4">
-                <div className="flex items-start gap-5">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 1.2, ease: "easeOut", delay: 0 }}
+                  className="flex items-start gap-5"
+                >
                   <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
                     <Activity className="w-5 h-5 text-white" />
                   </div>
@@ -768,9 +704,15 @@ export default function HomeClient() {
                     <h4 className="text-base font-semibold text-white leading-none">Digital Low-Radiation X-Rays</h4>
                     <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Safe and detailed view that exposes a tiny fraction of standard x-ray radiation.</p>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-start gap-5">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+                  className="flex items-start gap-5"
+                >
                   <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
                     <Smile className="w-5 h-5 text-white" />
                   </div>
@@ -778,9 +720,15 @@ export default function HomeClient() {
                     <h4 className="text-base font-semibold text-white leading-none">Advanced Laser Therapy</h4>
                     <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Painless gum treatment and cavity preparation without the drill.</p>
                   </div>
-                </div>
+                </motion.div>
 
-                <div className="flex items-start gap-5">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.6 }}
+                  className="flex items-start gap-5"
+                >
                   <div className="w-12 h-12 rounded-full bg-[#1E73BE]/20 border border-[#1E73BE]/30 flex items-center justify-center text-[#1E73BE] shrink-0">
                     <Activity className="w-5 h-5 text-white" />
                   </div>
@@ -788,7 +736,7 @@ export default function HomeClient() {
                     <h4 className="text-base font-semibold text-white leading-none">Intraoral 3D Scanning</h4>
                     <p className="text-sm text-white/70 mt-2 leading-relaxed font-light">Say goodbye to messy impressions. High-speed 3D digital smile mapping.</p>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
 

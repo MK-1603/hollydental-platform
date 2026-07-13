@@ -189,23 +189,23 @@ export default function AdminBillingPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
+    <div className="flex flex-col flex-1 bg-[#F8FAFC] relative pb-24 md:pb-10">
       
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
-        <div>
+        <div className="mb-4 md:mb-0">
           <h1 className="text-[20px] font-bold text-gray-900 font-serif">Financial Dashboard</h1>
           <p className="text-[13px] text-gray-500 mt-1">Manage patient invoices, payments, and revenue insights.</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={handleOpenAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleOpenAdd} className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Create Invoice
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="flex flex-col p-4 sm:p-6 min-w-0">
         
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 shrink-0">
@@ -251,12 +251,12 @@ export default function AdminBillingPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap items-center p-1 bg-gray-100 rounded-[10px] shadow-inner mb-4 self-start">
+        <div className="flex overflow-x-auto w-full sm:w-max custom-scrollbar items-center p-1 bg-gray-100 rounded-[10px] shadow-inner mb-4">
           {["all", "paid", "pending", "overdue"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-[12px] font-bold rounded-[8px] transition-all capitalize ${
+              className={`px-4 py-1.5 text-[12px] whitespace-nowrap font-bold rounded-[8px] transition-all capitalize shrink-0 ${
                 activeTab === tab 
                   ? "bg-white text-blue-600 shadow-sm" 
                   : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
@@ -268,8 +268,8 @@ export default function AdminBillingPage() {
         </div>
 
         {/* Robust Table */}
-        <div className="flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-          <div className="overflow-x-auto flex-1 custom-scrollbar">
+        <div className="bg-white border border-gray-200 rounded-[16px] shadow-sm flex flex-col h-auto w-full min-w-0">
+          <div className="overflow-x-auto w-full custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
                 <tr>

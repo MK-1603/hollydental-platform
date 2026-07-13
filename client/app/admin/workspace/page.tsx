@@ -469,7 +469,7 @@ export default function ClinicalWorkspace() {
       {/* ── 1. Center Workspace (Editor) ── */}
       <div className="flex-1 lg:w-[70%] flex flex-col relative h-full bg-white z-20 overflow-hidden shadow-[1px_0_10px_rgba(0,0,0,0.03)] border-r border-gray-200">
         {/* Header */}
-        <header className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-4 items-center px-4 md:px-6 py-3 border-b border-gray-200 bg-white z-30 shrink-0 w-full min-h-[64px]">
+        <header className="flex flex-col xl:flex-row gap-4 xl:items-center justify-between px-4 md:px-6 py-4 border-b border-gray-200 bg-white z-30 shrink-0 w-full min-h-[64px]">
           {/* LEFT: Patient Context */}
           <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 -ml-1.5 rounded-[12px] transition-colors border border-transparent hover:border-gray-200" onClick={() => setShowPatientSwitcher(true)}>
             {patientData ? (
@@ -496,10 +496,10 @@ export default function ClinicalWorkspace() {
           </div>
 
           {/* RIGHT: Actions & Tools */}
-          <div className="flex items-center gap-3 shrink-0 overflow-x-auto no-scrollbar w-full xl:w-auto">
-            <div className="relative shrink-0 group">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0 w-full xl:w-auto">
+            <div className="relative shrink-0 flex-1 sm:flex-none">
               <FileText className="w-4 h-4 text-gray-400 group-hover:text-gray-600 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors" />
-              <select value={activeTool} onChange={(e) => setActiveTool(e.target.value)} className="appearance-none pl-9 pr-8 h-[36px] w-[160px] bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-[10px] text-[14px] font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm cursor-pointer transition-all">
+              <select value={activeTool} onChange={(e) => setActiveTool(e.target.value)} className="appearance-none pl-9 pr-8 h-[44px] sm:h-[36px] w-full sm:w-[160px] bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-[10px] text-[14px] font-medium text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm cursor-pointer transition-all">
                 {ALL_TOOLS.map(t => (
                   <option key={t.id} value={t.id}>{t.label}</option>
                 ))}
@@ -510,24 +510,23 @@ export default function ClinicalWorkspace() {
             <div className="w-[1px] h-[20px] bg-gray-200 shrink-0 hidden md:block mx-1" />
 
             <div className="flex items-center gap-2 shrink-0">
-              <button onClick={handleCopy} className="h-[36px] w-[36px] flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Copy to Clipboard">
+              <button onClick={handleCopy} className="h-[44px] w-[44px] sm:h-[36px] sm:w-[36px] flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Copy to Clipboard">
                 <Copy className="w-4 h-4" />
               </button>
-              <button onClick={handleExport} className="h-[36px] w-[36px] flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Export PDF">
+              <button onClick={handleExport} className="h-[44px] w-[44px] sm:h-[36px] sm:w-[36px] flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Export PDF">
                 <FileDown className="w-4 h-4" />
               </button>
-              <button onClick={() => setShowHistoryDrawer(true)} className="h-[36px] w-[36px] hidden md:flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Version History">
+              <button onClick={() => setShowHistoryDrawer(true)} className="h-[44px] w-[44px] sm:h-[36px] sm:w-[36px] hidden md:flex items-center justify-center text-gray-500 hover:text-gray-900 bg-white border border-gray-200 hover:border-gray-300 shadow-sm rounded-[10px] hover:bg-gray-50 active:bg-gray-100 transition-all" title="Version History">
                 <History className="w-4 h-4" />
+              </button>
+              <button onClick={() => setMobileDrawer("right")} className="lg:hidden h-[44px] w-[44px] flex items-center justify-center text-gray-500 hover:text-gray-900 border border-gray-200 bg-white rounded-[10px] shrink-0 shadow-sm">
+                <Users className="w-4 h-4" />
               </button>
             </div>
 
-            <button onClick={() => handleSave(false)} disabled={isSaving} className="h-[36px] w-[140px] text-[14px] font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-[10px] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 shrink-0 ml-1">
+            <button onClick={() => handleSave(false)} disabled={isSaving} className="h-[44px] sm:h-[36px] w-full sm:w-[140px] text-[14px] font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-[10px] shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 shrink-0 mt-2 sm:mt-0">
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {isSaving ? "Saving..." : "Save Record"}
-            </button>
-            
-            <button onClick={() => setMobileDrawer("right")} className="lg:hidden h-[36px] w-[36px] flex items-center justify-center text-gray-500 hover:text-gray-900 border border-gray-200 bg-white rounded-[10px] shrink-0 shadow-sm">
-              <Users className="w-4 h-4" />
             </button>
           </div>
         </header>

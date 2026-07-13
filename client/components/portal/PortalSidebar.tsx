@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
-import Logo from "@/components/public/Logo";
-import { LayoutDashboard, CalendarDays, History, FolderOpen, MessageSquare, User, LogOut, ClipboardList, Receipt, Bell, ShoppingBag, PackageCheck, X, Heart, HeartPulse } from "lucide-react";
+import PortalBrand from "@/components/portal/PortalBrand";
+import { LayoutDashboard, CalendarDays, History, FolderOpen, MessageSquare, User, LogOut, ClipboardList, Receipt, Bell, ShoppingBag, PackageCheck, X, Heart, HeartHandshake } from "lucide-react";
 
 interface PortalSidebarProps {
   isOpen?: boolean;
@@ -135,7 +135,7 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
             className="flex items-center min-w-0"
             onClick={onClose}
           >
-            <Logo variant="full" theme="dark" size={40} asLink={false} />
+            <PortalBrand size={32} asLink={false} />
           </Link>
           {onClose && (
             <button
@@ -152,24 +152,24 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
         <Link
           href="/portal/ai"
           onClick={(e) => handleNavClick(e, "/portal/ai")}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 border transition-all shrink-0 ${
+          className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl mb-6 border transition-all shrink-0 ${
             pathname.startsWith("/portal/ai")
-              ? "bg-gold text-navy border-gold shadow-lg shadow-gold/20"
-              : "bg-gold/10 hover:bg-gold/20 text-navy border-gold/20 hover:border-gold/40"
+              ? "bg-[#009BDE] text-white border-[#009BDE] shadow-xl shadow-[#009BDE]/20"
+              : "bg-[#F4FBFF] hover:bg-[#EAF6FD] text-navy border-[#E4F4FD] hover:border-[#D2EAF8]"
           }`}
         >
-          <div className="w-7 h-7 rounded-lg bg-gold/20 flex items-center justify-center shrink-0">
-            <HeartPulse className="w-3.5 h-3.5 text-gold" />
+          <div className="w-8 h-8 rounded-xl bg-[#DDF0FB] flex items-center justify-center shrink-0">
+            <HeartHandshake className="w-4 h-4 text-[#009BDE]" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-navy truncate">Clinical Support</p>
-            <p className="text-[9px] text-gray-500 truncate">Ask about your care</p>
+            <p className="text-[13px] font-bold text-navy truncate tracking-wide">Clinical Support</p>
+            <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">Ask about your care</p>
           </div>
-          <HeartPulse className="w-3.5 h-3.5 text-gold shrink-0" />
+          <HeartHandshake className="w-4 h-4 text-[#009BDE] shrink-0 opacity-80" />
         </Link>
 
         {/* Nav List */}
-        <nav className="flex-1 space-y-1 overflow-y-auto pr-1 no-scrollbar mb-6">
+        <nav className="flex-1 space-y-2 overflow-y-auto pr-1 no-scrollbar mb-6">
           {navItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
             const Icon = item.icon;
@@ -196,19 +196,20 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
                 prefetch
                 onClick={(e) => handleNavClick(e, item.href)}
                 aria-busy={pendingHref === item.href}
-                className={`relative flex items-center gap-3.5 px-4 py-3 rounded-lg text-xs font-semibold tracking-wide transition-all ${
+                className={`relative flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13.5px] font-semibold tracking-wide transition-all overflow-hidden ${
                   isActive
-                    ? "text-gold bg-gold/5 border-l-4 border-gold pl-3"
+                    ? "text-[#009BDE] bg-[#F7FCFF] before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:bg-[#009BDE] before:rounded-r-full"
                     : pendingHref === item.href
-                    ? "text-gold bg-gold/10"
-                    : "text-navy hover:text-gold hover:bg-gray-50"
+                    ? "text-[#009BDE] bg-[#F7FCFF]"
+                    : "text-[#1C3B5E] hover:text-[#009BDE] hover:bg-[#FAFDFF]"
                 }`}
               >
                 <Icon
-                  className={`w-4 h-4 ${
+                  strokeWidth={2.2}
+                  className={`w-[18px] h-[18px] ${
                     isActive || pendingHref === item.href
-                      ? "text-gold"
-                      : "text-navy"
+                      ? "text-[#009BDE]"
+                      : "text-[#4A6482]"
                   } ${
                     pendingHref === item.href && isPending ? "animate-pulse" : ""
                   }`}
@@ -227,25 +228,26 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
         </nav>
 
         {/* User profile & Logout */}
-        <div className="border-t border-gray-100 pt-6 mt-auto space-y-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center font-bold text-gold text-xs">
+        <div className="pt-6 mt-auto shrink-0 flex flex-col gap-4">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-10 h-10 rounded-full bg-[#EAF6FD] border border-[#DDF0FB] flex items-center justify-center font-bold text-[#009BDE] text-sm shadow-sm">
               {user?.patientProfile?.firstName?.[0] || "P"}
             </div>
             <div className="truncate">
-              <span className="block text-xs font-bold text-navy truncate">
-                {user?.patientProfile?.firstName} {user?.patientProfile?.lastName}
+              <span className="block text-[13px] font-bold text-navy truncate tracking-wide">
+                {user?.patientProfile?.firstName || "SAI"} {user?.patientProfile?.lastName || "CSE"}
               </span>
-              <span className="inline-block bg-gold/10 text-gold text-[9px] font-bold px-2 py-0.5 rounded-full mt-0.5">
+              <span className="inline-block bg-[#EAF6FD] text-[#009BDE] text-[10px] font-bold px-3 py-0.5 rounded-full mt-0.5 tracking-wider uppercase">
                 Patient
               </span>
             </div>
           </div>
+          
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-lg text-xs font-semibold text-red-600 hover:bg-red-50 transition-colors focus:outline-none"
+            className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-[13.5px] font-semibold text-[#EF4444] hover:bg-red-50/50 transition-colors focus:outline-none"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut strokeWidth={2.2} className="w-[18px] h-[18px] text-[#EF4444]" />
             <span>Sign Out</span>
           </button>
         </div>

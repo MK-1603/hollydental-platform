@@ -124,7 +124,7 @@ export default function AdminOrdersPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative pb-10">
       
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
@@ -140,7 +140,7 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col p-4 sm:p-6 min-w-0">
         
         {/* Tabs & Search */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 shrink-0">
@@ -183,8 +183,8 @@ export default function AdminOrdersPage() {
         </div>
 
         {/* Robust Table */}
-        <div className="flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex flex-col">
-          <div className="overflow-x-auto flex-1 custom-scrollbar">
+        <div className="bg-white border border-gray-200 rounded-[16px] shadow-sm flex flex-col overflow-hidden w-full">
+          <div className="overflow-x-auto w-full custom-scrollbar">
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
                 <tr>

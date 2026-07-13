@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { apiRequest } from "@/lib/api";
-import { History, CheckCircle2, Circle, Clock, ChevronRight } from "lucide-react";
+import { History, CheckCircle2, Circle, Clock, ChevronRight, Search, Smile, Stethoscope, Crown, Shield } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────
    CARE JOURNEY TIMELINE
 ───────────────────────────────────────────── */
 const JOURNEY_STEPS = [
-  { id: "consultation", label: "Consultation & Scan", icon: "🔍", keywords: ["consultation", "exam", "check", "scan", "x-ray", "xray"] },
-  { id: "cleaning", label: "Plaque Removal & Cleaning", icon: "✨", keywords: ["clean", "hygiene", "scale", "polish", "plaque", "tartar"] },
-  { id: "active", label: "Active Care / Filling", icon: "🦷", keywords: ["fill", "cavity", "restoration", "composite", "amalgam", "root canal", "extraction"] },
-  { id: "crown", label: "Crown / Alignment", icon: "👑", keywords: ["crown", "veneer", "bridge", "implant", "invisalign", "brace", "align", "orthodon"] },
-  { id: "maintenance", label: "Maintenance", icon: "🛡️", keywords: ["maintenance", "review", "recall", "follow", "check-up", "checkup"] },
+  { id: "consultation", label: "Consultation & Scan", icon: <Search className="w-5 h-5" />, keywords: ["consultation", "exam", "check", "scan", "x-ray", "xray"] },
+  { id: "cleaning", label: "Plaque Removal & Cleaning", icon: <Smile className="w-5 h-5" />, keywords: ["clean", "hygiene", "scale", "polish", "plaque", "tartar"] },
+  { id: "active", label: "Active Care / Filling", icon: <Stethoscope className="w-5 h-5" />, keywords: ["fill", "cavity", "restoration", "composite", "amalgam", "root canal", "extraction"] },
+  { id: "crown", label: "Crown / Alignment", icon: <Crown className="w-5 h-5" />, keywords: ["crown", "veneer", "bridge", "implant", "invisalign", "brace", "align", "orthodon"] },
+  { id: "maintenance", label: "Maintenance", icon: <Shield className="w-5 h-5" />, keywords: ["maintenance", "review", "recall", "follow", "check-up", "checkup"] },
 ];
 
 function matchStep(appt: any): string | null {
@@ -206,7 +206,7 @@ export default function PortalTreatmentsPage() {
                     <span className="text-[10px] text-gray-400 font-semibold uppercase">
                       {formatDate(item.appointmentDate)}
                     </span>
-                    <h3 className="font-serif text-base font-bold text-navy mt-1">
+                    <h3 className="font-serif text-base font-bold text-navy mt-1 capitalize">
                       {String(item.serviceId || "Appointment").replace(/-/g, " ")}
                     </h3>
                   </div>

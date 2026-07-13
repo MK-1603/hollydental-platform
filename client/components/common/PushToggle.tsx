@@ -147,9 +147,9 @@ export default function PushToggle({
       className={`border border-gray-100 bg-white rounded-2xl p-5 shadow-sm space-y-3 ${className}`}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-3 min-w-0">
           <span
-            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+            className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
               isOn
                 ? "bg-emerald-50 text-emerald-600"
                 : "bg-gold/10 text-gold"
@@ -157,11 +157,11 @@ export default function PushToggle({
           >
             {isOn ? <BellRing className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
           </span>
-          <div>
-            <h3 className="font-serif text-sm font-bold text-navy">
+          <div className="min-w-0">
+            <h3 className="font-serif text-sm font-bold text-navy truncate">
               Push notifications
             </h3>
-            <p className="text-xs text-gray-500 leading-relaxed">
+            <p className="text-[11px] text-gray-500 leading-relaxed mt-0.5">
               Get appointment confirmations, status updates and password
               reset codes pushed to this device.
             </p>
@@ -171,7 +171,7 @@ export default function PushToggle({
           type="button"
           onClick={isOn ? handleDisable : handleEnable}
           disabled={busy || state === "denied"}
-          className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 ${
+          className={`shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 ${
             isOn
               ? "bg-gray-100 text-navy hover:bg-gray-200"
               : "bg-gold text-navy hover:bg-gold-dark"

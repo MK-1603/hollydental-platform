@@ -76,23 +76,22 @@ export default function PatientDashboardPage() {
   const firstName = user?.patientProfile?.firstName || "there";
 
   return (
-    <div className="space-y-6 pb-12 select-none max-w-7xl mx-auto px-1">
+    <div className="space-y-6 pb-12 select-none max-w-7xl mr-auto px-1 xl:px-4">
       
       {/* ── Welcome Premium Header ── */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy via-slate-900 to-blue-950 p-6 md:p-8 text-white shadow-xl border border-white/5">
-        {/* Glowing glassmorphism accent shapes */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gold/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16" />
-        <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -ml-16 -mb-16" />
+      <div className="relative overflow-hidden rounded-3xl bg-[#0A1628] p-6 md:p-8 text-white shadow-lg border border-gray-800">
+        {/* Subtle glowing accent */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#009BDE]/15 via-transparent to-transparent rounded-full blur-3xl pointer-events-none -mr-40 -mt-40" />
 
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] font-extrabold uppercase tracking-widest">
-              <Activity className="w-3.5 h-3.5 animate-pulse" /> Patient Dental Workspace
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#009BDE] text-[10px] font-bold uppercase tracking-widest">
+              <Activity className="w-3.5 h-3.5" /> Patient Dental Workspace
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl font-bold tracking-tight text-white mt-1">
+            <h1 className="font-serif text-2xl md:text-4xl font-bold tracking-tight text-white mt-1.5">
               {getGreeting()}, {firstName}
             </h1>
-            <p className="text-gray-300 text-xs md:text-sm font-medium max-w-2xl leading-relaxed">
+            <p className="text-gray-400 text-xs md:text-sm font-medium max-w-2xl leading-relaxed mt-1">
               Welcome back to your Hollyhill Dental portal. Explore checkup diagnostics, manage slots, and secure chat logs directly.
             </p>
           </div>
@@ -128,36 +127,35 @@ export default function PatientDashboardPage() {
       </div>
 
       {/* ── Visual Navigation Dashboard Grid ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-5">
         {[
-          { name: "Dental Chart", href: "/portal/chart", desc: "Teeth health & diagnostic files", icon: ClipboardList, bg: "bg-teal-50 text-teal-600 border-teal-100" },
-          { name: "Request Visit", href: "/portal/booking", desc: "Submit slot check-in requests", icon: CalendarDays, bg: "bg-gold/10 text-gold-dark border-gold/25" },
-          { name: "Message Clinic", href: "/portal/messages", desc: "Direct chat with dentist", icon: MessageSquare, bg: "bg-navy/5 text-navy border-navy/10" },
-          { name: "My Bookings", href: "/portal/appointments", desc: pendingCount > 0 ? `${pendingCount} awaiting approval` : "All slots approved", icon: ClipboardCheck, bg: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-          { name: "Prescriptions", href: "/portal/prescriptions", desc: "View medical script files", icon: ClipboardList, bg: "bg-amber-50 text-amber-600 border-amber-100" },
-          { name: "Invoices", href: "/portal/invoices", desc: "Receipt & billing balance", icon: Receipt, bg: "bg-violet-50 text-violet-600 border-violet-100" }
+          { name: "Dental Chart", href: "/portal/chart", desc: "Teeth health & diagnostic files", icon: ClipboardList },
+          { name: "Request Visit", href: "/portal/booking", desc: "Submit slot check-in requests", icon: CalendarDays },
+          { name: "Message Clinic", href: "/portal/messages", desc: "Direct chat with dentist", icon: MessageSquare },
+          { name: "My Bookings", href: "/portal/appointments", desc: pendingCount > 0 ? `${pendingCount} awaiting approval` : "All slots approved", icon: ClipboardCheck },
+          { name: "Prescriptions", href: "/portal/prescriptions", desc: "View medical script files", icon: ClipboardList },
+          { name: "Invoices", href: "/portal/invoices", desc: "Receipt & billing balance", icon: Receipt }
         ].map((item) => {
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="group border border-gray-250/50 bg-white hover:border-gold hover:shadow-md rounded-2xl p-4.5 transition-all duration-300 flex items-center justify-between hover:-translate-y-0.5"
+              className="group border border-gray-100/80 bg-white hover:bg-[#F4FBFF] shadow-sm hover:shadow-md hover:border-[#D2EAF8] rounded-2xl md:rounded-3xl p-4 md:p-5 transition-all duration-300 flex flex-col md:flex-row items-center text-center md:text-left md:justify-between gap-3 md:gap-0 hover:-translate-y-0.5"
             >
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className={`w-9.5 h-9.5 rounded-xl flex items-center justify-center shrink-0 border ${item.bg}`}>
-                  <Icon className="w-4.5 h-4.5" />
+              <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 w-full">
+                <div className="w-12 h-12 md:w-10 md:h-10 rounded-2xl flex items-center justify-center shrink-0 bg-[#F4FBFF] border border-[#E4F4FD] group-hover:bg-white group-hover:border-[#D2EAF8] transition-colors">
+                  <Icon className="w-5 h-5 md:w-4.5 md:h-4.5 text-[#009BDE]" />
                 </div>
-                <div className="truncate">
-                  <span className="block text-xs font-bold text-navy truncate group-hover:text-gold transition-colors">
+                <div className="truncate w-full">
+                  <span className="block text-xs md:text-[13px] font-bold text-navy truncate transition-colors">
                     {item.name}
                   </span>
-                  <span className="block text-[9px] text-gray-400 mt-0.5 truncate">
+                  <span className="block text-[9px] md:text-[10px] text-gray-500 mt-1 md:mt-0.5 truncate md:whitespace-normal line-clamp-1 md:line-clamp-none font-medium">
                     {item.desc}
                   </span>
                 </div>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-gray-300 group-hover:text-gold group-hover:translate-x-0.5 transition-all shrink-0" />
             </Link>
           );
         })}
@@ -173,38 +171,38 @@ export default function PatientDashboardPage() {
           <div className="lg:col-span-2 space-y-6">
             
             {/* Scheduled Visit card */}
-            <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs relative overflow-hidden flex flex-col justify-between min-h-[220px]">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full pointer-events-none" />
+            <div className="bg-white rounded-3xl p-7 shadow-[0_4px_24px_rgba(5,38,78,0.04)] border border-gray-100/80 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-[#F4FBFF] to-transparent rounded-bl-full pointer-events-none" />
               
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                  <h3 className="font-serif text-base font-extrabold text-navy">
+              <div className="space-y-5 relative">
+                <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+                  <h3 className="font-serif text-lg font-bold text-navy">
                     Next Scheduled Visit
                   </h3>
-                  <Calendar className="w-4.5 h-4.5 text-gold" />
+                  <Calendar className="w-5 h-5 text-[#009BDE]" />
                 </div>
 
                 {nextAppt ? (
                   <div className="space-y-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="space-y-1.5">
-                        <span className="inline-flex items-center gap-1.5 text-[9px] uppercase font-bold tracking-widest text-gold bg-gold/10 px-2.5 py-0.5 rounded-full border border-gold/15">
-                          <Stethoscope className="w-3 h-3 text-gold" />
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                      <div className="space-y-2">
+                        <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-wider text-[#009BDE] bg-[#F4FBFF] px-3 py-1 rounded-full">
+                          <Stethoscope className="w-3 h-3 text-[#009BDE]" />
                           {String(nextAppt.serviceId || "appointment").replace(/-/g, " ")}
                         </span>
-                        <h4 className="font-serif text-xl sm:text-2xl font-bold text-navy tracking-tight mt-1">
+                        <h4 className="font-serif text-2xl font-bold text-navy tracking-tight mt-1">
                           {formatDate(nextAppt.appointmentDate)} &bull; {nextAppt.appointmentTime}
                         </h4>
-                        <p className="text-[11px] text-gray-400 font-semibold mt-0.5">
+                        <p className="text-xs text-gray-500 font-medium mt-1">
                           Assigned Dentist: <span className="text-navy font-bold">Dr. Roghay Alizadeh</span>
                         </p>
                       </div>
                       
                       <span
-                        className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full border uppercase tracking-wider shrink-0 ${
+                        className={`text-[10px] font-bold px-3 py-1.5 rounded-full shrink-0 tracking-wide uppercase ${
                           nextAppt.status === "confirmed"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-150"
-                            : "bg-amber-50 text-amber-700 border-amber-150"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-amber-50 text-amber-700"
                         }`}
                       >
                         {nextAppt.status === "pending"
@@ -213,14 +211,14 @@ export default function PatientDashboardPage() {
                       </span>
                     </div>
 
-                    <div className="flex gap-4 border-t border-gray-50 pt-4 text-xs font-bold">
+                    <div className="flex gap-4 border-t border-gray-50 pt-4 text-[13px] font-bold">
                       <a
                         href={`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
                           (nextAppt.serviceId || "Dental checkup") + " - Hollyhill Shopping Centre"
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-navy hover:text-gold flex items-center gap-1 cursor-pointer transition-colors"
+                        className="text-navy hover:text-[#009BDE] flex items-center gap-1.5 cursor-pointer transition-colors"
                       >
                         Add to Google Calendar
                       </a>
@@ -228,14 +226,14 @@ export default function PatientDashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-8 space-y-4 max-w-sm mx-auto">
-                    <p className="text-xs text-gray-400 font-medium">
+                    <p className="text-[13px] text-gray-500 font-medium">
                       You don't have any upcoming diagnostic checkups or appointments scheduled yet.
                     </p>
                     <Link
                       href="/portal/booking"
-                      className="bg-gold hover:bg-yellow-400 text-navy text-xs font-bold py-2.5 px-6 rounded-xl inline-flex items-center gap-1.5 shadow transition-colors"
+                      className="bg-[#009BDE] hover:bg-[#008BCC] text-white text-[13px] font-bold py-3 px-6 rounded-xl inline-flex items-center gap-2 shadow-sm transition-colors"
                     >
-                      Book A Treatment <ArrowRight className="w-3.5 h-3.5" />
+                      Book A Treatment <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 )}
@@ -244,30 +242,30 @@ export default function PatientDashboardPage() {
 
             {/* Recent Visit Ledger */}
             {appointments.length > 1 && (
-              <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs space-y-4">
-                <h3 className="font-serif text-sm font-extrabold text-navy border-b border-gray-50 pb-2">
+              <div className="bg-white rounded-3xl p-7 shadow-[0_4px_24px_rgba(5,38,78,0.04)] border border-gray-100/80 space-y-4">
+                <h3 className="font-serif text-lg font-bold text-navy border-b border-gray-50 pb-3">
                   Recent Request Ledger
                 </h3>
-                <div className="space-y-3.5 text-xs text-navy font-bold">
+                <div className="space-y-4 text-[13px] text-navy font-bold">
                   {appointments.slice(0, 3).map((appt) => (
                     <div
                       key={appt.id}
-                      className="flex justify-between items-center border-b border-gray-50 pb-2.5 last:border-0 last:pb-0"
+                      className="flex justify-between items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0"
                     >
-                      <div className="space-y-0.5">
-                        <span className="block text-navy uppercase text-[10px] tracking-wide">
+                      <div className="space-y-1">
+                        <span className="block text-navy uppercase text-[11px] tracking-wide">
                           {String(appt.serviceId || "appointment").replace(/-/g, " ")}
                         </span>
-                        <span className="block text-[9px] text-gray-400 font-medium">
+                        <span className="block text-[11px] text-gray-500 font-medium">
                           {formatDate(appt.appointmentDate)}
                         </span>
                       </div>
-                      <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded border ${
+                      <span className={`text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-full ${
                         appt.status === "confirmed"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-150"
+                          ? "bg-emerald-50 text-emerald-700"
                           : appt.status === "pending"
-                          ? "bg-amber-50 text-amber-700 border-amber-150"
-                          : "bg-gray-50 text-gray-500 border-gray-150"
+                          ? "bg-amber-50 text-amber-700"
+                          : "bg-gray-50 text-gray-600"
                       }`}>
                         {appt.status}
                       </span>
@@ -282,48 +280,48 @@ export default function PatientDashboardPage() {
           <div className="space-y-6">
             
             {/* Status overview */}
-            <div className="border border-gray-200/60 bg-white rounded-3xl p-6 shadow-xs space-y-4 flex flex-col justify-between min-h-[220px]">
-              <div className="border-b border-gray-50 pb-2 shrink-0">
-                <h3 className="font-serif text-base font-extrabold text-navy">
+            <div className="bg-white rounded-3xl p-7 shadow-[0_4px_24px_rgba(5,38,78,0.04)] border border-gray-100/80 space-y-4 flex flex-col justify-between min-h-[220px]">
+              <div className="border-b border-gray-50 pb-3 shrink-0">
+                <h3 className="font-serif text-lg font-bold text-navy">
                   Booking Status
                 </h3>
               </div>
               
               <div className="flex-1 flex flex-col justify-center my-3">
                 {pendingCount > 0 ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 border border-amber-100/50">
-                        <ClipboardCheck className="w-5 h-5 animate-pulse" />
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                        <ClipboardCheck className="w-6 h-6 animate-pulse" />
                       </div>
                       <div className="min-w-0">
-                        <span className="block text-sm font-extrabold text-navy">
+                        <span className="block text-[15px] font-bold text-navy">
                           {pendingCount} Pending Requests
                         </span>
-                        <span className="block text-[10px] text-gray-400 font-medium leading-relaxed mt-0.5">
-                          Dr. Roghay is reviewing your requested time slot. An confirmation alert will arrive shortly.
+                        <span className="block text-[11px] text-gray-500 font-medium leading-relaxed mt-1">
+                          Dr. Roghay is reviewing your requested time slot. A confirmation alert will arrive shortly.
                         </span>
                       </div>
                     </div>
                     
                     <Link
                       href="/portal/appointments"
-                      className="w-full bg-navy hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs shadow-md block text-center uppercase tracking-wider transition-colors"
+                      className="w-full bg-navy hover:bg-[#1A2E46] text-white font-bold py-3.5 rounded-xl text-[13px] shadow-sm block text-center transition-colors"
                     >
                       View requested slots
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/50">
-                        <ShieldCheck className="w-5 h-5" />
+                  <div className="space-y-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <ShieldCheck className="w-6 h-6" />
                       </div>
                       <div className="min-w-0">
-                        <span className="block text-sm font-extrabold text-navy">
+                        <span className="block text-[15px] font-bold text-navy">
                           Operations Synced
                         </span>
-                        <span className="block text-[10px] text-gray-400 font-medium leading-relaxed mt-0.5">
+                        <span className="block text-[11px] text-gray-500 font-medium leading-relaxed mt-1">
                           You have no pending visit requests currently. All files are fully updated.
                         </span>
                       </div>
@@ -331,7 +329,7 @@ export default function PatientDashboardPage() {
                     
                     <Link
                       href="/portal/booking"
-                      className="w-full border border-navy/20 hover:border-navy text-navy font-bold py-2.5 rounded-xl text-xs block text-center transition-all cursor-pointer"
+                      className="w-full border border-gray-200 hover:border-[#009BDE] hover:bg-[#F4FBFF] text-navy font-bold py-3.5 rounded-xl text-[13px] block text-center transition-all cursor-pointer"
                     >
                       Request visit slot
                     </Link>

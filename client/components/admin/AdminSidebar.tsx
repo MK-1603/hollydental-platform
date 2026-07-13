@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Users, CalendarDays, Stethoscope, 
   CreditCard, ShoppingBag, BarChart, Bell, Settings, LogOut,
   PanelLeftClose, MessageSquare, Pill, FileText, Heart,
-  Package, Truck, FileEdit, Folder, Activity, ClipboardCheck, PanelLeftOpen
+  Package, Truck, FileEdit, Folder, Activity, ClipboardCheck, PanelLeftOpen, Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -93,33 +93,35 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 xl:hidden transition-opacity" onClick={onClose} />
       )}
       <aside className={cn(
-        "fixed xl:relative top-0 left-0 h-screen bg-[#F7F7F8] border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
-        isCollapsed ? "w-[72px]" : "w-[280px]",
+        "fixed xl:relative top-0 left-0 h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
+        isCollapsed ? "w-[80px]" : "w-[280px]",
         isOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
       )}>
         {/* Header / Logo */}
-        <div className={cn("h-14 flex items-center shrink-0 border-b border-gray-200/50", isCollapsed ? "justify-center" : "px-4 justify-between")}>
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="w-7 h-7 bg-black text-white rounded-[6px] flex items-center justify-center font-bold text-sm shrink-0">H</div>
-            {!isCollapsed && <span className="font-semibold text-gray-900 text-sm truncate tracking-tight">HollyDental</span>}
+        <div className={cn("flex items-center shrink-0 mb-6 mt-6", isCollapsed ? "justify-center" : "px-6 justify-between")}>
+          <div className={cn("flex items-center overflow-hidden transition-all", isCollapsed ? "w-0 opacity-0 hidden" : "gap-3")}>
+            <div className="relative shrink-0 flex items-center justify-center w-8 h-8">
+              <img src="/logo-mark.png" alt="Hollyhill Dental" className="w-full h-full object-contain drop-shadow-sm" draggable={false} />
+            </div>
+            <span className="font-sans font-bold tracking-tight text-navy text-[16px] truncate leading-none">
+              Hollyhill <span className="text-[#009BDE]">Dental</span>
+            </span>
           </div>
-          {!isCollapsed && (
-            <button onClick={onToggleCollapse} className="text-gray-400 hover:text-gray-900 transition-colors hidden xl:block">
-              <PanelLeftClose className="w-4 h-4" />
-            </button>
-          )}
+          <button onClick={onToggleCollapse} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors focus:outline-none" aria-label="Toggle Sidebar">
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Scrollable Nav */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar py-4 px-2 space-y-6">
+        <div className={cn("flex-1 overflow-y-auto custom-scrollbar space-y-6 mb-4", isCollapsed ? "px-2" : "px-4")}>
           {navGroups.map((group, idx) => (
             <div key={idx} className="flex flex-col">
               {!isCollapsed && (
-                <div className="px-3 mb-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                <div className="px-4 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                   {group.title}
                 </div>
               )}
-              <div className="space-y-0.5">
+              <div className="space-y-1">
                 {group.items.map(item => {
                   const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                   return (
@@ -128,15 +130,20 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item.href)}
                       className={cn(
-                        "flex items-center rounded-lg h-9 transition-colors group relative",
-                        isCollapsed ? "justify-center px-0 w-10 mx-auto" : "px-3",
-                        isActive ? "bg-white shadow-sm border border-gray-200/60 text-black font-medium" : "text-gray-600 hover:bg-gray-200/50 hover:text-gray-900 border border-transparent"
+                        "relative flex items-center transition-all overflow-hidden group tracking-wide",
+                        isCollapsed ? "justify-center px-0 w-12 h-12 mx-auto rounded-xl" : "gap-4 px-4 py-3 rounded-2xl text-[13.5px]",
+                        isActive 
+                          ? "text-[#009BDE] bg-[#F7FCFF] before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:bg-[#009BDE] before:rounded-r-full font-semibold" 
+                          : "text-[#1C3B5E] hover:text-[#009BDE] hover:bg-[#FAFDFF] font-medium"
                       )}
                       title={isCollapsed ? item.name : undefined}
                     >
-                      <item.icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600")} strokeWidth={isActive ? 2.5 : 2} />
+                      <item.icon 
+                        className={cn("shrink-0", isCollapsed ? "w-[22px] h-[22px]" : "w-[18px] h-[18px]", isActive ? "text-[#009BDE]" : "text-[#4A6482] group-hover:text-[#009BDE]")} 
+                        strokeWidth={2.2} 
+                      />
                       {!isCollapsed && (
-                        <span className="ml-3 text-[13px] truncate">{item.name}</span>
+                        <span className="truncate">{item.name}</span>
                       )}
                     </Link>
                   );
@@ -147,37 +154,40 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
         </div>
 
         {/* Footer Profile */}
-        <div className="p-2 border-t border-gray-200/50 shrink-0">
-          <div className={cn("flex items-center rounded-lg p-1.5 transition-colors", isCollapsed ? "justify-center" : "gap-3 hover:bg-gray-200/50")}>
-            {user?.profilePicUrl ? (
-              <img src={user.profilePicUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover shrink-0" referrerPolicy="no-referrer" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                {user?.displayName?.[0] || "A"}
-              </div>
-            )}
+        <div className={cn("mt-auto shrink-0 flex flex-col gap-4 pb-6 pt-4", isCollapsed ? "px-2" : "px-6")}>
+          <div className={cn("flex items-center gap-3", isCollapsed && "justify-center")}>
+            <div className={cn(
+              "rounded-full bg-[#EAF6FD] border border-[#DDF0FB] flex items-center justify-center font-bold text-[#009BDE] shadow-sm shrink-0",
+              isCollapsed ? "w-12 h-12 text-lg" : "w-10 h-10 text-sm"
+            )}>
+              {user?.displayName?.[0] || "A"}
+            </div>
             {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-medium text-gray-900 truncate">{user?.displayName || "Admin User"}</div>
-                <div className="text-[11px] text-gray-500 truncate">{user?.email}</div>
-              </div>
-            )}
-            {!isCollapsed && (
-              <div className="flex items-center shrink-0">
-                <Link href="/admin/settings/my-account" className="p-1.5 text-gray-400 hover:text-gray-900 rounded-md transition-colors">
-                  <Settings className="w-4 h-4" />
-                </Link>
-                <button onClick={() => performLogoutTransition(router)} className="p-1.5 text-gray-400 hover:text-red-600 rounded-md transition-colors">
-                  <LogOut className="w-4 h-4" />
-                </button>
+              <div className="truncate flex-1 min-w-0">
+                <span className="block text-[13px] font-bold text-navy truncate tracking-wide">
+                  {user?.displayName || "Admin User"}
+                </span>
+                <span className="inline-block bg-[#EAF6FD] text-[#009BDE] text-[9px] font-bold px-2.5 py-0.5 rounded-full mt-0.5 tracking-wider uppercase">
+                  Doctor
+                </span>
               </div>
             )}
           </div>
-          {isCollapsed && (
-            <button onClick={onToggleCollapse} className="mt-2 w-full flex justify-center p-2 text-gray-400 hover:text-gray-900 transition-colors hidden xl:flex">
-              <PanelLeftOpen className="w-4 h-4" />
-            </button>
-          )}
+          
+          <button
+            onClick={() => performLogoutTransition(router)}
+            className={cn(
+              "flex items-center transition-colors focus:outline-none",
+              isCollapsed 
+                ? "justify-center mx-auto w-12 h-12 rounded-xl text-[#EF4444] hover:bg-red-50/50" 
+                : "w-full gap-3.5 px-4 py-3 rounded-2xl text-[13.5px] font-semibold text-[#EF4444] hover:bg-red-50/50"
+            )}
+          >
+            <LogOut strokeWidth={2.2} className="w-[18px] h-[18px] text-[#EF4444] shrink-0" />
+            {!isCollapsed && <span>Sign Out</span>}
+          </button>
+
+
         </div>
       </aside>
     </>

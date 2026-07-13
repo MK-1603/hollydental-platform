@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiRequest } from "@/lib/api";
-import { Flame, CheckCircle2, Circle, Activity, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart } from "lucide-react";
+import { Flame, CheckCircle2, Circle, Activity, AlertTriangle, Phone, CalendarDays, RotateCcw, Heart, Sun, Moon, Sparkles, Zap, Snowflake, Droplet, Frown } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -274,10 +274,10 @@ function HabitTracker({ userId }: { userId: string }) {
       {/* Habit toggles */}
       <div className="space-y-3">
         {([
-          { key: "morningBrush", label: "Morning Brush", emoji: "🌅", desc: "2 min fluoride brush" },
-          { key: "nightBrush", label: "Night Brush", emoji: "🌙", desc: "2 min before bed" },
-          { key: "floss", label: "Floss", emoji: "🦷", desc: "Clean between teeth" },
-        ] as const).map(({ key, label, emoji, desc }) => {
+          { key: "morningBrush", label: "Morning Brush", icon: <Sun className="w-6 h-6 text-amber-500" />, desc: "2 min fluoride brush" },
+          { key: "nightBrush", label: "Night Brush", icon: <Moon className="w-6 h-6 text-indigo-500" />, desc: "2 min before bed" },
+          { key: "floss", label: "Floss", icon: <Sparkles className="w-6 h-6 text-sky-400" />, desc: "Clean between teeth" },
+        ] as const).map(({ key, label, icon, desc }) => {
           const done = todayLog[key];
           return (
             <button
@@ -289,7 +289,7 @@ function HabitTracker({ userId }: { userId: string }) {
                   : "border-gray-100 bg-gray-50 hover:border-gold/40"
               }`}
             >
-              <span className="text-xl">{emoji}</span>
+              <div className="flex items-center justify-center w-8 h-8">{icon}</div>
               <div className="flex-1">
                 <span className={`block text-xs font-bold ${done ? "text-emerald-700" : "text-navy"}`}>{label}</span>
                 <span className="block text-[10px] text-gray-400">{desc}</span>
@@ -343,7 +343,7 @@ type Urgency = "green" | "amber" | "red";
 interface Concern {
   id: string;
   label: string;
-  emoji: string;
+  icon: JSX.Element;
   questions: { id: string; text: string }[];
   urgency: (answers: Record<string, boolean>) => Urgency;
   advice: (answers: Record<string, boolean>) => string;
@@ -353,7 +353,7 @@ const CONCERNS: Concern[] = [
   {
     id: "toothache",
     label: "Severe Toothache",
-    emoji: "😣",
+    icon: <Zap className="w-7 h-7 text-amber-500" />,
     questions: [
       { id: "q1", text: "Is the pain constant (not just when eating)?" },
       { id: "q2", text: "Is there swelling in your face or jaw?" },
@@ -370,7 +370,7 @@ const CONCERNS: Concern[] = [
   {
     id: "sensitivity",
     label: "Sensitive Teeth",
-    emoji: "🥶",
+    icon: <Snowflake className="w-7 h-7 text-sky-400" />,
     questions: [
       { id: "q1", text: "Does it hurt with hot AND cold?" },
       { id: "q2", text: "Is the pain sharp and lingering (>30 seconds)?" },
@@ -385,7 +385,7 @@ const CONCERNS: Concern[] = [
   {
     id: "bleeding",
     label: "Bleeding Gums",
-    emoji: "🩸",
+    icon: <Droplet className="w-7 h-7 text-red-400" />,
     questions: [
       { id: "q1", text: "Do your gums bleed every time you brush?" },
       { id: "q2", text: "Are your gums swollen, red or receding?" },
@@ -400,7 +400,7 @@ const CONCERNS: Concern[] = [
   {
     id: "chipped",
     label: "Chipped / Broken Tooth",
-    emoji: "🦷",
+    icon: <Activity className="w-7 h-7 text-slate-500" />,
     questions: [
       { id: "q1", text: "Is there sharp pain when biting?" },
       { id: "q2", text: "Is the chip large or is the tooth visibly broken?" },
@@ -417,7 +417,7 @@ const CONCERNS: Concern[] = [
   {
     id: "swelling",
     label: "Facial Swelling",
-    emoji: "😮",
+    icon: <Frown className="w-7 h-7 text-orange-400" />,
     questions: [
       { id: "q1", text: "Did the swelling appear suddenly (within hours)?" },
       { id: "q2", text: "Do you have difficulty swallowing or breathing?" },
@@ -432,7 +432,7 @@ const CONCERNS: Concern[] = [
   {
     id: "lost-tooth",
     label: "Knocked-Out Tooth",
-    emoji: "😱",
+    icon: <AlertTriangle className="w-7 h-7 text-red-500" />,
     questions: [
       { id: "q1", text: "Did it happen within the last hour?" },
       { id: "q2", text: "Is it an adult (permanent) tooth?" },
@@ -537,7 +537,7 @@ function SymptomChecker() {
               onClick={() => pickConcern(c)}
               className="flex flex-col items-center gap-2 p-4 border-2 border-gray-100 rounded-xl hover:border-gold hover:bg-gold/5 transition-all text-center group"
             >
-              <span className="text-2xl">{c.emoji}</span>
+              <div className="flex items-center justify-center w-10 h-10 mb-1">{c.icon}</div>
               <span className="text-[11px] font-bold text-navy group-hover:text-gold transition-colors leading-tight">{c.label}</span>
             </button>
           ))}
@@ -547,8 +547,8 @@ function SymptomChecker() {
       {/* Step 2: Questions */}
       {step === "questions" && selected && (
         <div className="space-y-5">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">{selected.emoji}</span>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="flex items-center justify-center w-8 h-8">{selected.icon}</div>
             <span className="font-serif text-sm font-bold text-navy">{selected.label}</span>
           </div>
 

@@ -5,6 +5,7 @@ import Toaster from "@/components/common/Toaster";
 import Preloader from "@/components/public/Preloader";
 import PwaRegister from "@/components/public/PwaRegister";
 import OfflineSyncManager from "@/components/common/OfflineSyncManager";
+import Chatbot from "@/components/common/Chatbot";
 
 export const metadata: Metadata = {
   title: "Hollyhill Dental Cork | Dr. Roghay Alizadeh | Confident Smiles",
@@ -63,6 +64,7 @@ export default function RootLayout({
           {children}
           <AuthModals />
           <Toaster />
+          <Chatbot />
         </DialogProvider>
       </body>
     </html>

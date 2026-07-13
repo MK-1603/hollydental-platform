@@ -53,42 +53,36 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
   const breadcrumbLabel = breadcrumbSection ? breadcrumbSection.charAt(0).toUpperCase() + breadcrumbSection.slice(1) : 'Dashboard';
 
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-gray-200 h-14 flex items-center shrink-0 font-inter px-4 sm:px-6">
-      <div className="flex items-center justify-between w-full h-full gap-4">
+    <header className="sticky top-0 z-40 bg-white border-b border-gray-100 h-16 flex items-center shrink-0 font-sans px-4 sm:px-6 md:px-8 transition-all">
+      <div className="flex items-center justify-between w-full h-full">
         
         {/* Left: Mobile Menu & Breadcrumbs */}
-        <div className="flex items-center gap-3 md:gap-4 min-w-[200px]">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
           <button
             onClick={onToggleSidebar}
-            className="p-1 rounded-md hover:bg-gray-100 text-gray-500 xl:hidden -ml-1 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-gray-50 text-gray-500 xl:hidden -ml-1.5 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           >
             <Menu className="w-5 h-5" />
           </button>
-          
-          <div className="hidden md:flex items-center text-[13px] font-medium">
-            <span className="text-gray-500 hover:text-gray-900 cursor-pointer transition-colors">HollyDental</span>
-            <span className="mx-2 text-gray-300">/</span>
-            <span className="text-gray-900 font-semibold">{breadcrumbLabel}</span>
-          </div>
         </div>
 
         {/* Center: Global Search */}
-        <div className="flex-1 max-w-[500px]">
+        <div className="flex justify-center w-full max-w-[640px] px-4">
           <GlobalSearch />
         </div>
 
         {/* Right: Workspace, Theme, Notifs, Profile */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <div className="flex items-center justify-end gap-2 sm:gap-4 md:gap-5 flex-1 shrink-0">
           
           {/* Workspace Selector */}
           <div className="relative hidden md:block" ref={workspaceRef}>
             <button 
               onClick={() => setShowWorkspaceDropdown(!showWorkspaceDropdown)}
-              className="flex items-center gap-2 px-2.5 h-8 hover:bg-gray-100 rounded-md transition-colors text-[13px] font-medium text-gray-700"
+              className="flex items-center gap-2.5 px-3 h-9 hover:bg-gray-50 rounded-lg transition-all text-[13px] font-semibold text-gray-700 border border-transparent hover:border-gray-100 hover:shadow-sm focus:outline-none"
             >
-              <div className="w-5 h-5 rounded bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[10px]">M</div>
+              <div className="w-5 h-5 rounded-md bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-[10px] shadow-sm">M</div>
               <span>Main Clinic</span>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-gray-400" />
             </button>
             {showWorkspaceDropdown && (
               <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-50">
@@ -104,22 +98,22 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
             )}
           </div>
 
-          <div className="h-4 w-px bg-gray-200 hidden md:block mx-1"></div>
+          <div className="h-5 w-px bg-gray-100 hidden md:block mx-1"></div>
 
           {/* Theme Toggle (Placeholder for now) */}
-          <button className="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition-colors hidden sm:flex">
-            <Moon className="w-[18px] h-[18px]" />
+          <button className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors hidden sm:flex focus:outline-none">
+            <Moon className="w-5 h-5" />
           </button>
 
           {/* Notifications */}
           <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-              className="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 transition-colors relative"
+              className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors relative focus:outline-none"
             >
-              <Bell className="w-[18px] h-[18px]" />
+              <Bell className="w-4 h-4 md:w-5 md:h-5" />
               {unreadMsgs > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
               )}
             </button>
 
@@ -148,15 +142,15 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           </div>
 
           {/* Profile Dropdown */}
-          <div className="relative ml-1" ref={profileRef}>
+          <div className="relative ml-1 md:ml-0" ref={profileRef}>
             <button
               onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none"
+              className="flex items-center hover:opacity-80 transition-all focus:outline-none ring-2 ring-transparent hover:ring-blue-100 rounded-full"
             >
               {user?.profilePicUrl ? (
-                <img src={user.profilePicUrl} alt="Profile" className="w-8 h-8 rounded-full object-cover border border-gray-200" referrerPolicy="no-referrer" />
+                <img src={user.profilePicUrl} alt="Profile" className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover border border-gray-100 shadow-sm" referrerPolicy="no-referrer" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-[12px] text-white">
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-blue-600 flex items-center justify-center font-bold text-[12px] md:text-[13px] text-white shadow-sm ring-2 ring-white">
                   {user?.displayName?.[0] || "A"}
                 </div>
               )}

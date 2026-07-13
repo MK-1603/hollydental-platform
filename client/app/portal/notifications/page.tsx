@@ -48,7 +48,7 @@ export default function PortalNotificationsPage() {
   const items = useMemo(() => data ?? [], [data]);
 
   return (
-    <div className="space-y-6 pb-12 max-w-4xl mx-auto px-1 select-none">
+    <div className="space-y-6 pb-12 max-w-4xl mr-auto px-1 xl:px-4 select-none">
       
       {/* ── Header Bar ── */}
       <div className="flex items-center justify-between border-b border-gray-250 pb-4 gap-4 flex-wrap shrink-0">
@@ -91,7 +91,7 @@ export default function PortalNotificationsPage() {
               Enable instant browser notification pings so you never miss clinic alerts or updates.
             </p>
           </div>
-          <div className="shrink-0">
+          <div className="flex-1 min-w-0 w-full sm:max-w-[400px]">
             <PushToggle variant="card" />
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function PortalNotificationsPage() {
           <span className="font-bold">We couldn't synchronize your notifications center. Verify your credentials.</span>
         </div>
       ) : items.length === 0 ? (
-        <div className="border border-gray-250/60 rounded-2xl bg-white p-16 text-center max-w-md mx-auto mt-6 space-y-4 shadow-2xs">
+        <div className="border border-gray-250/60 rounded-2xl bg-white p-16 text-center max-w-md mr-auto mt-6 space-y-4 shadow-2xs">
           <div className="w-14 h-14 rounded-2xl bg-gold/10 text-gold mx-auto flex items-center justify-center border border-gold/15 shadow-inner">
             <Bell className="w-6 h-6 text-gold" />
           </div>

@@ -223,8 +223,8 @@ export default function AdminBlogPage() {
     <div className="h-[calc(100vh-88px)] flex flex-col bg-white w-full max-w-none overflow-hidden font-inter">
       
       {/* ── TOP HEADER TOOLBAR ── */}
-      <div className="bg-white border-b border-gray-200 shrink-0 px-6 py-4 flex items-center justify-between z-40 relative shadow-sm">
-        <div className="flex items-center gap-6">
+      <div className="bg-white border-b border-gray-200 shrink-0 px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 z-40 relative shadow-sm">
+        <div className="flex items-center justify-between w-full md:w-auto gap-6">
           <div>
             <h1 className="text-[18px] font-bold text-gray-900 tracking-tight leading-none mb-1">Publishing & CMS</h1>
             <p className="text-[12px] text-gray-500 font-medium">Manage articles, news, and clinic updates</p>
@@ -274,7 +274,7 @@ export default function AdminBlogPage() {
       <div className="flex-1 flex overflow-hidden bg-white">
         
         {/* COLUMN 1: NAVIGATION SIDEBAR (240px) */}
-        <div className="w-[240px] shrink-0 border-r border-gray-200 bg-gray-50/50 flex flex-col overflow-y-auto">
+        <div className="hidden lg:flex w-[240px] shrink-0 border-r border-gray-200 bg-gray-50/50 flex-col overflow-y-auto">
           <div className="p-4 space-y-6">
             
             {/* Status Folders */}
@@ -337,7 +337,7 @@ export default function AdminBlogPage() {
         </div>
 
         {/* COLUMN 2: ARTICLE LIST (360px) */}
-        <div className="w-[360px] shrink-0 border-r border-gray-200 bg-white flex flex-col relative z-10">
+        <div className={cn("w-full lg:w-[360px] shrink-0 border-r border-gray-200 bg-white flex-col relative z-10", activePostId ? "hidden lg:flex" : "flex")}>
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h2 className="text-[13px] font-bold text-gray-900 uppercase tracking-wider">
               {activeFilter.startsWith('cat-') ? categories.find(c => c.id === activeFilter.replace('cat-', ''))?.name : activeFilter} Articles
@@ -425,12 +425,15 @@ export default function AdminBlogPage() {
         </div>
 
         {/* COLUMN 3: EDITOR WORKSPACE */}
-        <div className="flex-1 bg-[#FDFDFD] flex flex-col relative z-0">
+        <div className={cn("flex-1 bg-[#FDFDFD] flex-col relative z-0", activePostId ? "flex" : "hidden lg:flex")}>
           {activePostId && activePost ? (
             <>
               {/* Editor Toolbar */}
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shadow-sm z-10">
-                <div className="flex items-center gap-4">
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shadow-sm z-10">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <button onClick={() => setActivePostId(null)} className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-md shrink-0">
+                    <CornerUpLeft className="w-5 h-5" />
+                  </button>
                   <div className="flex items-center gap-2 text-[12px] font-medium text-gray-500">
                     {isAutosaving ? (
                       <span className="flex items-center gap-1.5"><div className="w-3 h-3 border-[1.5px] border-gray-300 border-t-indigo-500 rounded-full animate-spin" /> Saving...</span>

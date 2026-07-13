@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,16 +9,16 @@
   --color-light-grey: #E8F3FC;
   --color-border-custom: #D2E4F5;
   --color-placeholder-custom: #9CA3AF;
-  --color-secondary-custom: #4B5563;
+  --color-secondary-custom: #64748B;
   --color-primary-custom: #05264E;
   --color-success-custom: #059669;
   --color-warning-custom: #D97706;
   --color-danger-custom: #DC2626;
   --color-info-custom: #00ADEF;
 
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-inter: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-inter: 'Instrument Sans', system-ui, sans-serif;
   
   --shadow-card: 0 4px 20px rgba(5,38,78,0.05);
   --shadow-gold-hover: 0 8px 32px rgba(0,173,239,0.2);
@@ -41,7 +40,7 @@
   --color-admin-warning: #EA580C;
   --color-admin-danger: #DC2626;
   --color-admin-text: #111827;
-  --color-admin-text-sec: #6B7280;
+  --color-admin-text-sec: #64748B;
   --color-admin-border: #E5E7EB;
 
   --radius-admin-btn: 12px;
@@ -60,23 +59,103 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  line-height: 1.7;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* Brand-friendly text selection — readable on light and dark backgrounds */
+/* Brand-friendly text selection */
 ::selection {
-  background-color: rgba(0, 173, 239, 0.25); /* sky blue @ 25% */
-  color: #05264E; /* navy */
+  background-color: rgba(0, 173, 239, 0.25);
+  color: #05264E;
 }
 ::-moz-selection {
   background-color: rgba(0, 173, 239, 0.25);
   color: #05264E;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-serif);
+/* Prevent faux-bolding on Instrument Serif */
+.font-serif, 
+h1, 
+h2, 
+.text-display {
+  font-family: var(--font-serif) !important;
+  font-weight: 400 !important;
   color: inherit;
+}
+
+h1 {
+  font-size: 44px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 34px;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+h3 {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: inherit;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-sans);
+  color: inherit;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Custom Typography Scale */
+.text-display {
+  font-size: 52px;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.text-section-title {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.text-card-title {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.text-body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.text-caption {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.text-label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 

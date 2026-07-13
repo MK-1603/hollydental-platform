@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // The `appIsrStatus` flag was renamed in Next 15+ and removed entirely
   // in 16; the supported flag now is `position` only.
   devIndicators: {
-    position: "bottom-right",
+    position: "bottom-left",
   },
   turbopack: {
     root: '..',

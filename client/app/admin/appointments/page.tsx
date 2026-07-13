@@ -163,7 +163,7 @@ export default function AdminAppointmentsPage() {
                 className={`w-full text-left group bg-white border rounded-[12px] p-3 transition-all hover:bg-gray-50 flex flex-col gap-2 ${isActive ? "border-blue-500 ring-1 ring-blue-500 shadow-sm" : "border-gray-200"}`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-[14px] font-bold text-gray-900 truncate">
+                  <span className="text-[14px] font-bold text-gray-900 break-words flex-1 pr-2">
                     {appt.patient ? `${appt.patient.firstName} ${appt.patient.lastName}` : "Walk-in Patient"}
                   </span>
                   <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-[6px] ${meta.bg} ${meta.color} shrink-0`}>
@@ -173,7 +173,7 @@ export default function AdminAppointmentsPage() {
                 </div>
                 
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-[12px] text-gray-500 truncate flex-1">
+                  <span className="text-[12px] text-gray-500 flex-1 break-words pr-2">
                     {(appt.serviceId || "dental-treatment").replace(/-/g, " ")}
                   </span>
                   <span className="text-[11px] font-bold text-gray-700 shrink-0">
@@ -192,7 +192,7 @@ export default function AdminAppointmentsPage() {
     <div className="flex flex-col h-full w-full bg-white overflow-hidden">
 
       {/* ── Sticky Header ── */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 z-10 shadow-sm">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 z-10 shadow-sm">
         <div className="flex items-center gap-6">
           <h1 className="text-[20px] font-bold text-gray-900 tracking-tight">Appointments</h1>
           <div className="hidden md:flex items-center gap-4 border-l border-gray-200 pl-6">
@@ -211,7 +211,7 @@ export default function AdminAppointmentsPage() {
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           {/* Native Select for fast filtering without complex dropdowns */}
           <div className="relative hidden md:block">
             <select 
@@ -228,10 +228,10 @@ export default function AdminAppointmentsPage() {
             <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
-          <button onClick={() => setShowWalkin(true)} className="flex items-center gap-1.5 bg-gray-900 hover:bg-gray-800 text-white font-bold h-[36px] px-4 rounded-[8px] text-[12px] transition-colors shadow-sm">
+          <button onClick={() => setShowWalkin(true)} className="flex-1 md:flex-none justify-center flex items-center gap-1.5 bg-gray-900 hover:bg-gray-800 text-white font-bold h-[36px] px-4 rounded-[8px] text-[12px] transition-colors shadow-sm">
             <UserPlus className="w-3.5 h-3.5" /> Walk-in
           </button>
-          <button onClick={fetchAppointments} className="flex items-center justify-center w-[36px] h-[36px] bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-[8px] shadow-sm transition-colors" title="Refresh">
+          <button onClick={fetchAppointments} className="flex items-center justify-center w-[36px] h-[36px] bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-[8px] shadow-sm transition-colors shrink-0" title="Refresh">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         </div>

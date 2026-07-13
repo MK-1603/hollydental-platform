@@ -215,20 +215,22 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
         <div className="relative max-w-7xl mx-auto px-4 md:px-8 py-20 md:py-24 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-            <Link
-              href="/services"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> All treatments
-            </Link>
-            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
-              {service.category === "cosmetic" ? (
-                <Smile className="w-3.5 h-3.5" />
-              ) : (
-                <Activity className="w-3.5 h-3.5" />
-              )}
-              {service.category} Dentistry
-            </span>
+            <div className="flex flex-wrap items-center gap-3 justify-center lg:justify-start">
+              <Link
+                href="/services"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> All treatments
+              </Link>
+              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-white/5 border border-gold/30 px-3 py-1 rounded-full">
+                {service.category === "cosmetic" ? (
+                  <Smile className="w-3.5 h-3.5" />
+                ) : (
+                  <Activity className="w-3.5 h-3.5" />
+                )}
+                {service.category} Dentistry
+              </span>
+            </div>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.05]">
               {service.name}
             </h1>

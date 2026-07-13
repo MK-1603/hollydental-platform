@@ -83,7 +83,7 @@ export default function PatientOrdersPage() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Premium header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-navy via-navy to-blue-900 rounded-2xl p-6 text-white shadow-xl">
+      <div className="relative overflow-hidden bg-[#0A1628] border border-gray-800 rounded-3xl p-6 text-white shadow-lg">
         <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
         <div className="relative flex items-start justify-between gap-4">
           <div>

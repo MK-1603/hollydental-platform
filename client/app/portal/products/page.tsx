@@ -66,7 +66,7 @@ export default function PatientProductsPage() {
     <div className="space-y-6 pb-12 font-sans relative">
       
       {/* Immersive Storefront Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-navy text-white p-8 md:p-10 shadow-xl border border-navy/80">
+      <div className="relative overflow-hidden bg-[#0A1628] border border-gray-800 rounded-3xl p-8 md:p-10 text-white shadow-lg">
         {/* Glowing Backdrops */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(201,169,110,0.15),_transparent_60%)] pointer-events-none" />
         <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-gold/5 rounded-full blur-3xl pointer-events-none" />

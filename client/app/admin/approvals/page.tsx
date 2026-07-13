@@ -136,9 +136,9 @@ export default function AdminApprovalsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="pb-6 w-full max-w-5xl">
       {/* Header */}
-      <header className="border-b border-gray-200 pb-4 flex items-center justify-between gap-4 flex-wrap">
+      <header className="border-b border-gray-200 py-4 px-4 md:px-6 flex items-center justify-between gap-4 flex-wrap">
         <div className="space-y-1">
           <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-semibold tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded-full">
             <CalendarClock className="w-3 h-3" /> Live Booking Queue
@@ -166,6 +166,7 @@ export default function AdminApprovalsPage() {
         </div>
       </header>
 
+      <div className="px-4 md:px-6 pt-6 space-y-6">
       {success && (
         <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 text-emerald-700 text-xs px-4 py-3 flex items-center gap-2">
           <Check className="w-4 h-4" />
@@ -306,6 +307,7 @@ export default function AdminApprovalsPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }

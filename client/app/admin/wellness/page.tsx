@@ -72,9 +72,9 @@ export default function AdminWellnessPage() {
   const topStreak = entries.reduce((max, e) => Math.max(max, e.streak), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="pb-6 w-full">
       {/* Header */}
-      <div className="border-b border-gray-200 pb-4 flex items-start justify-between gap-4 flex-wrap">
+      <div className="border-b border-gray-200 py-4 px-4 md:px-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="font-serif text-2xl font-bold text-navy flex items-center gap-2">
             <Heart className="w-5 h-5 text-red-400" /> Wellness Monitor
@@ -91,6 +91,7 @@ export default function AdminWellnessPage() {
         </button>
       </div>
 
+      <div className="px-4 md:px-6 pt-6 space-y-6">
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <SummaryCard
@@ -225,6 +226,7 @@ export default function AdminWellnessPage() {
           })}
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -46,18 +46,21 @@ export default function AdminAnalyticsPage() {
   ];
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="pb-10 w-full">
       
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+      <div className="flex items-center justify-between border-b border-gray-200 py-4 px-4 md:px-6">
         <div>
           <h1 className="font-serif text-2xl font-bold text-navy">Analytics & Metrics</h1>
           <p className="text-gray-500 text-xs mt-1">Review clinical statistics, transaction rates, and booking conversion metrics</p>
         </div>
       </div>
 
+      <div className="px-4 md:px-6 pt-6 space-y-6">
       {loading ? (
         <div className="h-[400px] shimmer rounded-2xl" />
+      ) : !data ? (
+        <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-gray-500">Failed to load analytics data.</div>
       ) : (
         <div className="space-y-6">
           
@@ -142,6 +145,7 @@ export default function AdminAnalyticsPage() {
 
         </div>
       )}
+      </div>
 
     </div>
   );
