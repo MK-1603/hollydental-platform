@@ -12,10 +12,15 @@ const nextConfig: NextConfig = {
     root: path.join(process.cwd(), ".."),
   },
   async rewrites() {
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+    // Ensure the API URL is properly formatted to prevent proxy duplication
+    if (apiUrl.endsWith("/")) apiUrl = apiUrl.slice(0, -1);
+    if (!apiUrl.endsWith("/api")) apiUrl += "/api";
+
     return [
       {
         source: "/api/:path*",
-        destination: "http://127.0.0.1:5000/api/:path*",
+        destination: `${apiUrl}/:path*`,
       },
     ];
   },
@@ -36,10 +41,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "media.istockphoto.com" },
-      { protocol: "https", hostname: "i.ytimg.com" },
-      { protocol: "https", hostname: "www.hollyhilldental.ie" },
-      { protocol: "https", hostname: "hollyhilldental.ie" },
     ],
   },
 };

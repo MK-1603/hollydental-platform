@@ -1,25 +1,21 @@
 const getApiUrl = () => {
-  // Always use the relative proxy path in development on the client side.
-  // This prevents Secure/SameSite cookie rejection on mobile LAN IPs (like 192.168.x.x)
-  // when an external NEXT_PUBLIC_API_URL is accidentally used in dev.
-  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+  // Universally use the relative proxy path on the client side.
+  // Next.js `rewrites` in next.config.ts will automatically proxy these
+  // requests to the backend (whether local 127.0.0.1 or Render in production).
+  // This fundamentally prevents iOS/Safari from blocking cookies due to
+  // cross-origin Intelligent Tracking Prevention (ITP).
+  if (typeof window !== "undefined") {
     return "/api";
   }
 
+  // Server-side (SSR/RSC) fetching fallback
   if (process.env.NEXT_PUBLIC_API_URL) {
     let url = process.env.NEXT_PUBLIC_API_URL;
-    // Strip trailing slash
     if (url.endsWith('/')) url = url.slice(0, -1);
-    // Append /api if missing
     if (!url.endsWith('/api')) url += '/api';
     return url;
   }
   
-  if (typeof window !== "undefined") {
-    // Client-side: use relative path to leverage Next.js rewrites.
-    // This perfectly avoids cross-origin SameSite cookie bugs on mobile Safari!
-    return "/api";
-  }
   return "http://127.0.0.1:5000/api";
 };
 
