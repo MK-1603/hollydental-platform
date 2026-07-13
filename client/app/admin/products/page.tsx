@@ -222,39 +222,48 @@ export default function AdminProductsPage() {
           ) : (
             <>
               {/* Mobile Card Layout */}
-              <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-1 px-1">
+              <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-2 px-2">
                 {filteredProducts.map((p) => (
-                  <div
-                    key={p.id}
+                  <div 
+                    key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-[16px] p-4 border border-gray-200 shadow-sm cursor-pointer active:scale-[0.99] transition-transform"
+                    className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-all group relative overflow-hidden"
                   >
                     <div className="flex items-start gap-4">
-                      {p.imageUrl ? (
-                        <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-[12px] object-cover border border-gray-100 shadow-sm shrink-0" />
-                      ) : (
-                        <div className="w-16 h-16 rounded-[12px] bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 shadow-sm">
-                          <Package className="w-6 h-6 text-gray-400" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start gap-2">
-                          <h3 className="text-[14px] font-bold text-gray-900 leading-tight">{p.name}</h3>
-                          <span className="text-[14px] font-bold text-gray-900 shrink-0">
+                      {/* Image container with premium styling */}
+                      <div className="relative shrink-0">
+                        {p.imageUrl ? (
+                          <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-xl object-cover border border-gray-100 shadow-sm" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shadow-sm">
+                            <Package className="w-6 h-6 text-gray-300" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 py-0.5">
+                        <div className="flex justify-between items-start gap-2 mb-1">
+                          <h3 className="text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 pr-1">{p.name}</h3>
+                          <span className="text-[13px] font-bold text-gray-900 shrink-0 mt-0.5">
                             €{parseFloat(p.price).toFixed(2)}
                           </span>
                         </div>
-                        <p className="text-[11px] text-gray-500 font-mono mt-1 mb-2">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
+                        
+                        <p className="text-[11px] text-gray-400 font-mono mb-2">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
+                        
                         <div className="flex items-center justify-between">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide border ${p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
-                            }`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium tracking-wide ${
+                            p.category === 'procedure' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'
+                          }`}>
                             {p.category === 'procedure' ? 'Procedure' : 'Retail'}
                           </span>
-
+                          
                           {p.category === 'procedure' ? (
-                            <span className="text-[11px] font-medium text-gray-500 italic">Unlimited</span>
+                            <span className="text-[11px] font-medium text-gray-400">Unlimited</span>
                           ) : (
-                            <span className={`text-[11px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                            <span className={`text-[11px] font-medium flex items-center gap-1 ${p.stockCount > 10 ? 'text-emerald-500' : p.stockCount > 0 ? 'text-amber-500' : 'text-red-500'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${p.stockCount > 10 ? 'bg-emerald-500' : p.stockCount > 0 ? 'bg-amber-500' : 'bg-red-500'}`}></span>
                               {p.stockCount} in stock
                             </span>
                           )}
