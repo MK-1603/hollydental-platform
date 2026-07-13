@@ -59,11 +59,8 @@ export default function NotificationsPage() {
     let isComponentMounted = true;
 
     const connect = () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-      
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-      es = new EventSource(`${baseUrl}/notifications/stream?token=${token}`);
+      es = new EventSource(`${baseUrl}/notifications/stream`, { withCredentials: true });
       
       es.onopen = () => {
         if (!isComponentMounted) return;
