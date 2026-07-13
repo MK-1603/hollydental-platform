@@ -261,14 +261,22 @@ export default function AdminMessagesPage() {
                 const name =
                   `${t.patient?.firstName || ""} ${t.patient?.lastName || ""}`.trim() || "Patient";
                 return (
-                  <button
+                  <div
                     key={t.patientId}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setActivePatientId(t.patientId);
+                        setMobileView("chat");
+                      }
+                    }}
                     onClick={() => {
                       setActivePatientId(t.patientId);
                       setMobileView("chat");
                     }}
-                    className={`group w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-gray-50 transition-colors relative ${
+                    className={`group w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-gray-50 transition-colors relative cursor-pointer ${
                       isActive ? "bg-[#f0f2f5]" : "hover:bg-gray-50/70"
                     }`}
                   >
@@ -335,7 +343,7 @@ export default function AdminMessagesPage() {
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
-                  </button>
+                  </div>
                 );
               })
             )}
