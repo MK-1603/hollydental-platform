@@ -53,33 +53,38 @@ export default function Toaster() {
   return (
     <>
       {/* Toast stack — bottom-right on desktop, top-center on mobile */}
-      <div className="pointer-events-none fixed top-4 sm:top-auto sm:bottom-4 inset-x-4 sm:inset-x-auto sm:right-6 z-[200] flex flex-col gap-2 sm:max-w-sm w-auto">
+      <div className="pointer-events-none fixed top-20 sm:top-auto sm:bottom-6 inset-x-0 mx-auto sm:right-6 sm:inset-x-auto sm:mx-0 z-[9999] flex flex-col items-center sm:items-end gap-2 w-max max-w-[90vw] sm:max-w-sm">
         {toasts.map((t) => {
           const style = VARIANT_STYLES[t.variant];
           return (
             <div
               key={t.id}
               role="status"
-              className={`pointer-events-auto bg-white shadow-xl border ${style.ring} rounded-[14px] px-3.5 py-2.5 flex items-start gap-2.5 animate-in slide-in-from-top-4 sm:slide-in-from-bottom-4 fade-in duration-300`}
+              className={`pointer-events-auto bg-white shadow-lg border ${style.ring} rounded-full pl-1.5 pr-2 py-1.5 flex items-center gap-2.5 animate-in slide-in-from-top-4 sm:slide-in-from-bottom-4 fade-in duration-300 w-auto`}
             >
               <span
-                className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 ${style.iconBg}`}
+                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${style.iconBg}`}
               >
                 {style.icon}
               </span>
-              <div className="flex-1 min-w-0 text-navy pt-0.5">
-                <p className="text-[12px] font-bold leading-tight">
+              <div className="flex-1 min-w-0 text-navy flex items-center gap-1.5 pr-1">
+                <p className="text-[12px] font-bold whitespace-nowrap">
                   {t.title || style.title}
                 </p>
-                <p className="text-[11px] text-gray-500 font-medium leading-snug mt-0.5 break-words">
-                  {t.message}
-                </p>
+                {t.message && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-gray-300 shrink-0 hidden sm:block" />
+                    <p className="text-[11px] text-gray-500 font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                      {t.message}
+                    </p>
+                  </>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => dismiss(t.id)}
                 aria-label="Dismiss"
-                className="text-gray-400 hover:text-navy transition-colors p-1 -mr-1"
+                className="text-gray-400 hover:text-navy transition-colors p-1 rounded-full hover:bg-gray-100 shrink-0"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
