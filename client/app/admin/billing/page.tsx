@@ -146,6 +146,8 @@ export default function AdminBillingPage() {
           patientId,
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           items: [{ description: itemDesc || "Dental Services", quantity: 1, price: cost }],
+          subtotal: cost,
+          totalAmount: cost,
           status: "pending"
         })
       });
