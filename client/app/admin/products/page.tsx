@@ -172,7 +172,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
+      <div className="flex-1 flex flex-col p-4 md:p-6 md:overflow-hidden">
         {/* Search & Filters */}
         <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
           <div className="relative flex-1 min-w-0">
