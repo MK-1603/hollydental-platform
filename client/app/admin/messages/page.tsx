@@ -96,6 +96,7 @@ export default function AdminMessagesPage() {
     refetch: refetchMessages,
     sendMessage,
     deleteMessage,
+    clearChat,
     markRead,
   } = useChatThread({ patientId: activePatientId, selfRole: "admin" });
 
@@ -178,6 +179,22 @@ export default function AdminMessagesPage() {
       refetchThreads();
     } catch (err: any) {
       toast.error(err?.message || "Couldn't delete the message.");
+    }
+  };
+
+  const handleClearChat = async () => {
+    const ok = await toast.confirm({
+      title: "Clear all messages?",
+      message: "This will permanently delete the entire chat history for this patient.",
+      confirmText: "Clear Chat",
+      danger: true,
+    });
+    if (!ok) return;
+    try {
+      await clearChat();
+      refetchThreads();
+    } catch (err: any) {
+      toast.error(err?.message || "Couldn't clear chat.");
     }
   };
 
@@ -366,6 +383,14 @@ export default function AdminMessagesPage() {
                     title="Refresh"
                   >
                     <RefreshCw className={`w-4 h-4 ${tLoading || mLoading ? "animate-spin" : ""}`} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearChat}
+                    className="p-2 rounded-full hover:bg-red-50 text-red-500 transition-colors"
+                    title="Clear Chat"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </header>

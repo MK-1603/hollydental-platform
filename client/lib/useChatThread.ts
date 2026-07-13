@@ -293,6 +293,23 @@ export function useChatThread({
     [fetchThread]
   );
 
+  const clearChat = useCallback(async () => {
+    const pid = patientIdRef.current;
+    if (!pid) return;
+
+    // Optimistic clear
+    setServerMessages([]);
+    threadCache.set(pid, []);
+    setOptimistic([]);
+
+    try {
+      await apiRequest(`/messages/patient/${pid}`, { method: "DELETE" });
+    } catch (err) {
+      await fetchThread(true);
+      throw err;
+    }
+  }, [fetchThread]);
+
   const markRead = useCallback(async () => {
     const pid = patientIdRef.current;
     if (!pid) return;
@@ -310,6 +327,7 @@ export function useChatThread({
     refetch: () => fetchThread(false),
     sendMessage,
     deleteMessage,
+    clearChat,
     markRead,
   };
 }
