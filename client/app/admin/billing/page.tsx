@@ -188,18 +188,18 @@ export default function AdminBillingPage() {
     }
   };
 
-  return (
     <div className="flex flex-col flex-1 bg-[#F8FAFC] relative pb-24 md:pb-10">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 border-b border-gray-200 bg-white shrink-0">
-        <div className="mb-4 md:mb-0">
-          <h1 className="text-[20px] font-bold text-gray-900 font-serif">Financial Dashboard</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Manage patient invoices, payments, and revenue insights.</p>
+      <div className="flex items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
+        <div className="min-w-0">
+          <h1 className="text-[15px] md:text-[20px] font-bold text-gray-900 font-serif whitespace-nowrap">Financial Dashboard</h1>
+          <p className="text-[11px] md:text-[13px] text-gray-500 mt-1 truncate">Manage patient invoices, payments, and revenue insights.</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleOpenAdd} className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
-            <Plus className="w-4 h-4" /> Create Invoice
+        <div className="flex shrink-0">
+          <button onClick={handleOpenAdd} className="flex items-center justify-center w-8 h-8 md:w-auto md:px-4 md:py-2.5 bg-blue-600 text-white rounded-lg md:rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+            <Plus className="w-4 h-4" /> 
+            <span className="hidden md:inline ml-2">Create Invoice</span>
           </button>
         </div>
       </div>
@@ -208,45 +208,45 @@ export default function AdminBillingPage() {
       <div className="flex flex-col p-4 sm:p-6 min-w-0">
         
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 shrink-0">
-          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Total Revenue</p>
-              <p className="text-[24px] font-bold text-gray-900 mt-1">€{kpis.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 shrink-0">
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Revenue</p>
+              <div className="w-7 h-7 md:w-10 md:h-10 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100 shrink-0">
+                <TrendingUp className="w-3.5 h-3.5 md:w-5 md:h-5 text-emerald-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100">
-              <TrendingUp className="w-6 h-6 text-emerald-600" />
-            </div>
+            <p className="text-[16px] md:text-[24px] font-bold text-gray-900">€{kpis.totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
           </div>
           
-          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Outstanding (Overdue)</p>
-              <p className="text-[24px] font-bold text-red-600 mt-1">€{kpis.overdueAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Overdue</p>
+              <div className="w-7 h-7 md:w-10 md:h-10 bg-red-50 rounded-full flex items-center justify-center border border-red-100 shrink-0">
+                <AlertCircle className="w-3.5 h-3.5 md:w-5 md:h-5 text-red-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center border border-red-100">
-              <AlertCircle className="w-6 h-6 text-red-600" />
-            </div>
+            <p className="text-[16px] md:text-[24px] font-bold text-red-600">€{kpis.overdueAmount.toLocaleString(undefined, {minimumFractionDigits: 2})}</p>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Paid Invoices</p>
-              <p className="text-[24px] font-bold text-gray-900 mt-1">{kpis.paid}</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Paid</p>
+              <div className="w-7 h-7 md:w-10 md:h-10 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100 shrink-0">
+                <CheckCircle2 className="w-3.5 h-3.5 md:w-5 md:h-5 text-blue-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center border border-blue-100">
-              <CheckCircle2 className="w-6 h-6 text-blue-600" />
-            </div>
+            <p className="text-[16px] md:text-[24px] font-bold text-gray-900">{kpis.paid}</p>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-[12px] p-5 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-[12px] font-bold text-gray-500 uppercase tracking-wider">Pending Payment</p>
-              <p className="text-[24px] font-bold text-gray-900 mt-1">{kpis.pending}</p>
+          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Pending</p>
+              <div className="w-7 h-7 md:w-10 md:h-10 bg-amber-50 rounded-full flex items-center justify-center border border-amber-100 shrink-0">
+                <Clock className="w-3.5 h-3.5 md:w-5 md:h-5 text-amber-600" />
+              </div>
             </div>
-            <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center border border-amber-100">
-              <Clock className="w-6 h-6 text-amber-600" />
-            </div>
+            <p className="text-[16px] md:text-[24px] font-bold text-gray-900">{kpis.pending}</p>
           </div>
         </div>
 
