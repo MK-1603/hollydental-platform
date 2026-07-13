@@ -153,7 +153,7 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative md:overflow-hidden md:h-full">
+    <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
 
       {/* Page Header */}
       <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
@@ -172,7 +172,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col p-4 md:p-6 md:overflow-hidden">
+      <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
         {/* Search & Filters */}
         <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
           <div className="relative flex-1 min-w-0">
@@ -207,7 +207,7 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Responsive Content Container */}
-        <div className="flex-1 flex flex-col min-h-0 md:overflow-hidden">
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
 
           {loading ? (
             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200 min-h-[200px]">
@@ -222,7 +222,7 @@ export default function AdminProductsPage() {
           ) : (
             <>
               {/* Mobile Card Layout */}
-              <div className="md:hidden grid grid-cols-2 gap-3 pb-[100px] pt-2 px-1">
+              <div className="md:hidden flex-1 overflow-y-auto grid grid-cols-2 gap-3 pb-[120px] custom-scrollbar pt-2 px-1">
                 {filteredProducts.map((p) => (
                   <div 
                     key={p.id} 
