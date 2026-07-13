@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
-import { RefreshCw, ClipboardList, FileText, User, Calendar, Clock, CheckCircle2, XCircle, AlertCircle, ChevronRight, Stethoscope, Phone, Mail, StickyNote, Zap, X, UserPlus, ArrowRight, Check, ChevronDown, Filter, Activity } from "lucide-react";
+import { RefreshCw, ClipboardList, FileText, User, Calendar, Clock, CheckCircle2, XCircle, AlertCircle, ChevronRight, ChevronLeft, Stethoscope, Phone, Mail, StickyNote, Zap, X, UserPlus, ArrowRight, Check, ChevronDown, Filter, Activity } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { div } from "framer-motion/client";
 
