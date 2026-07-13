@@ -265,15 +265,15 @@ export default function SuppliersPage() {
         </div>
       </div>
 
-      {/* Right Drawer Slide-over */}
+      {/* iOS Style Modal */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm transition-opacity" onClick={handleCloseDrawer} />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+          <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-200" onClick={handleCloseDrawer} />
           
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-300">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-[16px] font-bold text-gray-900">
+          <div className="relative w-full max-w-md bg-white rounded-[20px] shadow-2xl flex flex-col max-h-full overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shrink-0">
+              <h2 className="text-[18px] md:text-[20px] font-serif font-bold text-gray-900">
                 {isAdding ? "New Supplier" : isEditing ? "Edit Supplier" : "Supplier Details"}
               </h2>
               <div className="flex items-center gap-2">
@@ -288,39 +288,42 @@ export default function SuppliersPage() {
                   </>
                 )}
                 <button onClick={handleCloseDrawer} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[8px] transition-colors">
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Drawer Content */}
+            {/* Modal Content */}
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
               {isEditing ? (
                 <div className="space-y-5">
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Company Name <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. Dentsply Sirona" />
+                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm" placeholder="e.g. Dentsply Sirona" />
                   </div>
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Contact Person</label>
-                    <input type="text" value={formData.contactName} onChange={e => setFormData({...formData, contactName: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. John Doe" />
+                    <input type="text" value={formData.contactName} onChange={e => setFormData({...formData, contactName: e.target.value})} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm" placeholder="e.g. John Doe" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Phone Number</label>
-                      <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="+44..." />
+                      <input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm" placeholder="+44..." />
                     </div>
                     <div>
                       <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Status</label>
-                      <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm appearance-none">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
+                      <div className="relative">
+                        <select value={formData.status} onChange={e => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm appearance-none cursor-pointer">
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                        <ChevronRight className="w-3.5 h-3.5 text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none rotate-90" />
+                      </div>
                     </div>
                   </div>
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Email Address</label>
-                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="orders@company.com" />
+                    <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-[8px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 shadow-sm" placeholder="orders@company.com" />
                   </div>
                 </div>
               ) : selectedSupplier ? (
@@ -381,19 +384,19 @@ export default function SuppliersPage() {
               ) : null}
             </div>
 
-            {/* Drawer Footer */}
+            {/* Modal Footer */}
             {isEditing && (
-              <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex gap-3">
+              <div className="p-4 border-t border-gray-100 bg-white shrink-0 flex gap-3">
                 <button 
                   onClick={() => isAdding ? handleCloseDrawer() : setIsEditing(false)} 
-                  className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
+                  className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-[8px] text-[13px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1C51DF] hover:bg-[#1542C2] text-white rounded-[8px] text-[13px] font-bold transition-colors shadow-sm disabled:opacity-50"
                 >
                   {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Save Supplier
