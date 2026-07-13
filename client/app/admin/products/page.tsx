@@ -5,8 +5,8 @@ import { useLiveData } from "@/lib/useLiveData";
 import { apiRequest, apiUpload } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { useDialog } from "@/components/DialogProvider";
-import { 
-  Search, Plus, Package, Edit3, Trash2, X, Filter, Download, 
+import {
+  Search, Plus, Package, Edit3, Trash2, X, Filter, Download,
   Image as ImageIcon, RefreshCw, Save, Archive, History, Check, Copy, ChevronDown
 } from "lucide-react";
 import { generateTablePDF } from "@/lib/pdf";
@@ -16,11 +16,11 @@ export default function AdminProductsPage() {
   const [filterCategory, setFilterCategory] = useState("all");
   const { confirm } = useDialog();
   const { data: products, loading, error, refetch } = useLiveData<any[]>("/products", { initialData: [], intervalMs: 60000 });
-  
+
   // Drawer state
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  
+
   // Edit/Add state
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -44,13 +44,13 @@ export default function AdminProductsPage() {
 
   const handleOpenDetails = (product: any) => {
     setSelectedProduct(product);
-    setFormData({ 
-      name: product.name || "", 
-      description: product.description || "", 
-      category: product.category || "extra", 
-      price: product.price || "", 
-      priceTo: product.priceTo || "", 
-      imageUrl: product.imageUrl || "", 
+    setFormData({
+      name: product.name || "",
+      description: product.description || "",
+      category: product.category || "extra",
+      price: product.price || "",
+      priceTo: product.priceTo || "",
+      imageUrl: product.imageUrl || "",
       stockCount: (product.stockCount || 0).toString(),
       displayOrder: (product.displayOrder || 0).toString()
     });
@@ -154,7 +154,7 @@ export default function AdminProductsPage() {
 
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
-      
+
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
         <div className="min-w-0">
@@ -190,7 +190,7 @@ export default function AdminProductsPage() {
               </button>
             )}
           </div>
-          
+
           <div className="relative shrink-0">
             <select
               value={filterCategory}
@@ -208,24 +208,24 @@ export default function AdminProductsPage() {
 
         {/* Responsive Content Container */}
         <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          
+
           {loading ? (
-             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200">
-               <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading catalog...
-             </div>
+            <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200">
+              <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading catalog...
+            </div>
           ) : filteredProducts.length === 0 ? (
-             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm">
-                <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
-                <p className="text-[16px] font-bold text-gray-900">No items found</p>
-                <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your search or filter, or add a new item.</p>
-             </div>
+            <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm">
+              <Package className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+              <p className="text-[16px] font-bold text-gray-900">No items found</p>
+              <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your search or filter, or add a new item.</p>
+            </div>
           ) : (
             <>
               {/* Mobile Card Layout */}
               <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-1 px-1">
                 {filteredProducts.map((p) => (
-                  <div 
-                    key={p.id} 
+                  <div
+                    key={p.id}
                     onClick={() => handleOpenDetails(p)}
                     className="bg-white rounded-[16px] p-4 border border-gray-200 shadow-sm cursor-pointer active:scale-[0.99] transition-transform"
                   >
@@ -246,12 +246,11 @@ export default function AdminProductsPage() {
                         </div>
                         <p className="text-[11px] text-gray-500 font-mono mt-1 mb-2">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
                         <div className="flex items-center justify-between">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide border ${
-                            p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-[6px] text-[10px] font-bold tracking-wide border ${p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                            }`}>
                             {p.category === 'procedure' ? 'Procedure' : 'Retail'}
                           </span>
-                          
+
                           {p.category === 'procedure' ? (
                             <span className="text-[11px] font-medium text-gray-500 italic">Unlimited</span>
                           ) : (
@@ -298,9 +297,8 @@ export default function AdminProductsPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${
-                              p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
-                            }`}>
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${p.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                              }`}>
                               {p.category === 'procedure' ? 'Clinical Procedure' : 'Retail Extra'}
                             </span>
                           </td>
@@ -342,7 +340,7 @@ export default function AdminProductsPage() {
       {isDrawerOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm transition-opacity" onClick={handleCloseDrawer} />
-          
+
           <div className="relative w-full max-w-lg bg-white h-full shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-300">
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
@@ -384,10 +382,10 @@ export default function AdminProductsPage() {
                         <p className="text-[11px] text-gray-500 mt-1 text-center">SVG, PNG, JPG (Max 5MB)</p>
                       </>
                     )}
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleImageUpload} 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
                       disabled={uploadingImage}
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
@@ -400,13 +398,13 @@ export default function AdminProductsPage() {
 
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Item Name <span className="text-red-500">*</span></label>
-                    <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. Ultrasonic Scaling" />
+                    <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="e.g. Ultrasonic Scaling" />
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Category</label>
-                      <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm appearance-none">
+                      <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm appearance-none">
                         <option value="procedure">Procedure</option>
                         <option value="extra">Retail Extra</option>
                       </select>
@@ -414,7 +412,7 @@ export default function AdminProductsPage() {
                     {formData.category === "extra" && (
                       <div>
                         <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Stock Count</label>
-                        <input type="number" min="0" value={formData.stockCount} onChange={e => setFormData({...formData, stockCount: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" />
+                        <input type="number" min="0" value={formData.stockCount} onChange={e => setFormData({ ...formData, stockCount: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" />
                       </div>
                     )}
                   </div>
@@ -422,17 +420,17 @@ export default function AdminProductsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Price (€) <span className="text-red-500">*</span></label>
-                      <input type="number" step="0.01" min="0" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
+                      <input type="number" step="0.01" min="0" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
                     </div>
                     <div>
                       <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Max Price (Optional)</label>
-                      <input type="number" step="0.01" min="0" value={formData.priceTo} onChange={e => setFormData({...formData, priceTo: e.target.value})} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
+                      <input type="number" step="0.01" min="0" value={formData.priceTo} onChange={e => setFormData({ ...formData, priceTo: e.target.value })} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm" placeholder="0.00" />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-[12px] font-bold text-gray-700 mb-1.5">Description / Clinical Notes</label>
-                    <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={4} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm resize-none" placeholder="Provide clinical details or usage instructions..."></textarea>
+                    <textarea value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} rows={4} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm resize-none" placeholder="Provide clinical details or usage instructions..."></textarea>
                   </div>
                 </div>
               ) : selectedProduct ? (
@@ -454,8 +452,7 @@ export default function AdminProductsPage() {
                         <h3 className="text-[20px] font-bold text-gray-900">{selectedProduct.name}</h3>
                         <p className="text-[13px] text-gray-500 font-mono mt-1">SKU: {selectedProduct.id.slice(0, 12).toUpperCase()}</p>
                       </div>
-                      <span className={`inline-flex items-center px-3 py-1.5 rounded-[8px] text-[12px] font-bold tracking-wide border ${
-                          selectedProduct.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
+                      <span className={`inline-flex items-center px-3 py-1.5 rounded-[8px] text-[12px] font-bold tracking-wide border ${selectedProduct.category === 'procedure' ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'
                         }`}>
                         {selectedProduct.category === 'procedure' ? 'Procedure' : 'Retail'}
                       </span>
@@ -488,18 +485,18 @@ export default function AdminProductsPage() {
                   )}
 
                   <div>
-                     <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Item History</h4>
-                     <div className="border border-gray-100 rounded-[12px] overflow-hidden">
-                        <div className="p-4 flex items-center justify-between border-b border-gray-100 bg-white">
-                           <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center"><History className="w-4 h-4 text-gray-400" /></div>
-                              <div>
-                                 <p className="text-[13px] font-bold text-gray-900">Created At</p>
-                                 <p className="text-[12px] text-gray-500">{new Date(selectedProduct.createdAt).toLocaleDateString()}</p>
-                              </div>
-                           </div>
+                    <h4 className="text-[12px] font-bold text-gray-900 uppercase tracking-wider mb-3">Item History</h4>
+                    <div className="border border-gray-100 rounded-[12px] overflow-hidden">
+                      <div className="p-4 flex items-center justify-between border-b border-gray-100 bg-white">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center"><History className="w-4 h-4 text-gray-400" /></div>
+                          <div>
+                            <p className="text-[13px] font-bold text-gray-900">Created At</p>
+                            <p className="text-[12px] text-gray-500">{new Date(selectedProduct.createdAt).toLocaleDateString()}</p>
+                          </div>
                         </div>
-                     </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : null}
@@ -508,13 +505,13 @@ export default function AdminProductsPage() {
             {/* Drawer Footer */}
             {isEditing && (
               <div className="p-4 border-t border-gray-100 bg-gray-50/50 flex gap-3">
-                <button 
-                  onClick={() => isAdding ? handleCloseDrawer() : setIsEditing(false)} 
+                <button
+                  onClick={() => isAdding ? handleCloseDrawer() : setIsEditing(false)}
                   className="flex-1 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-[13px] font-bold hover:bg-gray-50 transition-colors shadow-sm"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleSave}
                   disabled={isSaving}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
