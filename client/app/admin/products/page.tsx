@@ -156,16 +156,16 @@ export default function AdminProductsPage() {
     <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
 
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
-        <div className="min-w-0">
-          <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Clinical Catalog & Inventory</h1>
-          <p className="text-[12px] md:text-[13px] text-gray-500 mt-1 truncate">Manage procedures, materials, and retail items.</p>
+      <div className="flex flex-row items-center justify-between gap-3 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Inventory</h1>
+          <p className="text-[12px] md:text-[13px] text-gray-500 mt-0.5 truncate hidden sm:block">Manage procedures, materials, and retail items.</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={handleExport} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] md:text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-            <Download className="w-4 h-4" /> Export
+        <div className="flex gap-2 shrink-0">
+          <button onClick={handleExport} className="justify-center flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] md:text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+            <Download className="w-4 h-4" /> <span className="hidden sm:inline">Export</span>
           </button>
-          <button onClick={handleOpenAdd} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] md:text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleOpenAdd} className="justify-center flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] md:text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Add Item
           </button>
         </div>
@@ -222,52 +222,39 @@ export default function AdminProductsPage() {
           ) : (
             <>
               {/* Mobile Card Layout */}
-              <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-2 px-2">
+              <div className="md:hidden flex-1 overflow-y-auto grid grid-cols-2 gap-3 pb-[80px] custom-scrollbar -mx-2 px-2 content-start">
                 {filteredProducts.map((p) => (
                   <div 
                     key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-all group relative overflow-hidden"
+                    className="bg-white rounded-2xl p-3 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-all group relative flex flex-col overflow-hidden"
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Image container with premium styling */}
-                      <div className="relative shrink-0">
-                        {p.imageUrl ? (
-                          <img src={p.imageUrl} alt={p.name} className="w-16 h-16 rounded-xl object-cover border border-gray-100 shadow-sm" />
+                    <div className="w-full aspect-square rounded-xl bg-gray-50 mb-3 overflow-hidden relative shrink-0 flex items-center justify-center border border-gray-100/50">
+                      {p.imageUrl ? (
+                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-8 h-8 text-gray-300" />
+                      )}
+                      <span className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-sm ${
+                        p.category === 'procedure' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {p.category === 'procedure' ? 'Clinical' : 'Retail'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <h3 className="text-[12px] font-bold text-gray-900 leading-tight line-clamp-2 mb-1">{p.name}</h3>
+                      <div className="mt-auto pt-1 flex items-center justify-between gap-1">
+                        <span className="text-[14px] font-extrabold text-gray-900">
+                          €{parseFloat(p.price).toFixed(2)}
+                        </span>
+                        {p.category === 'procedure' ? (
+                           <span className="text-[10px] font-medium text-gray-400">Unlmtd</span>
                         ) : (
-                          <div className="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shadow-sm">
-                            <Package className="w-6 h-6 text-gray-300" />
-                          </div>
+                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${p.stockCount > 10 ? 'bg-emerald-50 text-emerald-600' : p.stockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'}`}>
+                             {p.stockCount} left
+                           </span>
                         )}
-                      </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 min-w-0 py-0.5">
-                        <div className="flex justify-between items-start gap-2 mb-1">
-                          <h3 className="text-[13px] font-semibold text-gray-900 leading-snug line-clamp-2 pr-1">{p.name}</h3>
-                          <span className="text-[13px] font-bold text-gray-900 shrink-0 mt-0.5">
-                            €{parseFloat(p.price).toFixed(2)}
-                          </span>
-                        </div>
-                        
-                        <p className="text-[11px] text-gray-400 font-mono mb-2">SKU: {p.id.slice(0, 8).toUpperCase()}</p>
-                        
-                        <div className="flex items-center justify-between">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium tracking-wide ${
-                            p.category === 'procedure' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'
-                          }`}>
-                            {p.category === 'procedure' ? 'Procedure' : 'Retail'}
-                          </span>
-                          
-                          {p.category === 'procedure' ? (
-                            <span className="text-[11px] font-medium text-gray-400">Unlimited</span>
-                          ) : (
-                            <span className={`text-[11px] font-medium flex items-center gap-1 ${p.stockCount > 10 ? 'text-emerald-500' : p.stockCount > 0 ? 'text-amber-500' : 'text-red-500'}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${p.stockCount > 10 ? 'bg-emerald-500' : p.stockCount > 0 ? 'bg-amber-500' : 'bg-red-500'}`}></span>
-                              {p.stockCount} in stock
-                            </span>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </div>
