@@ -195,10 +195,10 @@ export default function AdminBillingPage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 bg-[#F8FAFC] relative pb-24 md:pb-10">
+    <div className="flex flex-col h-full w-full bg-[#F8FAFC] relative overflow-hidden">
       
       {/* Page Header */}
-      <div className="flex items-center justify-between gap-3 p-3 sm:p-4 md:p-6 border-b border-gray-200 bg-white sticky top-0 z-20">
+      <div className="flex items-center justify-between gap-3 p-3 sm:p-4 md:p-6 border-b border-gray-200 bg-white shrink-0 z-20">
         <div className="min-w-0 flex-1">
           <h1 className="text-[13px] sm:text-[14px] md:text-[20px] font-bold text-gray-900 font-serif whitespace-nowrap overflow-hidden text-ellipsis">Financial Dashboard</h1>
           <p className="text-[10px] md:text-[13px] text-gray-500 mt-0.5 md:mt-1 truncate">Manage patient invoices, payments, and revenue insights.</p>
