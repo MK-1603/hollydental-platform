@@ -72,15 +72,15 @@ export default function ServicesPage() {
             by Dr. Roghay Alizadeh and her team in Cork — with a written plan and clear
             pricing every time.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-3 justify-center pt-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center gap-3 justify-center pt-2 max-w-sm mx-auto sm:max-w-none">
             <BookButton
               label="Book Consultation"
               showIcon
-              className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center"
+              className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-3 sm:px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center w-full"
             />
             <Link
               href="/pricing"
-              className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors text-center"
+              className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-3 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center text-center w-full"
             >
               See full pricing
             </Link>

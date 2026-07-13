@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SERVICES, CLINIC } from "@/lib/constants";
-import { Phone, Calendar, Menu, X, Home, Briefcase, ChevronDown, ArrowRight, ShieldAlert, LogOut, User as UserIcon, MapPin, Clock, Activity, MessageCircle } from "lucide-react";
+import { Phone, Calendar, Menu, X, Home, Briefcase, ChevronDown, ArrowRight, ShieldAlert, LogOut, User as UserIcon, MapPin, Clock, Activity, MessageCircle, Plus } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useUIStore } from "@/store/useUIStore";
 import Logo from "@/components/public/Logo";
@@ -15,6 +15,7 @@ export default function Navbar() {
   const [showServices, setShowServices] = useState(false);
   const [showAccount, setShowAccount] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [fabOpen, setFabOpen] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function Navbar() {
     setShowServices(false);
     setMobileServicesOpen(false);
     setShowAccount(false);
+    setFabOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -116,7 +118,7 @@ export default function Navbar() {
     <>
       {/* Top utility bar — refined: navy with gold accents instead of loud red. */}
       <div className="hidden md:block bg-navy text-gray-300 text-[11px] font-medium relative z-50 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-9 flex items-center justify-between">
+        <div className="w-full px-6 lg:px-12 xl:px-16 h-9 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <span className="inline-flex items-center gap-1.5 text-gray-400">
               <MapPin className="w-3 h-3 text-gold" />
@@ -165,7 +167,7 @@ export default function Navbar() {
           <span className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
         )}
 
-        <div className="max-w-7xl mx-auto h-full px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-6 relative">
+        <div className="w-full h-full px-3 sm:px-6 lg:px-12 xl:px-16 flex items-center justify-between gap-2 sm:gap-6 relative">
           {/* Logo block */}
           <div className="flex items-center min-w-0">
             <div className="inline-flex sm:hidden">
@@ -372,23 +374,40 @@ export default function Navbar() {
           </div>
  
           {/* Mobile actions */}
-          <div className="flex lg:hidden items-center gap-2 sm:gap-3">
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={goToBooking}
-              className="bg-gold hover:bg-[#009bde] text-white font-bold px-3.5 sm:px-4 py-2.5 rounded-full text-xs shadow-[0_3px_0_0_#008BCC] hover:shadow-[0_4px_0_0_#008BCC] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 inline-flex items-center gap-1.5 cursor-pointer"
+              className="bg-gold hover:bg-[#009bde] text-white font-bold px-3 py-1.5 rounded-full text-xs shadow-sm transition-colors flex items-center gap-1 cursor-pointer"
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Book</span>
+              <Calendar className="w-3 h-3" />
+              <span>Book</span>
             </button>
+            {user ? (
+              <button
+                type="button"
+                onClick={goToDashboard}
+                className="w-7 h-7 rounded-full bg-gradient-to-br from-[#009bde] to-blue-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm ml-1"
+              >
+                {(user.patientProfile?.firstName?.[0] || user.email?.[0] || "U").toUpperCase()}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openLoginModal()}
+                className="text-navy font-semibold text-[11px] bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-full transition-colors flex items-center ml-1"
+              >
+                Sign in
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setIsOpen(!isOpen)}
-              className="text-navy hover:text-gold focus:outline-none w-10 h-10 inline-flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors"
+              className="text-navy hover:text-[#009bde] focus:outline-none w-8 h-8 inline-flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors"
               aria-label={isOpen ? "Close menu" : "Open menu"}
               aria-expanded={isOpen}
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -396,210 +415,186 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {isOpen && (
-        <div className="fixed inset-0 bg-navy text-white z-50 flex flex-col p-6 sm:p-8 animate-fade-up overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <Logo variant="full" theme="light" size={42} asLink={false} />
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="text-gold focus:outline-none w-10 h-10 inline-flex items-center justify-center rounded-md hover:bg-white/5 transition-colors"
-              aria-label="Close menu"
-            >
-              <X className="w-7 h-7" />
-            </button>
-          </div>
-
-          <nav className="flex flex-col gap-1 text-base font-medium">
-            <DrawerLink href="/" onClose={() => setIsOpen(false)}>
-              Home
-            </DrawerLink>
-
-            <div className="border-b border-white/10">
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-navy/60 backdrop-blur-sm transition-opacity" onClick={() => setIsOpen(false)} />
+          <div className="relative w-[85%] max-w-[360px] h-full bg-white shadow-2xl flex flex-col animate-fade-left overflow-y-auto pb-20">
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <Logo variant="full" theme="dark" size={32} asLink={false} />
               <button
                 type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setMobileServicesOpen((v) => !v);
-                }}
-                aria-expanded={mobileServicesOpen}
-                className="w-full py-3 flex items-center justify-between hover:text-gold transition-colors cursor-pointer select-none"
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-navy focus:outline-none w-10 h-10 inline-flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+                aria-label="Close menu"
               >
-                <span>Services</span>
-                <ChevronDown
-                  className={`w-5 h-5 transition-transform ${
-                    mobileServicesOpen ? "rotate-180 text-gold" : ""
-                  }`}
-                />
+                <X className="w-6 h-6" />
               </button>
-              {mobileServicesOpen && (
-                <div className="pb-4 space-y-4 animate-fade-up">
-                  <Link
-                    href="/services"
-                    onClick={() => setIsOpen(false)}
-                    className="inline-flex items-center gap-1.5 text-sm font-bold text-gold py-2"
-                  >
-                    View all services <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <DrawerCategory
-                    title="General"
-                    services={categories.general}
-                    onClose={() => setIsOpen(false)}
-                  />
-                  <DrawerCategory
-                    title="Cosmetic"
-                    services={categories.cosmetic}
-                    onClose={() => setIsOpen(false)}
-                  />
-                  <DrawerCategory
-                    title="Advanced & Ortho"
-                    services={categories.advanced}
-                    onClose={() => setIsOpen(false)}
-                  />
-                </div>
-              )}
             </div>
 
-            <DrawerLink href="/about" onClose={() => setIsOpen(false)}>About</DrawerLink>
-            <DrawerLink href="/pricing" onClose={() => setIsOpen(false)}>Pricing</DrawerLink>
-            <DrawerLink href="/blog" onClose={() => setIsOpen(false)}>Blog</DrawerLink>
-            <DrawerLink href="/contact" onClose={() => setIsOpen(false)}>Contact</DrawerLink>
+            <nav className="flex flex-col px-4 py-2">
+              <DrawerLink href="/" onClose={() => setIsOpen(false)}>Home</DrawerLink>
 
-            {user ? (
+              <div className="border-b border-gray-100">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setMobileServicesOpen((v) => !v);
+                  }}
+                  aria-expanded={mobileServicesOpen}
+                  className="w-full py-4 px-2 flex items-center justify-between text-navy font-semibold hover:text-[#009bde] transition-colors cursor-pointer select-none"
+                >
+                  <span>Services</span>
+                  <ChevronDown className={`w-5 h-5 transition-transform ${mobileServicesOpen ? "rotate-180 text-[#009bde]" : "text-gray-400"}`} />
+                </button>
+                {mobileServicesOpen && (
+                  <div className="pb-4 px-2 space-y-4 animate-fade-up">
+                    <Link
+                      href="/services"
+                      onClick={() => setIsOpen(false)}
+                      className="inline-flex items-center gap-1.5 text-sm font-bold text-[#009bde] py-2"
+                    >
+                      View all services <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                    <DrawerCategory title="General" services={categories.general} onClose={() => setIsOpen(false)} />
+                    <DrawerCategory title="Cosmetic" services={categories.cosmetic} onClose={() => setIsOpen(false)} />
+                    <DrawerCategory title="Advanced & Ortho" services={categories.advanced} onClose={() => setIsOpen(false)} />
+                  </div>
+                )}
+              </div>
+
+              <DrawerLink href="/about" onClose={() => setIsOpen(false)}>About</DrawerLink>
+              <DrawerLink href="/pricing" onClose={() => setIsOpen(false)}>Pricing</DrawerLink>
+              <DrawerLink href="/blog" onClose={() => setIsOpen(false)}>Blog</DrawerLink>
+              <DrawerLink href="/contact" onClose={() => setIsOpen(false)}>Contact</DrawerLink>
+            </nav>
+
+            <div className="mt-auto flex flex-col gap-3 p-6 bg-gray-50 border-t border-gray-100">
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false);
-                  goToDashboard();
+                  goToBooking();
                 }}
-                className="text-gold hover:underline text-left cursor-pointer border-0 bg-transparent py-3"
+                className="w-full bg-gradient-to-r from-gold to-gold-dark hover:from-[#009bde] hover:to-blue-600 text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center justify-center gap-2"
               >
-                My Dashboard
+                <Calendar className="w-4 h-4" /> Book Appointment
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  openLoginModal();
-                }}
-                className="text-gold hover:underline text-left cursor-pointer border-0 bg-transparent py-3"
+              <a
+                href={CLINIC.phoneHref}
+                className="w-full bg-white border border-gray-200 hover:border-[#009bde] text-navy hover:text-[#009bde] text-center py-3.5 rounded-xl font-bold shadow-sm transition-all inline-flex items-center justify-center gap-2"
               >
-                Patient Sign In
-              </button>
-            )}
-
-            {user && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  logout("manual");
-                  router.replace("/");
-                }}
-                className="text-red-300 hover:text-red-200 hover:underline text-left cursor-pointer border-0 bg-transparent py-3 inline-flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" /> Sign out
-              </button>
-            )}
-          </nav>
-
-          <div className="mt-auto flex flex-col gap-4 pt-6">
-            <a
-              href={CLINIC.phoneHref}
-              className="border border-gold/35 hover:border-gold hover:text-white text-gold text-center py-3.5 rounded-xl font-bold shadow-[0_3px_0_0_rgba(201,169,110,0.15)] hover:shadow-[0_4px_0_0_rgba(201,169,110,0.2)] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 inline-flex items-center justify-center gap-2 bg-white/5 cursor-pointer"
-            >
-              <Phone className="w-4 h-4" /> Call {CLINIC.phone}
-            </a>
-            <a
-              href={CLINIC.whatsapp}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-emerald-500/35 hover:border-emerald-500 hover:text-white text-emerald-400 text-center py-3.5 rounded-xl font-bold shadow-[0_3px_0_0_rgba(16,185,129,0.15)] hover:shadow-[0_4px_0_0_rgba(16,185,129,0.2)] hover:translate-y-[-1px] active:translate-y-[2px] active:shadow-none transition-all duration-75 inline-flex items-center justify-center gap-2 bg-white/5 cursor-pointer"
-            >
-              <MessageCircle className="w-4 h-4" /> WhatsApp {CLINIC.whatsappDisplay}
-            </a>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                goToBooking();
-              }}
-              className="bg-gold hover:bg-[#009bde] text-white text-center py-3.5 rounded-xl font-bold shadow-[0_4px_0_0_#008BCC] hover:shadow-[0_5px_0_0_#008BCC] hover:translate-y-[-1px] active:translate-y-[3px] active:shadow-none transition-all duration-75 cursor-pointer inline-flex items-center justify-center gap-2"
-            >
-              Book Appointment
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <p className="text-[10px] text-gray-400 text-center">
-              <ShieldAlert className="w-3 h-3 inline-block mr-1 text-red-400" />
-              Same-day emergency appointments available
-            </p>
+                <Phone className="w-4 h-4" /> Call {CLINIC.phone}
+              </a>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => { setIsOpen(false); goToDashboard(); }}
+                    className="w-full bg-navy text-white text-center py-3.5 rounded-xl font-bold shadow-md hover:bg-navy/90 transition-all inline-flex items-center justify-center gap-2"
+                  >
+                    <UserIcon className="w-4 h-4" /> My Dashboard
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false);
+                      logout("manual");
+                      router.replace("/");
+                    }}
+                    className="w-full text-red-500 font-semibold py-2 inline-flex items-center justify-center gap-2 mt-2"
+                  >
+                    <LogOut className="w-4 h-4" /> Sign out
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => { setIsOpen(false); openLoginModal(); }}
+                  className="w-full bg-[#009bde] text-white text-center py-3.5 rounded-xl font-bold shadow-[0_4px_12px_rgba(0,155,222,0.3)] hover:bg-[#008acc] transition-all inline-flex items-center justify-center gap-2"
+                >
+                  <UserIcon className="w-4 h-4" /> Patient Sign In
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Floating quick-contact (mobile) — phone + WhatsApp */}
-      <div className="lg:hidden fixed bottom-24 left-4 z-40 flex flex-col gap-2.5">
-        <a
-          href={CLINIC.phoneHref}
-          aria-label={`Call ${CLINIC.phone}`}
-          className="bg-navy hover:bg-navy/90 text-white font-bold w-12 h-12 rounded-full inline-flex items-center justify-center shadow-[0_8px_24px_-6px_rgba(10,22,40,0.5)] border border-white/10 transition-all active:scale-95"
+      {/* Floating Speed Dial (mobile) — phone + WhatsApp */}
+      <div className="lg:hidden fixed bottom-24 left-4 z-40 flex flex-col-reverse items-center gap-3">
+        <button
+          onClick={() => setFabOpen(!fabOpen)}
+          aria-label="Contact options"
+          className="bg-white text-[#2563EB] w-[54px] h-[54px] rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(15,23,42,0.15)] border border-[#E2E8F0] transition-all duration-300 active:scale-95 focus:outline-none"
         >
-          <Phone className="w-5 h-5" />
-        </a>
-        {CLINIC.whatsapp && (
+          <Plus className={`w-7 h-7 transition-transform duration-300 ${fabOpen ? "rotate-[135deg]" : "rotate-0"}`} strokeWidth={2.5} />
+        </button>
+
+        <div className={`flex flex-col gap-3 transition-all duration-300 origin-bottom ${fabOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-50 translate-y-10 pointer-events-none"}`}>
           <a
-            href={CLINIC.whatsapp}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="WhatsApp the clinic"
-            className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold w-12 h-12 rounded-full inline-flex items-center justify-center shadow-[0_8px_24px_-6px_rgba(5,150,105,0.5)] border border-white/10 transition-all active:scale-95"
+            href={CLINIC.phoneHref}
+            aria-label={`Call ${CLINIC.phone}`}
+            className="bg-navy hover:bg-navy/90 text-white w-[48px] h-[48px] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(10,22,40,0.3)] transition-all active:scale-95"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-5 h-5"
-            >
-              <path d="M12 .5C5.65.5.5 5.65.5 12c0 2.11.55 4.08 1.51 5.82L.5 23.5l5.9-1.55A11.45 11.45 0 0012 23.5C18.35 23.5 23.5 18.35 23.5 12S18.35.5 12 .5zm0 20c-1.88 0-3.66-.5-5.2-1.4L4 20l.97-2.3A8.5 8.5 0 013.5 12 8.5 8.5 0 0120.5 12 8.5 8.5 0 0112 20.5z" />
-              <path d="M17.6 14.2c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.17.2-.34.22-.63.075-.3-.15-1.27-.47-2.42-1.48-.9-.8-1.5-1.8-1.68-2.1-.17-.28-.018-.43.12-.57.12-.12.28-.3.42-.45.14-.15.18-.25.28-.42.1-.17.05-.32-.025-.47-.075-.15-.66-1.6-.9-2.2-.24-.57-.48-.5-.66-.5-.17 0-.37-.025-.57-.025-.2 0-.52.075-.8.35-.28.28-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.12 3.25 5.14 4.55 3.02 1.3 3.02.87 3.57.82.55-.05 1.78-.73 2.03-1.44.25-.7.25-1.3.175-1.44-.075-.15-.28-.23-.58-.38z" />
-            </svg>
+            <Phone className="w-5 h-5" fill="currentColor" />
           </a>
-        )}
+          {CLINIC.whatsapp && (
+            <a
+              href={CLINIC.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp the clinic"
+              className="bg-[#25D366] hover:bg-[#20bd5a] text-white w-[48px] h-[48px] rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(37,211,102,0.3)] transition-all active:scale-95"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path d="M12 .5C5.65.5.5 5.65.5 12c0 2.11.55 4.08 1.51 5.82L.5 23.5l5.9-1.55A11.45 11.45 0 0012 23.5C18.35 23.5 23.5 18.35 23.5 12S18.35.5 12 .5zm0 20c-1.88 0-3.66-.5-5.2-1.4L4 20l.97-2.3A8.5 8.5 0 013.5 12 8.5 8.5 0 0120.5 12 8.5 8.5 0 0112 20.5z" />
+                <path d="M17.6 14.2c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.17.2-.34.22-.63.075-.3-.15-1.27-.47-2.42-1.48-.9-.8-1.5-1.8-1.68-2.1-.17-.28-.018-.43.12-.57.12-.12.28-.3.42-.45.14-.15.18-.25.28-.42.1-.17.05-.32-.025-.47-.075-.15-.66-1.6-.9-2.2-.24-.57-.48-.5-.66-.5-.17 0-.37-.025-.57-.025-.2 0-.52.075-.8.35-.28.28-1.05 1.03-1.05 2.5s1.08 2.9 1.23 3.1c.15.2 2.12 3.25 5.14 4.55 3.02 1.3 3.02.87 3.57.82.55-.05 1.78-.73 2.03-1.44.25-.7.25-1.3.175-1.44-.075-.15-.28-.23-.58-.38z" />
+              </svg>
+            </a>
+          )}
+        </div>
       </div>
 
-      {/* Bottom nav (mobile) — only the essentials. The drawer covers
-          everything else, so we keep this to the four actions a patient
-          actually needs in their thumb-zone. */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex items-center justify-around px-2 z-40 shadow-inner">
+      {/* Premium Bottom nav (mobile) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-[72px] bg-white/95 backdrop-blur-md border-t border-gray-100 flex items-center justify-between px-3 sm:px-6 z-40 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] rounded-t-3xl">
         <BottomLink
           href="/"
-          icon={<Home className="w-5 h-5" />}
+          icon={<Home className="w-[22px] h-[22px]" />}
           label="Home"
           active={isActive("/")}
         />
         <BottomLink
           href="/services"
-          icon={<Briefcase className="w-5 h-5" />}
+          icon={<Briefcase className="w-[22px] h-[22px]" />}
           label="Services"
           active={isActive("/services")}
         />
-        <button
-          type="button"
-          onClick={goToBooking}
-          aria-label="Book appointment"
-          className="-mt-6 w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-dark text-navy shadow-[0_8px_20px_-4px_rgba(0,173,239,0.55)] flex items-center justify-center transition-transform active:scale-95 focus:outline-none"
-        >
-          <Calendar className="w-6 h-6" />
-        </button>
-        <a
+        
+        {/* Center Booking Button with perfect cutout illusion */}
+        <div className="relative -mt-[44px] flex justify-center w-[76px] h-[76px] bg-white rounded-full items-center shadow-sm">
+          <button
+            type="button"
+            onClick={goToBooking}
+            aria-label="Book appointment"
+            className="w-[60px] h-[60px] rounded-full bg-[#009bde] text-white shadow-[0_8px_16px_rgba(0,155,222,0.4)] flex items-center justify-center transition-transform hover:scale-105 active:scale-95 focus:outline-none"
+          >
+            <Calendar className="w-7 h-7" />
+          </button>
+        </div>
+
+        <BottomLink
           href={CLINIC.phoneHref}
-          aria-label={`Call ${CLINIC.phone}`}
-          className="flex flex-col items-center justify-center text-gray-500 hover:text-gold transition-colors"
-        >
-          <Phone className="w-5 h-5" />
-          <span className="text-[10px] mt-1">Call</span>
-        </a>
+          icon={<Phone className="w-[22px] h-[22px]" />}
+          label="Call"
+          active={false}
+          isExternal
+        />
+        <BottomLink
+          href={user ? (user.role === "admin" ? "/admin/dashboard" : "/portal/dashboard") : "#"}
+          onClick={user ? undefined : (e) => { e.preventDefault(); openLoginModal(); }}
+          icon={<UserIcon className="w-[22px] h-[22px]" />}
+          label="Account"
+          active={isActive("/portal") || isActive("/admin")}
+        />
       </nav>
     </>
   );
@@ -675,7 +670,7 @@ function DrawerLink({
     <Link
       href={href}
       onClick={onClose}
-      className="py-3 hover:text-gold transition-colors border-b border-white/10"
+      className="py-4 px-2 text-navy font-semibold hover:text-[#009bde] transition-colors border-b border-gray-100 block"
     >
       {children}
     </Link>
@@ -692,17 +687,17 @@ function DrawerCategory({
   onClose: () => void;
 }) {
   return (
-    <div>
-      <h5 className="text-[10px] uppercase tracking-widest font-bold text-gold mb-2">
+    <div className="mb-2">
+      <h5 className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2">
         {title}
       </h5>
-      <ul className="space-y-1.5">
+      <ul className="space-y-1">
         {services.map((s) => (
           <li key={s.slug}>
             <Link
               href={`/services/${s.slug}`}
               onClick={onClose}
-              className="block text-sm text-gray-300 hover:text-white py-1"
+              className="block text-sm font-medium text-gray-600 hover:text-[#009bde] py-1.5"
             >
               {s.name}
             </Link>
@@ -718,21 +713,40 @@ function BottomLink({
   icon,
   label,
   active,
+  isExternal,
+  onClick,
 }: {
   href: string;
   icon: React.ReactNode;
   label: string;
   active: boolean;
+  isExternal?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
+  const content = (
+    <>
+      <div className={`mb-1 transition-transform ${active ? "scale-110" : "scale-100"}`}>
+        {icon}
+      </div>
+      <span className="text-[10px] whitespace-nowrap">{label}</span>
+    </>
+  );
+
+  const className = `flex flex-col items-center justify-center w-14 transition-all ${
+    active ? "text-[#009bde] font-bold" : "text-gray-400 hover:text-[#009bde] font-medium"
+  }`;
+
+  if (isExternal) {
+    return (
+      <a href={href} onClick={onClick} className={className}>
+        {content}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      href={href}
-      className={`flex flex-col items-center justify-center transition-all ${
-        active ? "text-gold font-bold scale-105" : "text-gray-500 hover:text-gold"
-      }`}
-    >
-      {icon}
-      <span className="text-[10px] mt-1">{label}</span>
+    <Link href={href} onClick={onClick} className={className}>
+      {content}
     </Link>
   );
 }

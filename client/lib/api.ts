@@ -8,8 +8,9 @@ const getApiUrl = () => {
     return url;
   }
   if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-    return `http://${hostname}:5000/api`;
+    // Client-side: use relative path to leverage Next.js rewrites.
+    // This perfectly avoids cross-origin SameSite cookie bugs on mobile Safari!
+    return "/api";
   }
   return "http://127.0.0.1:5000/api";
 };

@@ -9,6 +9,7 @@ import Logo from "@/components/public/Logo";
 import { User, Mail, Lock, Phone, Calendar, X, Activity, ShieldAlert, ArrowLeft, Eye, EyeOff, Check, Heart, ShieldCheck, ArrowRight, ChevronDown, Search, Sparkle, MessageSquare, FileText, CalendarCheck, ReceiptText } from "lucide-react";
 import LoginOverlay from "@/components/common/LoginOverlay";
 import ProcessingView from "@/components/public/ProcessingView";
+import { useGoogleLogin } from "@react-oauth/google";
 
 import { COUNTRIES } from "@/lib/countries";
 import { text } from "stream/consumers";
@@ -30,6 +31,9 @@ export default function RegisterModal() {
     bloodGroup: "",
     age: "",
     gdprConsent: false,
+    googleId: "",
+    profilePicUrl: "",
+    isGoogleAuth: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -70,6 +74,9 @@ export default function RegisterModal() {
         bloodGroup: "",
         age: "",
         gdprConsent: false,
+        googleId: "",
+        profilePicUrl: "",
+        isGoogleAuth: false,
       });
       setError("");
       setProcessState("idle");
@@ -101,6 +108,53 @@ export default function RegisterModal() {
     }
   }, [formData.dateOfBirth]);
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setProcessState('processing');
+      setError("");
+      try {
+        const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+        });
+        if (!response.ok) throw new Error("Failed to fetch Google profile");
+        const payload = await response.json();
+        
+        // Check if email already exists
+        const checkRes = await apiRequest("/auth/check-email", {
+          method: "POST",
+          body: JSON.stringify({ email: payload.email }),
+        });
+        
+        if (checkRes.exists) {
+          setError("Account already registered. Redirecting to sign in...");
+          setTimeout(() => {
+            closeRegisterModal();
+            openLoginModal(onRegisterSuccess || undefined);
+          }, 1500);
+          return;
+        }
+
+        setFormData(prev => ({
+          ...prev,
+          email: payload.email,
+          firstName: payload.given_name || "",
+          lastName: payload.family_name || "",
+          googleId: payload.sub,
+          profilePicUrl: payload.picture || "",
+          isGoogleAuth: true
+        }));
+        setProcessState('idle');
+        setStep(2);
+      } catch (err: any) {
+        setError(err.message || "Google integration failed.");
+        setProcessState('idle');
+      }
+    },
+    onError: () => {
+      setError("Google authentication was unsuccessful.");
+    }
+  });
+
   if (!isRegisterModalOpen) return null;
 
   const getPasswordStrength = () => {
@@ -123,7 +177,7 @@ export default function RegisterModal() {
   const strength = getPasswordStrength();
   const isMatch = formData.confirmPassword.length > 0 && formData.password === formData.confirmPassword;
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setError("");
 
     if (step === 1) {
@@ -131,6 +185,28 @@ export default function RegisterModal() {
         setError("Please enter a valid email address.");
         return;
       }
+      
+      setLoading(true);
+      try {
+        const checkRes = await apiRequest("/auth/check-email", {
+          method: "POST",
+          body: JSON.stringify({ email: formData.email }),
+        });
+        if (checkRes.exists) {
+          setError("Account already registered. Redirecting to sign in...");
+          setTimeout(() => {
+            closeRegisterModal();
+            openLoginModal(onRegisterSuccess || undefined);
+          }, 1500);
+          return;
+        }
+        setStep(2);
+      } catch (err: any) {
+        setError("Failed to verify email. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    } else if (step === 2) {
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
       if (!passwordRegex.test(formData.password)) {
         setError("Please ensure your password meets all requirements below.");
@@ -140,8 +216,8 @@ export default function RegisterModal() {
         setError("Passwords do not match.");
         return;
       }
-      setStep(2);
-    } else if (step === 2) {
+      setStep(3);
+    } else if (step === 3) {
       if (!formData.firstName.trim() || !formData.lastName.trim()) {
         setError("Please enter both your first and last names.");
         return;
@@ -162,7 +238,7 @@ export default function RegisterModal() {
         setError("Please select your blood group.");
         return;
       }
-      setStep(3);
+      setStep(4);
     }
   };
 
@@ -173,7 +249,7 @@ export default function RegisterModal() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 3) {
+    if (step < 4) {
       handleNextStep();
       return;
     }
@@ -187,7 +263,7 @@ export default function RegisterModal() {
     setError("");
 
     try {
-      const { confirmPassword, phone, ...restData } = formData;
+      const { confirmPassword, phone, isGoogleAuth, ...restData } = formData;
       const submitData = {
         ...restData,
         phone: phone.formatted || `${phone.dialCode} ${phone.number}`,
@@ -312,7 +388,7 @@ export default function RegisterModal() {
           </div>
 
           {/* RIGHT PANEL (58%) */}
-          <div className="w-full md:w-[58%] p-6 sm:p-8 lg:p-10 flex flex-col justify-center relative bg-white h-[100dvh] md:h-auto md:min-h-0 overflow-hidden transition-all duration-200 ease-in-out">
+          <div className="w-full md:w-[58%] px-5 pb-6 pt-[84px] sm:p-8 lg:p-10 flex flex-col justify-start md:justify-center relative bg-white h-[100dvh] md:h-auto md:min-h-0 overflow-y-auto md:overflow-visible transition-all duration-200 ease-in-out">
             <button
               onClick={closeRegisterModal}
               className="absolute top-6 right-5 md:top-8 md:right-8 p-2 rounded-full hover:bg-[#F1F5F9] text-[#94A3B8] hover:text-[#0F172A] transition-colors focus:outline-none bg-white md:bg-transparent shadow-sm md:shadow-none z-20"
@@ -324,35 +400,37 @@ export default function RegisterModal() {
             <div className="w-full max-w-[420px] mx-auto flex-1 flex flex-col justify-start pb-[20px] md:pb-[30px] pt-[20px] md:pt-[30px]">
               
               {/* Premium Horizontal Stepper */}
-              <div className="mb-[12px]">
-                <div className="relative flex items-center justify-between mb-2 px-[20px]">
-                  <div className="absolute left-[40px] right-[40px] top-[14px] h-[2px] bg-[#F1F5F9] -z-10" />
+              <div className="mb-[16px] md:mb-[20px] w-full mt-2 md:mt-0">
+                <div className="relative flex items-start justify-between w-full">
+                  <div className="absolute top-[12px] left-[12%] right-[12%] h-[2px] bg-[#F1F5F9] -z-10" />
                   <div
-                    className="absolute left-[40px] top-[14px] h-[2px] bg-[#2563EB] transition-all duration-500 -z-10"
-                    style={{ width: (step - 1) * 50 + "%" }}
+                    className="absolute top-[12px] left-[12%] h-[2px] bg-[#2563EB] transition-all duration-500 -z-10"
+                    style={{ width: `${((step - 1) / 3) * 76}%` }}
                   />
-                  {[1, 2, 3].map((s) => {
+                  {[1, 2, 3, 4].map((s) => {
                     const isCompleted = step > s;
                     const isCurrent = step === s;
                     return (
-                      <div key={s} className="flex flex-col items-center gap-2 bg-white px-2">
-                        <div
-                          className={"w-[24px] h-[24px] rounded-full flex items-center justify-center text-[12px] font-bold shadow-sm transition-all duration-300 " +
-                            (isCompleted
-                              ? "bg-[#10B981] text-white border-none"
-                              : isCurrent
-                              ? "bg-[#2563EB] text-white border-none ring-4 ring-[#2563EB]/10 scale-110"
-                              : "bg-white text-[#94A3B8] border-2 border-[#E2E8F0]")
-                          }
-                        >
-                          {isCompleted ? <Check className="w-4 h-4" strokeWidth={3} /> : s}
+                      <div key={s} className="flex flex-col items-center flex-1">
+                        <div className="bg-white px-1 mb-1.5">
+                          <div
+                            className={"w-[24px] h-[24px] rounded-full flex items-center justify-center text-[12px] font-bold shadow-sm transition-all duration-300 " +
+                              (isCompleted
+                                ? "bg-[#10B981] text-white border-none"
+                                : isCurrent
+                                ? "bg-[#2563EB] text-white border-none ring-4 ring-[#2563EB]/10 scale-110"
+                                : "bg-white text-[#94A3B8] border-2 border-[#E2E8F0]")
+                            }
+                          >
+                            {isCompleted ? <Check className="w-4 h-4" strokeWidth={3} /> : s}
+                          </div>
                         </div>
                         <span
-                          className={"text-[10px] uppercase tracking-widest font-bold transition-colors " +
+                          className={"text-[9px] md:text-[10px] uppercase tracking-wide md:tracking-widest font-bold transition-colors text-center " +
                             (isCurrent ? "text-[#0F172A]" : isCompleted ? "text-[#10B981]" : "text-[#94A3B8]")
                           }
                         >
-                          {s === 1 ? "Account" : s === 2 ? "Details" : "Review"}
+                          {s === 1 ? "Identity" : s === 2 ? "Security" : s === 3 ? "Details" : "Review"}
                         </span>
                       </div>
                     );
@@ -363,14 +441,16 @@ export default function RegisterModal() {
               {/* Header */}
               <div className="text-center md:text-left mb-[8px]">
                 <h2 className="text-[22px] md:text-[24px] font-bold text-[#0F172A] mb-[8px]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {step === 1 && "Account Credentials"}
-                  {step === 2 && "Demographics"}
-                  {step === 3 && "Review & Consent"}
+                  {step === 1 && "Account Identity"}
+                  {step === 2 && "Account Security"}
+                  {step === 3 && "Demographics"}
+                  {step === 4 && "Review & Consent"}
                 </h2>
                 <p className="text-[14px] text-[#64748B] leading-relaxed">
-                  {step === 1 && "Secure your patient portal with your account credentials."}
-                  {step === 2 && "Provide your clinical details and medical parameters."}
-                  {step === 3 && "Verify your summary details and finalize setup."}
+                  {step === 1 && "Enter your email or use Google to begin."}
+                  {step === 2 && "Create a secure password for your patient portal."}
+                  {step === 3 && "Provide your clinical details and medical parameters."}
+                  {step === 4 && "Verify your summary details and finalize setup."}
                 </p>
               </div>
 
@@ -387,6 +467,28 @@ export default function RegisterModal() {
                 {/* STEP 1 */}
                 {step === 1 && (
                   <div className="flex flex-col gap-[12px] animate-fade-in">
+                    <div className="mb-[12px] flex justify-center w-full">
+                      <button
+                        type="button"
+                        onClick={() => googleLogin()}
+                        className="w-full flex items-center justify-center gap-3 bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] text-[#0F172A] font-bold h-[48px] rounded-[16px] text-[15px] transition-all duration-200 shadow-sm hover:shadow focus:outline-none"
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Continue with Google
+                      </button>
+                    </div>
+                    
+                    <div className="flex items-center justify-center gap-4 mb-[12px]">
+                      <div className="h-[1px] bg-[#E2E8F0] flex-1"></div>
+                      <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-widest">Or continue with email</span>
+                      <div className="h-[1px] bg-[#E2E8F0] flex-1"></div>
+                    </div>
+
                     <FloatingField label="Email Address" icon={<Mail className="w-4 h-4" />}>
                       <input
                         type="email"
@@ -395,8 +497,25 @@ export default function RegisterModal() {
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="john.doe@example.com"
                         className={inputClass}
+                        disabled={formData.isGoogleAuth}
                       />
                     </FloatingField>
+                  </div>
+                )}
+
+                {/* STEP 2 */}
+                {step === 2 && (
+                  <div className="flex flex-col gap-[12px] animate-fade-in">
+                    {formData.isGoogleAuth && (
+                      <FloatingField label="Email Address (Locked)" icon={<Mail className="w-4 h-4" />}>
+                        <input
+                          type="email"
+                          readOnly
+                          value={formData.email}
+                          className={inputClass + " bg-[#F8FAFC] text-[#64748B] cursor-not-allowed"}
+                        />
+                      </FloatingField>
+                    )}
 
                     <FloatingField label="Secure Password" icon={<Lock className="w-4 h-4" />}>
                       <div className="relative">
@@ -469,8 +588,8 @@ export default function RegisterModal() {
                   </div>
                 )}
 
-                {/* STEP 2 */}
-                {step === 2 && (
+                {/* STEP 3 */}
+                {step === 3 && (
                   <div className="flex flex-col gap-[12px] animate-fade-in">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-[12px]">
                       <FloatingField label="First Name" icon={<User className="w-4 h-4" />}>
@@ -543,8 +662,8 @@ export default function RegisterModal() {
                   </div>
                 )}
 
-                {/* STEP 3 */}
-                {step === 3 && (
+                {/* STEP 4 */}
+                {step === 4 && (
                   <div className="flex flex-col gap-[16px] animate-fade-in">
                     <div className="relative bg-white border border-[#E2E8F0] rounded-[24px] p-6 shadow-sm overflow-hidden mb-2">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB] rounded-full blur-[60px] opacity-5 pointer-events-none" />
@@ -603,7 +722,7 @@ export default function RegisterModal() {
                     </button>
                   )}
 
-                  {step < 3 ? (
+                  {step < 4 ? (
                     <button
                       type="button"
                       onClick={handleNextStep}

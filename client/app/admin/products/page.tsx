@@ -9,6 +9,7 @@ import {
   Search, Plus, Package, Edit3, Trash2, X, Filter, Download, 
   Image as ImageIcon, RefreshCw, Save, Archive, History, Check, Copy
 } from "lucide-react";
+import { generateTablePDF } from "@/lib/pdf";
 
 export default function AdminProductsPage() {
   const [search, setSearch] = useState("");
@@ -135,6 +136,20 @@ export default function AdminProductsPage() {
     toast.success("Item duplicated. Make your changes and save.");
   };
 
+  const handleExport = () => {
+    generateTablePDF({
+      title: "Clinical Catalog & Inventory",
+      columns: ["Product/Service", "Category", "Price", "Stock"],
+      rows: filteredProducts.map((p) => [
+        p.name,
+        p.category,
+        p.price ? `€${Number(p.price).toFixed(2)}` : "—",
+        p.stockCount || "0",
+      ]),
+      filename: "HollyDental-Catalog",
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] relative overflow-hidden h-full">
       
@@ -145,7 +160,7 @@ export default function AdminProductsPage() {
           <p className="text-[13px] text-gray-500 mt-1">Manage procedures, materials, and retail items.</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
             <Download className="w-4 h-4" /> Export
           </button>
           <button onClick={handleOpenAdd} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">

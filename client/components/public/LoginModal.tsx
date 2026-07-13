@@ -102,7 +102,28 @@ export default function LoginModal() {
         closeLoginModal();
       }, 1500);
     } catch (err: any) {
+      if (err.message === "ACCOUNT_DEACTIVATED") {
+        setError("ACCOUNT_DEACTIVATED");
+        setProcessState('idle');
+        return;
+      }
       setError(err.message || "Invalid credentials. Please try again.");
+      setProcessState('idle');
+    }
+  };
+
+  const handleReactivate = async () => {
+    setProcessState('processing');
+    setError("");
+    try {
+      await apiRequest("/auth/reactivate", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+      // Just re-login after successful reactivation
+      handleLogin(new Event('submit') as any);
+    } catch (err: any) {
+      setError(err.message || "Failed to reactivate account.");
       setProcessState('idle');
     }
   };
@@ -230,6 +251,7 @@ export default function LoginModal() {
                   capsLockOn={capsLockOn}
                   onEmail={setEmail} onPassword={setPassword} onToggleShow={() => setShowPassword((v: boolean) => !v)}
                   onSubmit={handleLogin} onForgot={() => setLoginModalView("forgot")} onRegister={() => openRegisterModal(onLoginSuccess || undefined)}
+                  onReactivate={handleReactivate}
                 />
               )}
             </div>
@@ -244,7 +266,12 @@ export default function LoginModal() {
 
 /* -------------------- Views -------------------- */
 
-function SignInView({ email, password, showPassword, loading, error, capsLockOn, onEmail, onPassword, onToggleShow, onSubmit, onForgot, onRegister }: any) {
+function SignInView({ 
+  email, password, showPassword, loading, error, capsLockOn,
+  onEmail, onPassword, onToggleShow, onSubmit, onForgot, onRegister, onGoogleLogin, onReactivate 
+}: any) {
+  const buttonClass = "w-full bg-[#0F172A] hover:bg-[#1E293B] text-white text-[14px] font-bold py-[14px] rounded-[14px] shadow-[0_2px_4px_rgba(15,23,42,0.06)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.1)] transition-all flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed";
+
   return (
     <div className="animate-fade-up w-full">
       <div className="mb-[24px] text-center md:text-left">
@@ -252,7 +279,7 @@ function SignInView({ email, password, showPassword, loading, error, capsLockOn,
         <p className="text-[#64748B] text-[13px] md:text-[14px] leading-relaxed">Sign in securely to continue to HollyHill Dental.</p>
       </div>
 
-      <button type="button" className="w-full h-[52px] rounded-[14px] px-[16px] bg-white border border-[#E2E8F0] flex items-center justify-center gap-3 text-[14px] md:text-[15px] font-semibold text-[#0F172A] shadow-sm hover:bg-[#F8FAFC] hover:shadow-md hover:-translate-y-[2px] transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]/50 mb-[20px] group">
+      <button type="button" onClick={onGoogleLogin} className="w-full h-[52px] rounded-[14px] px-[16px] bg-white border border-[#E2E8F0] flex items-center justify-center gap-3 text-[14px] md:text-[15px] font-semibold text-[#0F172A] shadow-sm hover:bg-[#F8FAFC] hover:shadow-md hover:-translate-y-[2px] transition-all duration-200 ease-out focus:outline-none focus:ring-4 focus:ring-[#E2E8F0]/50 mb-[20px] group">
         <svg className="w-[20px] h-[20px] group-hover:scale-110 transition-transform duration-200 ease-out" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -268,12 +295,22 @@ function SignInView({ email, password, showPassword, loading, error, capsLockOn,
         <div className="h-[1px] bg-[#E2E8F0] flex-1"></div>
       </div>
 
-      {error && (
+      {error === "ACCOUNT_DEACTIVATED" ? (
+        <div className="bg-[#FEF2F2] border border-[#FEE2E2] text-[#DC2626] text-[12px] md:text-[13px] p-4 rounded-[14px] flex flex-col gap-2 mb-[20px]">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="w-5 h-5 shrink-0" />
+            <span className="font-semibold">Your account is deactivated.</span>
+          </div>
+          <button type="button" onClick={onReactivate} disabled={loading} className="mt-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg self-start transition-colors disabled:opacity-50 text-[12px]">
+            {loading ? "Reactivating..." : "Reactivate Account"}
+          </button>
+        </div>
+      ) : error ? (
         <div className="bg-[#FEF2F2] border border-[#FEE2E2] text-[#DC2626] text-[12px] md:text-[13px] p-4 rounded-[14px] flex items-center gap-3 mb-[20px]">
           <ShieldAlert className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
-      )}
+      ) : null}
 
       <form onSubmit={onSubmit} className="flex flex-col">
         <div className="mb-[16px]">

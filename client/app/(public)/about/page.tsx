@@ -168,15 +168,15 @@ export default function AboutPage() {
               hospitality-first patient experience.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-2 justify-center lg:justify-start">
+            <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center gap-3 pt-2 justify-center lg:justify-start max-w-sm mx-auto sm:max-w-none lg:mx-0">
               <BookButton
                 label="Book a Consultation"
                 showIcon
-                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center"
+                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-3 sm:px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center w-full"
               />
               <Link
                 href="/services"
-                className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors text-center"
+                className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-3 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center text-center w-full"
               >
                 Explore Treatments
               </Link>

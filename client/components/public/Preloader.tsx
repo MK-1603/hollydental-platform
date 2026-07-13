@@ -11,7 +11,7 @@ import Logo from "@/components/public/Logo";
  * In development the gate is bypassed so designers can iterate on the
  * animation without clearing storage manually.
  */
-const INTRO_VERSION = "2"; // bump to force everyone to see a refreshed intro
+const INTRO_VERSION = "4"; // bump to force everyone to see a refreshed intro
 
 export default function Preloader() {
   const [hidden, setHidden] = useState(false);
@@ -54,35 +54,38 @@ export default function Preloader() {
   return (
     <div
       aria-hidden
-      className={`fixed inset-0 z-[100] bg-navy text-white flex items-center justify-center transition-opacity duration-700 ease-out ${
-        hidden ? "opacity-0 pointer-events-none" : "opacity-100"
+      className={`fixed inset-0 z-[100] bg-slate-50 text-navy flex items-center justify-center transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        hidden ? "opacity-0 pointer-events-none scale-105" : "opacity-100 scale-100"
       }`}
     >
-      {/* Ambient blur blobs */}
-      <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] rounded-full bg-[#00ADEF]/10 blur-[90px] animate-preloader-blob" />
-      <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] rounded-full bg-gold/10 blur-[80px] animate-preloader-blob-2" />
+      {/* Premium ambient light mesh blobs */}
+      <div className="absolute top-[15%] left-[20%] w-[50vw] h-[50vw] rounded-full bg-[#00ADEF]/5 blur-[120px] animate-pulse pointer-events-none" style={{ animationDuration: "5s" }} />
+      <div className="absolute bottom-[15%] right-[20%] w-[45vw] h-[45vw] rounded-full bg-gold/10 blur-[100px] animate-pulse pointer-events-none" style={{ animationDuration: "7s", animationDelay: "1s" }} />
 
-      {/* Grid overlay for texture */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.007)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.007)_1px,transparent_1px)] bg-[size:30px_30px] opacity-30" />
+      {/* Subtle grain/grid overlay for ultra-premium texture */}
+      <div className="absolute inset-0 bg-white/5 opacity-[0.02] mix-blend-multiply pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-40 pointer-events-none" />
 
-      <div className="relative flex flex-col items-center gap-9 px-6 text-center z-10">
+      <div className="relative flex flex-col items-center gap-10 px-6 text-center z-10 animate-in slide-in-from-bottom-4 fade-in duration-1000 ease-out w-full max-w-sm sm:max-w-md">
         {/* Full logo lockup with subtle pulse */}
-        <div className="relative animate-preloader-pulse py-4">
-          <Logo variant="full" size={72} theme="light" asLink={false} />
+        <div className="relative py-4 drop-shadow-[0_4px_24px_rgba(0,0,0,0.04)] animate-preloader-pulse">
+          {/* Using dark theme logo for light background */}
+          <Logo variant="full" size={80} theme="dark" asLink={false} />
         </div>
 
-        <div className="space-y-3">
-          <span className="inline-block text-[10px] uppercase tracking-[0.4em] font-bold text-gold bg-gold/10 px-4 py-1.5 rounded-full border border-gold/20">
+        <div className="space-y-4 flex flex-col items-center w-full">
+          {/* Glassmorphism pill for light theme */}
+          <span className="inline-flex items-center justify-center text-[10px] uppercase tracking-[0.35em] font-bold text-navy bg-white/70 backdrop-blur-xl px-6 py-2.5 rounded-full border border-navy/5 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.08),0_1px_2px_rgba(0,0,0,0.02)]">
             Premium Dental Care
           </span>
-          <span className="block text-[11px] text-gray-400 max-w-xs font-light leading-relaxed">
+          <span className="block text-[11px] sm:text-xs text-navy/60 max-w-[280px] font-medium leading-relaxed tracking-wide">
             {CLINIC.tagline || "Creating Beautiful & Confident Smiles"}
           </span>
         </div>
 
-        {/* Glowing loading bar */}
-        <div className="w-48 h-[2px] bg-white/5 rounded-full overflow-hidden relative shadow-[0_0_10px_rgba(201,169,110,0.1)]">
-          <div className="h-full w-2/3 bg-gradient-to-r from-transparent via-gold to-transparent absolute top-0 -translate-x-[120%] animate-preloader-shimmer" />
+        {/* Ultra-sleek glowing loading bar for light theme */}
+        <div className="w-56 h-[1px] bg-navy/10 rounded-full overflow-hidden relative shadow-[0_2px_10px_rgba(0,0,0,0.05)] mt-2">
+          <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-gold to-transparent absolute top-0 -translate-x-[150%] animate-preloader-shimmer" style={{ animationDuration: "1.5s" }} />
         </div>
       </div>
     </div>

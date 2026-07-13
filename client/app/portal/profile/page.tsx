@@ -558,15 +558,9 @@ function GdprTab({
   onDeleted: () => void;
 }) {
   const handleDownload = () => {
-    const dataStr =
-      "data:text/json;charset=utf-8," +
-      encodeURIComponent(JSON.stringify(userData, null, 2));
-    const a = document.createElement("a");
-    a.setAttribute("href", dataStr);
-    a.setAttribute("download", "hollyhill_patient_data.json");
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    import("@/lib/pdf").then(({ generatePatientDataPDF }) => {
+      generatePatientDataPDF(userData);
+    });
   };
 
   return (
@@ -582,10 +576,10 @@ function GdprTab({
           onClick={handleDownload}
           className="bg-navy hover:bg-gray-800 text-white font-bold text-xs py-2.5 px-6 rounded-xl shadow-md transition-colors"
         >
-          Export My Data (JSON)
+          Export My Data (PDF)
         </button>
       </section>
-      <DeleteAccountSection userEmail={userEmail} onDeleted={onDeleted} />
+      <DeactivateAccountSection userEmail={userEmail} onDeleted={onDeleted} />
     </div>
   );
 }
@@ -696,8 +690,8 @@ function ToggleRow({
   );
 }
 
-/* ── Delete Account ── */
-function DeleteAccountSection({
+/* ── Deactivate Account ── */
+function DeactivateAccountSection({
   userEmail,
   onDeleted,
 }: {
@@ -712,7 +706,7 @@ function DeleteAccountSection({
   const [error, setError] = useState("");
 
   const canDelete =
-    confirmText.trim().toUpperCase() === "DELETE" && password.length > 0;
+    confirmText.trim().toUpperCase() === "DEACTIVATE" && password.length > 0;
 
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -720,15 +714,15 @@ function DeleteAccountSection({
     setError("");
     setSubmitting(true);
     try {
-      await apiRequest("/auth/me", {
-        method: "DELETE",
+      await apiRequest("/auth/me/deactivate", {
+        method: "PUT",
         body: JSON.stringify({ password, reason: reason || undefined }),
       });
       onDeleted();
     } catch (err: any) {
       setError(
         err?.message ||
-          "Couldn't delete your account. Please try again or contact support."
+          "Couldn't deactivate your account. Please try again or contact support."
       );
     } finally {
       setSubmitting(false);
@@ -742,9 +736,9 @@ function DeleteAccountSection({
           <Trash2 className="w-5 h-5" />
         </div>
         <div className="space-y-1">
-          <h4 className="font-serif text-sm font-bold text-navy">Delete Hollyhill account</h4>
+          <h4 className="font-serif text-sm font-bold text-navy">Deactivate Hollyhill account</h4>
           <p className="text-gray-500 text-xs leading-relaxed max-w-xl">
-            This permanently removes your patient profile, credentials, messages, and transaction records. Confirmed clinical history is securely stored for medico-legal archiving.
+            This deactivates your patient profile, credentials, messages, and transaction records. Confirmed clinical history is securely stored for medico-legal archiving.
           </p>
         </div>
       </div>
@@ -756,7 +750,7 @@ function DeleteAccountSection({
           className="border border-red-200 hover:bg-red-50/50 text-red-600 font-bold text-xs py-2.5 px-5 rounded-xl transition-colors inline-flex items-center gap-2"
         >
           <Trash2 className="w-3.5 h-3.5" />
-          Delete my account
+          Deactivate my account
         </button>
       ) : (
         <form
@@ -766,17 +760,17 @@ function DeleteAccountSection({
           <div className="flex items-start gap-2 text-xs text-red-700">
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 animate-bounce" />
             <p className="leading-relaxed">
-              This action cannot be undone. You will be signed out and your profile for{" "}
-              <span className="font-semibold text-red-800">{userEmail}</span> will be deleted.
+              You will be signed out and your profile for{" "}
+              <span className="font-semibold text-red-800">{userEmail}</span> will be deactivated. You can reactivate it later by logging in.
             </p>
           </div>
 
-          <Field label="Confirm by typing DELETE">
+          <Field label="Confirm by typing DEACTIVATE">
             <input
               type="text"
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value)}
-              placeholder="DELETE"
+              placeholder="DEACTIVATE"
               autoComplete="off"
               className={inputClass}
             />
@@ -830,9 +824,10 @@ function DeleteAccountSection({
               className="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 px-5 rounded-xl shadow disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2 uppercase tracking-wider"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              {submitting ? "Deleting account…" : "Confirm Permanently Delete"}
+              {submitting ? "Deactivating..." : "Deactivate Account"}
             </button>
           </div>
+          {error && <p className="text-red-500 text-xs font-medium text-center">{error}</p>}
         </form>
       )}
     </section>

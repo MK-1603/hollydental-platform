@@ -4,6 +4,8 @@ import LoginModal from "@/components/public/LoginModal";
 import RegisterModal from "@/components/public/RegisterModal";
 import BookingModal from "@/components/public/BookingModal";
 
+import { GoogleOAuthProvider } from "@react-oauth/google";
+
 /**
  * Mount both auth modals once at the root layout so they're available
  * on every route (public, portal, admin). The modals only render when
@@ -11,10 +13,10 @@ import BookingModal from "@/components/public/BookingModal";
  */
 export default function AuthModals() {
   return (
-    <>
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
       <LoginModal />
       <RegisterModal />
       <BookingModal />
-    </>
+    </GoogleOAuthProvider>
   );
 }

@@ -182,8 +182,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </header>
 
         <main className={`flex-1 ${
-          pathname.endsWith("/messages")
-            ? "overflow-hidden p-0 h-full flex flex-col"
+          pathname.endsWith("/messages") || pathname.endsWith("/ai")
+            ? "overflow-hidden p-0 pb-16 xl:pb-0 h-full flex flex-col"
             : "overflow-y-auto p-4 xl:p-6 pb-20 xl:pb-6"
         }`}>
           {children}
@@ -194,7 +194,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       <nav className="xl:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex items-center justify-around px-1 z-40 shadow-inner">
         {[
           { name: "Home", href: "/portal/dashboard", icon: LayoutDashboard },
-          { name: "Appts", href: "/portal/appointments", icon: CalendarDays },
+          { name: "Booking", href: "/portal/appointments", icon: CalendarDays },
           { name: "Wellness", href: "/portal/wellness", icon: Heart },
           { name: "Chat", href: "/portal/messages", icon: MessageSquare, badge: unreadMessagesCount, badgeColor: "bg-red-500 text-white" },
           { name: "Profile", href: "/portal/profile", icon: User },

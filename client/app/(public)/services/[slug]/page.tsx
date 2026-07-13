@@ -251,27 +251,29 @@ export default async function ServiceDetailPage({ params }: PageProps) {
               <Pill icon={<Smile className="w-3.5 h-3.5" />} label="Dr. Roghay Alizadeh" />
             </ul>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-3 justify-center lg:justify-start">
+            <div className="flex flex-col sm:flex-row gap-3 pt-3 justify-center lg:justify-start max-w-sm mx-auto sm:max-w-none lg:mx-0">
               <BookButton
                 serviceSlug={service.slug}
                 label="Book Consultation"
                 showIcon
-                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center"
+                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center w-full sm:w-auto"
               />
-              <a
-                href={CLINIC.phoneHref}
-                className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Phone className="w-4 h-4" /> Call {CLINIC.phone}
-              </a>
-              <a
-                href={CLINIC.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border border-emerald-500/25 hover:border-emerald-500 hover:text-emerald-400 text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400" /> WhatsApp
-              </a>
+              <div className="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:flex-row">
+                <a
+                  href={CLINIC.phoneHref}
+                  className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Call {CLINIC.phone}
+                </a>
+                <a
+                  href={CLINIC.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-emerald-500/25 hover:border-emerald-500 hover:text-emerald-400 text-white font-semibold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" /> WhatsApp
+                </a>
+              </div>
             </div>
           </div>
 
@@ -498,27 +500,29 @@ export default async function ServiceDetailPage({ params }: PageProps) {
             <p className="text-gray-300 text-sm leading-relaxed">
               Book a consultation or speak with one of our patient coordinators today.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 max-w-sm mx-auto sm:max-w-none">
               <BookButton
                 serviceSlug={service.slug}
                 label="Book Consultation"
                 showIcon
-                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-7 py-3 rounded-lg shadow-md transition-colors flex items-center"
+                className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center w-full sm:w-auto"
               />
-              <a
-                href={CLINIC.phoneHref}
-                className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-7 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <Phone className="w-4 h-4" /> Call {CLINIC.phone}
-              </a>
-              <a
-                href={CLINIC.whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border border-emerald-500/25 hover:border-emerald-500 hover:text-emerald-400 text-white font-semibold text-sm px-7 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <MessageSquare className="w-4 h-4 text-emerald-400" /> WhatsApp
-              </a>
+              <div className="grid grid-cols-2 gap-3 w-full sm:w-auto sm:flex sm:flex-row">
+                <a
+                  href={CLINIC.phoneHref}
+                  className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Call {CLINIC.phone}
+                </a>
+                <a
+                  href={CLINIC.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-emerald-500/25 hover:border-emerald-500 hover:text-emerald-400 text-white font-semibold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full sm:w-auto whitespace-nowrap"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" /> WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         </div>

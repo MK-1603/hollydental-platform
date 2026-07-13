@@ -37,7 +37,21 @@ export default function PatientDashboardPage() {
     }
   );
 
-  const loading = lAppts || lMsgs;
+  const { data: invoices = [], loading: lInvoices } = useLiveData<any[]>(
+    "/billing/invoices/my",
+    {
+      intervalMs: 60000,
+      select: (raw) => normalizeArray<any>(raw),
+      initialData: [],
+    }
+  );
+
+  const pendingInvoices = useMemo(
+    () => invoices.filter((inv) => inv?.status === "pending"),
+    [invoices]
+  );
+
+  const loading = lAppts || lMsgs || lInvoices;
 
   const nextAppt = useMemo(
     () =>
@@ -125,6 +139,32 @@ export default function PatientDashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Pending Billing Alert ── */}
+      {pendingInvoices.length > 0 && (
+        <div className="bg-red-50/50 border border-red-200 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center gap-4 justify-between animate-fade-in relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-red-100 rounded-bl-full opacity-30 pointer-events-none" />
+          <div className="flex items-center gap-4 relative z-10">
+            <div className="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center shrink-0">
+              <AlertTriangle className="w-6 h-6 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-red-900 text-base md:text-lg">
+                Action Required: Outstanding Balance
+              </h3>
+              <p className="text-[13px] text-red-700 font-medium mt-0.5">
+                You currently have {pendingInvoices.length} pending bill{pendingInvoices.length > 1 ? "s" : ""} requiring payment.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/portal/invoices"
+            className="w-full md:w-auto shrink-0 bg-red-600 hover:bg-red-700 text-white font-bold text-[13px] px-6 py-3 rounded-xl flex items-center justify-center gap-2 transition-colors relative z-10 shadow-sm"
+          >
+            View Statement <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
 
       {/* ── Visual Navigation Dashboard Grid ── */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-5">

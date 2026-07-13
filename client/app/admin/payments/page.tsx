@@ -5,6 +5,7 @@ import { useLiveData } from "@/lib/useLiveData";
 import { CreditCard, ArrowUpRight, ArrowDownRight, Download, Filter, Search, Activity, Calendar, AlertCircle } from "lucide-react";
 import { toast } from "@/lib/toast";
 import { useEffect } from "react";
+import { generateTablePDF } from "@/lib/pdf";
 
 export default function PaymentsPage() {
   const [search, setSearch] = useState("");
@@ -34,6 +35,22 @@ export default function PaymentsPage() {
   const totalExpenses = transactions?.filter(t => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0) || 0;
 
+  const handleExport = () => {
+    generateTablePDF({
+      title: "Payments & Revenue Report",
+      columns: ["ID", "Patient/Payee", "Type", "Amount", "Status", "Date"],
+      rows: filteredTransactions.map((t) => [
+        t.id,
+        t.patient,
+        t.type,
+        `€${Number(t.amount).toFixed(2)}`,
+        t.status,
+        new Date(t.date).toLocaleDateString(),
+      ]),
+      filename: "HollyDental-Payments",
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-50 relative overflow-x-hidden p-6 w-full max-w-[100vw]">
       
@@ -47,7 +64,7 @@ export default function PaymentsPage() {
           <button className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
             <Calendar className="w-3.5 h-3.5" /> All Time
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Download className="w-3.5 h-3.5" /> Export Report
           </button>
         </div>

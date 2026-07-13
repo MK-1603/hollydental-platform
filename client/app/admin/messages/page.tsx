@@ -167,9 +167,9 @@ export default function AdminMessagesPage() {
 
   const handleDelete = async (id: string) => {
     const ok = await toast.confirm({
-      title: "Delete this message?",
-      message: "This can't be undone.",
-      confirmText: "Delete",
+      title: "Unsend this message?",
+      message: "This message will be permanently removed for everyone.",
+      confirmText: "Unsend",
       danger: true,
     });
     if (!ok) return;
@@ -380,71 +380,78 @@ export default function AdminMessagesPage() {
                   backgroundColor: "#e5ddd5",
                 }}
               >
-                {mLoading && messages.length === 0 ? (
-                  <div className="flex flex-col gap-3 pt-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
-                        <div className={`h-8 shimmer rounded-2xl ${i % 2 === 0 ? "w-48" : "w-36"}`} />
-                      </div>
-                    ))}
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="bg-white/70 backdrop-blur-sm text-navy text-xs font-semibold px-4 py-2 rounded-full shadow-sm border border-white/50">
-                      No messages yet — send the first reply below
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Date chip */}
-                    <div className="flex justify-center mb-4">
-                      <span className="bg-white/70 backdrop-blur-sm text-[10px] text-gray-600 font-semibold px-3 py-1 rounded-full shadow-sm">
-                        {messages[0]
-                          ? new Date(messages[0].createdAt).toLocaleDateString([], {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })
-                          : ""}
-                      </span>
-                    </div>
-                    {messages.map((msg, idx) => {
-                      const isAdmin = msg.senderRole === "admin";
-                      const isPending = msg.id.startsWith("temp-");
-                      const isFailed = (msg as any).failed === true;
-                      const prevMsg = idx > 0 ? messages[idx - 1] : null;
-                      const showDate =
-                        prevMsg &&
-                        new Date(msg.createdAt).toDateString() !==
-                          new Date(prevMsg.createdAt).toDateString();
-                      return (
-                        <div key={msg.id}>
-                          {showDate && (
-                            <div className="flex justify-center my-4">
-                              <span className="bg-white/70 backdrop-blur-sm text-[10px] text-gray-600 font-semibold px-3 py-1 rounded-full shadow-sm">
-                                {new Date(msg.createdAt).toLocaleDateString([], {
-                                  weekday: "long",
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })}
-                              </span>
+                {(() => {
+                  const activeMessages = messages.filter(msg => !msg.deleted);
+                  return (
+                    <>
+                      {mLoading && activeMessages.length === 0 ? (
+                        <div className="flex flex-col gap-3 pt-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : "justify-start"}`}>
+                              <div className={`h-8 shimmer rounded-2xl ${i % 2 === 0 ? "w-48" : "w-36"}`} />
                             </div>
-                          )}
-                          <ChatBubble
-                            side={isAdmin ? "right" : "left"}
-                            pending={isPending}
-                            failed={isFailed}
-                            message={msg}
-                            canDelete={isAdmin}
-                            onDelete={() => handleDelete(msg.id)}
-                          />
+                          ))}
                         </div>
-                      );
-                    })}
-                  </>
-                )}
+                      ) : activeMessages.length === 0 ? (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="bg-white/70 backdrop-blur-sm text-navy text-xs font-semibold px-4 py-2 rounded-full shadow-sm border border-white/50">
+                            No messages yet — send the first reply below
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Date chip */}
+                          <div className="flex justify-center mb-4">
+                            <span className="bg-white/70 backdrop-blur-sm text-[10px] text-gray-600 font-semibold px-3 py-1 rounded-full shadow-sm">
+                              {activeMessages[0]
+                                ? new Date(activeMessages[0].createdAt).toLocaleDateString([], {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  })
+                                : ""}
+                            </span>
+                          </div>
+                          {activeMessages.map((msg, idx) => {
+                            const isAdmin = msg.senderRole === "admin";
+                            const isPending = msg.id.startsWith("temp-");
+                            const isFailed = (msg as any).failed === true;
+                            const prevMsg = idx > 0 ? activeMessages[idx - 1] : null;
+                            const showDate =
+                              prevMsg &&
+                              new Date(msg.createdAt).toDateString() !==
+                                new Date(prevMsg.createdAt).toDateString();
+                            return (
+                              <div key={msg.id}>
+                                {showDate && (
+                                  <div className="flex justify-center my-4">
+                                    <span className="bg-white/70 backdrop-blur-sm text-[10px] text-gray-600 font-semibold px-3 py-1 rounded-full shadow-sm">
+                                      {new Date(msg.createdAt).toLocaleDateString([], {
+                                        weekday: "long",
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                      })}
+                                    </span>
+                                  </div>
+                                )}
+                                <ChatBubble
+                                  side={isAdmin ? "right" : "left"}
+                                  pending={isPending}
+                                  failed={isFailed}
+                                  message={msg}
+                                  canDelete={isAdmin}
+                                  onDelete={() => handleDelete(msg.id)}
+                                />
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
                 <div ref={messagesEndRef} />
               </div>
 

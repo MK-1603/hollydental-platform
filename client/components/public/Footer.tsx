@@ -28,8 +28,8 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#030d1a] text-white pt-20 pb-28 xl:pb-12 border-t border-white/5 relative z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gradient-to-b from-navy to-[#030d1a] text-white pt-20 pb-28 xl:pb-12 border-t border-white/5 relative z-10">
+      <div className="w-full px-6 lg:px-12 xl:px-16 mx-auto">
         
         {/* Main Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 xl:gap-12 items-start">

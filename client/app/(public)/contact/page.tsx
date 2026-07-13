@@ -89,20 +89,20 @@ export default function ContactPage() {
             Reach the team by phone, message, or visit us in Cork. Our coordinators
             typically reply within one business day.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center gap-3 justify-center pt-2 max-w-sm mx-auto sm:max-w-none">
             <a
               href={CLINIC.phoneHref}
-              className="bg-gold hover:bg-gold-dark text-navy font-bold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2"
+              className="bg-gold hover:bg-gold-dark text-navy font-bold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full whitespace-nowrap"
             >
-              <Phone className="w-4 h-4" /> Call {CLINIC.phone}
+              <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> Call {CLINIC.phone}
             </a>
             <a
               href={CLINIC.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs sm:text-sm px-1 sm:px-6 py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-1 sm:gap-2 w-full whitespace-nowrap"
             >
-              <MessageSquare className="w-4 h-4" /> WhatsApp
+              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" /> WhatsApp
             </a>
           </div>
         </div>

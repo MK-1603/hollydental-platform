@@ -442,7 +442,7 @@ export default function PatientInvoicesPage() {
                   <div className="space-y-1.5">
                     <h4 className="font-serif text-sm font-bold text-navy uppercase tracking-wider">🔒 Online Payments Coming Soon</h4>
                     <p className="text-gray-400 text-[10px] leading-relaxed max-w-xs mx-auto">
-                      Online bill pay options via **Credit/Debit Card, UPI QR, & Counter Cashier** checkouts are currently <span className="font-bold text-gold">Under Active Development</span>.
+                      For now, payments can only be processed and updated by the clinic doctors at the front desk. After UPI integration is fully available, online payments can be done securely through this portal.
                     </p>
                   </div>
 

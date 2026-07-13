@@ -1,7 +1,7 @@
 import express from "express";
 import { db } from "../config/db.js";
 import { appointments, patients, services, users, messages } from "../db/schema.js";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, lt } from "drizzle-orm";
 import { verifyToken } from "../middleware/auth.js";
 import { requireRole } from "../middleware/roleCheck.js";
 import { sendPush } from "../lib/push.js";
@@ -18,6 +18,28 @@ function requireDb(res) {
     return false;
   }
   return true;
+}
+
+/**
+ * Automatically cancel past appointments that were never updated by the doctor.
+ * Ensures the system history cleans itself up.
+ */
+async function autoCancelPastAppointments() {
+  if (!process.env.DATABASE_URL) return;
+  try {
+    const todayStr = new Date().toISOString().split("T")[0];
+    await db
+      .update(appointments)
+      .set({ status: "cancelled", updatedAt: new Date() })
+      .where(
+        and(
+          eq(appointments.status, "pending"),
+          lt(appointments.appointmentDate, todayStr)
+        )
+      );
+  } catch (err) {
+    logger.error("Failed to auto-cancel past appointments: ", err);
+  }
 }
 
 /**
@@ -67,6 +89,7 @@ async function resolveOrCreatePatient(reqUser, patientPayload = {}) {
 router.get("/", verifyToken, requireRole("admin"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
+    await autoCancelPastAppointments();
     const { status } = req.query;
     let baseQuery = db
       .select({
@@ -119,6 +142,7 @@ router.get("/", verifyToken, requireRole("admin"), async (req, res, next) => {
 router.get("/my", verifyToken, requireRole("patient"), async (req, res, next) => {
   if (!requireDb(res)) return;
   try {
+    await autoCancelPastAppointments();
     const pRows = await db
       .select()
       .from(patients)

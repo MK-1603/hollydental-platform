@@ -109,16 +109,16 @@ export default function PricingPage() {
             consultation. Sign in to your patient portal to confirm a slot — no card
             required to book.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-3 justify-center pt-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row items-stretch sm:items-center gap-3 justify-center pt-2 max-w-sm mx-auto sm:max-w-none">
             <button
               onClick={() => handleBookNow()}
-              className="bg-gold hover:bg-gold-dark text-navy font-bold px-6 py-3 rounded-lg text-sm shadow-md transition-colors flex items-center gap-2"
+              className="bg-gold hover:bg-gold-dark text-navy font-bold px-3 sm:px-6 py-3 rounded-lg text-sm shadow-md transition-colors flex items-center justify-center gap-2 w-full"
             >
               Book Appointment <ArrowRight className="w-4 h-4" />
             </button>
             <Link
               href="#fees"
-              className="text-white/80 hover:text-gold text-sm font-medium underline-offset-4 hover:underline"
+              className="border border-white/25 hover:border-gold hover:text-gold text-white font-semibold text-sm px-3 sm:px-6 py-3 rounded-lg transition-colors flex items-center justify-center text-center w-full"
             >
               Skip to full price list
             </Link>

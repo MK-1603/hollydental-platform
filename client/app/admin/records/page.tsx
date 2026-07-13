@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { Search, Filter, ChevronRight, FileText, Calendar, Activity, Pill, Paperclip, Download, Plus, Clock, Stethoscope, AlertCircle, ArrowLeft, X } from "lucide-react";
 import { toast } from "@/lib/toast";
+import { generateTablePDF } from "@/lib/pdf";
 
 export default function MedicalRecordsPage() {
   const { data: rawPatients, loading: isPatientsLoading, error: patientsError } = useLiveData<any[]>("/records", {
@@ -60,6 +61,19 @@ export default function MedicalRecordsPage() {
     }
   }, [patientsError]);
 
+  const handleExport = () => {
+    generateTablePDF({
+      title: "Medical Records",
+      columns: ["ID", "Patient Name", "Last Visit"],
+      rows: patientsList.map((p) => [
+        p.displayId,
+        p.name,
+        p.lastVisit || "N/A",
+      ]),
+      filename: "HollyDental-Medical-Records",
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-white relative w-full overflow-hidden">
       
@@ -70,7 +84,7 @@ export default function MedicalRecordsPage() {
           <p className="text-[12px] md:text-[13px] text-gray-500 mt-0.5 hidden sm:block">Manage patient clinical histories and documentation.</p>
         </div>
         <div className="flex gap-2">
-          <button className="hidden sm:flex items-center gap-1.5 px-3 py-2 md:py-1.5 border border-gray-200 rounded-[8px] text-[13px] md:text-[12px] font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          <button onClick={handleExport} className="hidden sm:flex items-center gap-1.5 px-3 py-2 md:py-1.5 border border-gray-200 rounded-[8px] text-[13px] md:text-[12px] font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <Download className="w-4 h-4 md:w-3.5 md:h-3.5" /> Export
           </button>
           <button className="hidden sm:flex items-center gap-1.5 px-3 py-2 md:py-1.5 bg-blue-600 text-white rounded-[8px] text-[13px] md:text-[12px] font-medium hover:bg-blue-700 transition-colors">

@@ -5,7 +5,8 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
-  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  passwordHash: varchar("password_hash", { length: 255 }), // Removed notNull to support Google OAuth
+  googleId: varchar("google_id", { length: 255 }).unique(),
   role: varchar("role", { length: 50 }).notNull().default("patient"), // "admin" | "patient"
   isActive: boolean("is_active").notNull().default(true),
   mustChangePassword: boolean("must_change_password").notNull().default(false),

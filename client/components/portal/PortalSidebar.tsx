@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useLiveData } from "@/lib/useLiveData";
 import PortalBrand from "@/components/portal/PortalBrand";
-import { LayoutDashboard, CalendarDays, History, FolderOpen, MessageSquare, User, LogOut, ClipboardList, Receipt, Bell, ShoppingBag, PackageCheck, X, Heart, HeartHandshake } from "lucide-react";
+import { LayoutDashboard, CalendarDays, History, FolderOpen, MessageSquare, User, LogOut, ClipboardList, Receipt, Bell, ShoppingBag, PackageCheck, X, Heart, HeartHandshake, Bot } from "lucide-react";
 
 interface PortalSidebarProps {
   isOpen?: boolean;
@@ -107,6 +107,7 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
     { name: "My Files", href: "/portal/files", icon: FolderOpen },
     { name: "Oral Care Products", href: "/portal/products", icon: ShoppingBag },
     { name: "My Orders", href: "/portal/orders", icon: PackageCheck },
+    { name: "AI Assistant", href: "/portal/ai", icon: Bot },
     { name: "Messages", href: "/portal/messages", icon: MessageSquare },
     { name: "Profile Settings", href: "/portal/profile", icon: User },
   ];
@@ -148,25 +149,6 @@ export default function PortalSidebar({ isOpen, onClose }: PortalSidebarProps) {
           )}
         </div>
 
-        {/* Clinical Support CTA button */}
-        <Link
-          href="/portal/ai"
-          onClick={(e) => handleNavClick(e, "/portal/ai")}
-          className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl mb-6 border transition-all shrink-0 ${
-            pathname.startsWith("/portal/ai")
-              ? "bg-[#009BDE] text-white border-[#009BDE] shadow-xl shadow-[#009BDE]/20"
-              : "bg-[#F4FBFF] hover:bg-[#EAF6FD] text-navy border-[#E4F4FD] hover:border-[#D2EAF8]"
-          }`}
-        >
-          <div className="w-8 h-8 rounded-xl bg-[#DDF0FB] flex items-center justify-center shrink-0">
-            <HeartHandshake className="w-4 h-4 text-[#009BDE]" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-bold text-navy truncate tracking-wide">Clinical Support</p>
-            <p className="text-[11px] font-medium text-slate-500 truncate mt-0.5">Ask about your care</p>
-          </div>
-          <HeartHandshake className="w-4 h-4 text-[#009BDE] shrink-0 opacity-80" />
-        </Link>
 
         {/* Nav List */}
         <nav className="flex-1 space-y-2 overflow-y-auto pr-1 no-scrollbar mb-6">

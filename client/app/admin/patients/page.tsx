@@ -6,6 +6,7 @@ import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
 import Link from "next/link";
 import { Search, Phone, Mail, Users, Calendar, FileText, Activity, Edit2, Pill, CreditCard, ChevronDown, ChevronUp, Filter, ArrowUpDown, LayoutGrid, Download, Plus, X } from "lucide-react";
+import { generateTablePDF } from "@/lib/pdf";
 
 export default function AdminPatientsPage() {
   const [search, setSearch] = useState("");
@@ -20,6 +21,19 @@ export default function AdminPatientsPage() {
     e.preventDefault();
     e.stopPropagation();
     setExpandedCard(prev => prev === id ? null : id);
+  };
+
+  const handleExport = () => {
+    generateTablePDF({
+      title: "Patient Directory",
+      columns: ["Name", "Contact", "Join Date"],
+      rows: patients.map((p) => [
+        `${p.firstName} ${p.lastName}`,
+        `${p.phone || ""} | ${p.email || ""}`,
+        new Date(p.createdAt).toLocaleDateString(),
+      ]),
+      filename: "HollyDental-Patients",
+    });
   };
 
   return (
@@ -72,7 +86,7 @@ export default function AdminPatientsPage() {
                 <ArrowUpDown className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Sort</span>
               </button>
-              <button onClick={() => toast.success("Export started")} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-[12px] hover:bg-gray-50 transition-colors shadow-sm text-[12px] font-medium shrink-0">
+              <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-[12px] hover:bg-gray-50 transition-colors shadow-sm text-[12px] font-medium shrink-0">
                 <Download className="w-3.5 h-3.5" />
               </button>
               <Link href="/admin/patients/new" className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors shadow-sm text-[12px] font-medium shrink-0 ml-auto sm:ml-0">

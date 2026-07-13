@@ -10,6 +10,7 @@ import {
   Download, FileText, FileDown, Activity, ChevronRight, Ban
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { generateTablePDF } from "@/lib/pdf";
 
 interface Order {
   id: string;
@@ -123,6 +124,20 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleExport = () => {
+    generateTablePDF({
+      title: "Order Management",
+      columns: ["Order ID", "Patient", "Status", "Total"],
+      rows: filteredOrders.map((o) => [
+        o.id,
+        o.customerName || "Walk-in",
+        o.status,
+        `€${Number(o.totalAmount).toFixed(2)}`,
+      ]),
+      filename: "HollyDental-Orders",
+    });
+  };
+
   return (
     <div className="flex flex-col min-h-full bg-[#F8FAFC] relative pb-10">
       
@@ -133,7 +148,7 @@ export default function AdminOrdersPage() {
           <p className="text-[13px] text-gray-500 mt-1">Process patient prescriptions, retail orders, and fulfillments.</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
             <Download className="w-4 h-4" /> Export
           </button>
         </div>

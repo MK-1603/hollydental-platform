@@ -657,3 +657,173 @@ export function generateOrderReceiptPDF(data: OrderReceiptPDFData) {
 
   doc.save(`HollyDental-Order-${data.orderId.slice(0, 8).toUpperCase()}.pdf`);
 }
+
+/* ══════════════════════════════════════════════
+   4. UNIVERSAL TABLE EXPORT (ADMIN LISTS)
+   ══════════════════════════════════════════════ */
+export interface TablePDFData {
+  title: string;
+  columns: string[];
+  rows: (string | number)[][];
+  filename: string;
+}
+
+export function generateTablePDF(data: TablePDFData) {
+  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "landscape" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  // 1. Clean Letterhead Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(...BRAND.black);
+  doc.text(BRAND.name.toUpperCase(), 14, 16);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...BRAND.darkGray);
+  doc.text(data.title.toUpperCase(), 14, 21);
+
+  // Right Side: Date
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(8);
+  doc.text(`Generated on: ${new Date().toLocaleString()}`, W - 14, 16, { align: "right" });
+
+  // Divider Line
+  doc.setDrawColor(...BRAND.black);
+  doc.setLineWidth(0.4);
+  doc.line(14, 25, W - 14, 25);
+
+  // 2. Table Data
+  autoTable(doc, {
+    startY: 32,
+    head: [data.columns],
+    body: data.rows,
+    theme: "plain",
+    styles: {
+      font: "helvetica",
+      fontSize: 8,
+      cellPadding: 4,
+      textColor: BRAND.black,
+    },
+    headStyles: {
+      fontStyle: "bold",
+      textColor: BRAND.black,
+      fillColor: BRAND.light,
+      lineColor: BRAND.border,
+      lineWidth: { top: 0.2, bottom: 0.6 },
+    },
+    bodyStyles: {
+      lineColor: BRAND.border,
+      lineWidth: { bottom: 0.1 },
+    },
+    alternateRowStyles: {
+      fillColor: [252, 252, 252],
+    },
+    margin: { left: 14, right: 14 },
+  });
+
+  // 3. Footer
+  const pages = (doc as any).internal.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...BRAND.gray);
+    doc.text(`Page ${i} of ${pages}`, W - 14, H - 7, { align: "right" });
+    doc.text("Hollyhill Dental Clinic Internal System Export", 14, H - 7);
+  }
+
+  doc.save(`${data.filename}.pdf`);
+}
+
+/* ══════════════════════════════════════════════
+   5. PATIENT GDPR DATA EXPORT (PDF)
+   ══════════════════════════════════════════════ */
+export function generatePatientDataPDF(data: any) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+
+  // Header
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(...BRAND.black);
+  doc.text(BRAND.name.toUpperCase(), 14, 18);
+  
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...BRAND.darkGray);
+  doc.text("GDPR Personal Data Export", 14, 23);
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(8);
+  doc.text(`Generated on: ${new Date().toLocaleString()}`, W - 14, 18, { align: "right" });
+
+  doc.setDrawColor(...BRAND.black);
+  doc.setLineWidth(0.4);
+  doc.line(14, 27, W - 14, 27);
+
+  let y = 35;
+  const addSection = (title: string, obj: any) => {
+    if (!obj) return;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(...BRAND.black);
+    doc.text(title.toUpperCase(), 14, y);
+    y += 2;
+    doc.setDrawColor(...BRAND.border);
+    doc.setLineWidth(0.1);
+    doc.line(14, y, W - 14, y);
+    y += 5;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...BRAND.darkGray);
+
+    for (const [key, value] of Object.entries(obj)) {
+      if (y > H - 20) {
+        doc.addPage();
+        y = 20;
+      }
+      if (typeof value === "object") continue; // skip nested
+      const formattedKey = key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase());
+      const valStr = value === null || value === undefined ? "—" : String(value);
+      
+      doc.setFont("helvetica", "bold");
+      doc.text(`${formattedKey}:`, 14, y);
+      doc.setFont("helvetica", "normal");
+      
+      const splitVal = doc.splitTextToSize(valStr, W - 60);
+      doc.text(splitVal, 50, y);
+      y += (splitVal.length * 4) + 2;
+    }
+    y += 5;
+  };
+
+  addSection("User Account", {
+    ID: data.id,
+    Email: data.email,
+    Role: data.role,
+    DisplayName: data.displayName,
+    IsActive: data.isActive,
+    Joined: data.createdAt,
+  });
+
+  if (data.patientProfile) {
+    addSection("Patient Profile", data.patientProfile);
+  }
+
+  // Footer
+  const pages = (doc as any).internal.getNumberOfPages();
+  for (let i = 1; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    doc.setTextColor(...BRAND.gray);
+    doc.text(`Page ${i} of ${pages}`, W - 14, H - 7, { align: "right" });
+    doc.text("Hollyhill Dental Clinic - GDPR Data Request", 14, H - 7);
+  }
+
+  doc.save(`HollyDental-Data-Export.pdf`);
+}

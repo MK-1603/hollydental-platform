@@ -200,13 +200,45 @@ router.patch("/:patientId/read", verifyToken, async (req, res, next) => {
 });
 
 /**
- * 4. DELETE /messages/:id — soft-delete a single message.
- * Patients can delete their own messages; admins can delete any.
+ * 4. DELETE /messages/patient/:patientId — soft-delete all messages for a patient.
+ */
+router.delete("/patient/:patientId", verifyToken, async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const { patientId } = req.params;
+  try {
+    if (req.user.role === "patient") {
+      const ownPatientId = await getOwnPatientId(req.user);
+      if (patientId !== ownPatientId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    await db.update(messages).set({ deletedAt: new Date() }).where(eq(messages.patientId, patientId));
+    return res.status(200).json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/**
+ * 4b. DELETE /messages/:id — soft-delete a single message.
  */
 router.delete("/:id", verifyToken, async (req, res, next) => {
-  return res.status(403).json({
-    message: "Message deletion is disabled to preserve clinic audit trail.",
-  });
+  if (!requireDb(res)) return;
+  const { id } = req.params;
+  try {
+    const [msg] = await db.select().from(messages).where(eq(messages.id, id));
+    if (!msg) return res.status(404).json({ message: "Not found" });
+    if (req.user.role === "patient") {
+      const ownPatientId = await getOwnPatientId(req.user);
+      if (msg.patientId !== ownPatientId || msg.senderRole !== "patient") {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    await db.update(messages).set({ deletedAt: new Date() }).where(eq(messages.id, id));
+    return res.status(200).json({ success: true });
+  } catch (e) {
+    next(e);
+  }
 });
 
 /**
