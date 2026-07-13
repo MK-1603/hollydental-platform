@@ -227,32 +227,36 @@ export default function AdminProductsPage() {
                   <div 
                     key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-2xl p-3 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-all group relative flex flex-col overflow-hidden"
+                    className="bg-white rounded-[14px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform flex flex-col overflow-hidden"
                   >
-                    <div className="w-full aspect-square rounded-xl bg-gray-50 mb-3 overflow-hidden relative shrink-0 flex items-center justify-center border border-gray-100/50">
+                    {/* Image Container */}
+                    <div className="w-full h-32 bg-gray-50 relative shrink-0 flex items-center justify-center border-b border-gray-100">
                       {p.imageUrl ? (
                         <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
                         <Package className="w-8 h-8 text-gray-300" />
                       )}
-                      <span className={`absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shadow-sm ${
-                        p.category === 'procedure' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {p.category === 'procedure' ? 'Clinical' : 'Retail'}
-                      </span>
+                      <div className="absolute top-2 left-2 flex gap-1">
+                        <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-extrabold uppercase tracking-widest shadow-sm ${
+                          p.category === 'procedure' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
+                        }`}>
+                          {p.category === 'procedure' ? 'Clinical' : 'Retail'}
+                        </span>
+                      </div>
                     </div>
                     
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <h3 className="text-[12px] font-bold text-gray-900 leading-tight line-clamp-2 mb-1">{p.name}</h3>
-                      <div className="mt-auto pt-1 flex items-center justify-between gap-1">
-                        <span className="text-[14px] font-extrabold text-gray-900">
+                    {/* Text Details Container */}
+                    <div className="flex flex-col flex-1 p-3">
+                      <h3 className="text-[13px] font-bold text-gray-900 leading-tight line-clamp-2 mb-1.5">{p.name}</h3>
+                      <div className="mt-auto flex items-end justify-between gap-1">
+                        <span className="text-[15px] font-black text-gray-900">
                           €{parseFloat(p.price).toFixed(2)}
                         </span>
                         {p.category === 'procedure' ? (
-                           <span className="text-[10px] font-medium text-gray-400">Unlmtd</span>
+                           <span className="text-[10px] font-bold text-gray-400">Unlimited</span>
                         ) : (
-                           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${p.stockCount > 10 ? 'bg-emerald-50 text-emerald-600' : p.stockCount > 0 ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'}`}>
-                             {p.stockCount} left
+                           <span className={`text-[10px] font-bold ${p.stockCount > 10 ? 'text-emerald-600' : p.stockCount > 0 ? 'text-amber-600' : 'text-red-600'}`}>
+                             {p.stockCount > 0 ? `${p.stockCount} left` : 'Out of stock'}
                            </span>
                         )}
                       </div>
