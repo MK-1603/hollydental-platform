@@ -48,6 +48,24 @@ function generateResetCode() {
   return out;
 }
 
+// Check Email Exists (used for registration flow and Google OAuth)
+router.post("/check-email", async (req, res, next) => {
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ message: "Email is required." });
+
+  try {
+    const existingUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, String(email).trim().toLowerCase()))
+      .limit(1);
+    
+    return res.status(200).json({ exists: existingUser.length > 0 });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // 1. Patient Register
 router.post("/register", async (req, res, next) => {
   const { email, password, firstName, lastName, phone, dateOfBirth, gender, address, bloodGroup, age } = req.body;
