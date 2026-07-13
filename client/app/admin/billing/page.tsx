@@ -398,16 +398,21 @@ export default function AdminBillingPage() {
         </div>
       </div>
 
-      {/* Right Drawer Slide-over */}
+      {/* Drawer / Bottom Sheet */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-gray-900/20 backdrop-blur-sm transition-opacity" onClick={handleCloseDrawer} />
+        <div className="fixed inset-0 z-[100] flex items-end md:items-stretch md:justify-end">
+          <div className="absolute inset-0 bg-gray-900/30 backdrop-blur-sm transition-opacity" onClick={handleCloseDrawer} />
           
-          <div className="relative w-full max-w-lg bg-white h-full shadow-2xl border-l border-gray-200 flex flex-col animate-in slide-in-from-right duration-300">
+          <div className="relative w-full md:max-w-lg bg-white h-[90vh] md:h-full rounded-t-[24px] md:rounded-none shadow-2xl flex flex-col animate-in slide-in-from-bottom md:slide-in-from-right duration-300 pb-[env(safe-area-inset-bottom)] md:pb-0 overflow-hidden">
             
+            {/* iOS Drag Handle (Mobile Only) */}
+            <div className="md:hidden flex justify-center pt-3 pb-1 w-full bg-white shrink-0" onClick={handleCloseDrawer}>
+              <div className="w-10 h-1.5 bg-gray-200 rounded-full" />
+            </div>
+
             {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-              <h2 className="text-[16px] font-bold text-gray-900">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white md:bg-gray-50/50 shrink-0">
+              <h2 className="text-[16px] md:text-[18px] font-bold text-gray-900">
                 {isAdding ? "Create New Invoice" : `Invoice #${selectedInvoice?.invoiceNumber}`}
               </h2>
               <div className="flex items-center gap-2">
