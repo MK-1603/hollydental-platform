@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLiveData } from "@/lib/useLiveData";
 import { useChatThread } from "@/lib/useChatThread";
+import { apiRequest } from "@/lib/api";
 import { toast } from "@/lib/toast";
 import { Send, Search, RefreshCw, AlertCircle, MessageSquare, Trash2, Check, CheckCheck, Phone, MoreVertical, Smile, ChevronLeft } from "lucide-react";
 
@@ -267,7 +268,7 @@ export default function AdminMessagesPage() {
                       setActivePatientId(t.patientId);
                       setMobileView("chat");
                     }}
-                    className={`w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-gray-50 transition-colors relative ${
+                    className={`group w-full text-left flex items-center gap-3 px-4 py-3.5 border-b border-gray-50 transition-colors relative ${
                       isActive ? "bg-[#f0f2f5]" : "hover:bg-gray-50/70"
                     }`}
                   >
@@ -305,6 +306,35 @@ export default function AdminMessagesPage() {
                     {isActive && (
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gold rounded-r-full" />
                     )}
+
+                    {/* Delete Thread Button */}
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const ok = await toast.confirm({
+                          title: "Clear all messages?",
+                          message: "This will permanently delete the entire chat history for this patient.",
+                          confirmText: "Clear Chat",
+                          danger: true,
+                        });
+                        if (!ok) return;
+                        try {
+                          await apiRequest(`/messages/clear/${t.patientId}`, { method: "DELETE" });
+                          refetchThreads();
+                          if (isActive) {
+                            setActivePatientId(null);
+                            setMobileView("threads");
+                          }
+                        } catch (err: any) {
+                          toast.error(err?.message || "Couldn't clear chat.");
+                        }
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full text-gray-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all focus:outline-none focus:opacity-100"
+                      title="Clear Chat"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </button>
                 );
               })
