@@ -303,7 +303,7 @@ export function useChatThread({
     setOptimistic([]);
 
     try {
-      await apiRequest(`/messages/patient/${pid}`, { method: "DELETE" });
+      await apiRequest(`/messages/clear/${pid}`, { method: "DELETE" });
     } catch (err) {
       await fetchThread(true);
       throw err;

@@ -63,6 +63,26 @@ function projectMessage(row) {
 }
 
 /**
+ * 4. DELETE /messages/clear/:patientId — soft-delete all messages for a patient.
+ */
+router.delete("/clear/:patientId", verifyToken, async (req, res, next) => {
+  if (!requireDb(res)) return;
+  const { patientId } = req.params;
+  try {
+    if (req.user.role === "patient") {
+      const ownPatientId = await getOwnPatientId(req.user);
+      if (patientId !== ownPatientId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+    await db.update(messages).set({ deletedAt: new Date() }).where(eq(messages.patientId, patientId));
+    return res.status(200).json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+});
+
+/**
  * 1. GET Thread messages for patientId (Admin, or Patient own).
  *
  * Supports an optional `?since=<ISO timestamp>` query so the client can
@@ -199,25 +219,7 @@ router.patch("/:patientId/read", verifyToken, async (req, res, next) => {
   }
 });
 
-/**
- * 4. DELETE /messages/patient/:patientId — soft-delete all messages for a patient.
- */
-router.delete("/patient/:patientId", verifyToken, async (req, res, next) => {
-  if (!requireDb(res)) return;
-  const { patientId } = req.params;
-  try {
-    if (req.user.role === "patient") {
-      const ownPatientId = await getOwnPatientId(req.user);
-      if (patientId !== ownPatientId) {
-        return res.status(403).json({ message: "Forbidden" });
-      }
-    }
-    await db.update(messages).set({ deletedAt: new Date() }).where(eq(messages.patientId, patientId));
-    return res.status(200).json({ success: true });
-  } catch (e) {
-    next(e);
-  }
-});
+
 
 /**
  * 4b. DELETE /messages/:id — soft-delete a single message.
@@ -312,3 +314,7 @@ router.get("/", verifyToken, async (req, res, next) => {
 });
 
 export default router;
+
+// Trigger nodemon restart
+
+router.delete('/ping', (req, res) => res.json({pong: true}));
