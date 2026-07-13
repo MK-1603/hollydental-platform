@@ -6,7 +6,8 @@ import { useLiveData } from "@/lib/useLiveData";
 import { toast } from "@/lib/toast";
 import { 
   Plus, Download, Eye, Trash2, Edit3, X, FileText, CheckCircle2, 
-  Clock, AlertCircle, TrendingUp, DollarSign, CreditCard, Send, Printer
+  Clock, AlertCircle, TrendingUp, DollarSign, CreditCard, Send, Printer,
+  Search, ChevronDown, Filter
 } from "lucide-react";
 import { useDialog } from "@/components/DialogProvider";
 import { generateInvoicePDF } from "@/lib/pdf";
@@ -63,7 +64,8 @@ export default function AdminBillingPage() {
     intervalMs: 30000, select: normalizeInvoices, initialData: [],
   });
 
-  const [activeTab, setActiveTab] = useState("all");
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -86,9 +88,13 @@ export default function AdminBillingPage() {
   };
 
   const filteredInvoices = useMemo(() => {
-    if (activeTab === "all") return invoices;
-    return invoices.filter(i => i.status === activeTab);
-  }, [invoices, activeTab]);
+    return invoices.filter(i => {
+      const pName = patientName(i.patientId).toLowerCase();
+      const matchesSearch = i.invoiceNumber.toLowerCase().includes(search.toLowerCase()) || pName.includes(search.toLowerCase());
+      const matchesFilter = filterStatus === "all" || i.status === filterStatus;
+      return matchesSearch && matchesFilter;
+    });
+  }, [invoices, search, filterStatus, patients]);
 
   const kpis = useMemo(() => {
     const total = invoices.length;
@@ -193,9 +199,9 @@ export default function AdminBillingPage() {
       
       {/* Page Header */}
       <div className="flex items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
-        <div className="min-w-0">
-          <h1 className="text-[15px] md:text-[20px] font-bold text-gray-900 font-serif whitespace-nowrap">Financial Dashboard</h1>
-          <p className="text-[11px] md:text-[13px] text-gray-500 mt-1 truncate">Manage patient invoices, payments, and revenue insights.</p>
+        <div className="min-w-0 pr-2">
+          <h1 className="text-[14px] md:text-[20px] font-bold text-gray-900 font-serif whitespace-nowrap overflow-hidden text-ellipsis">Financial Dashboard</h1>
+          <p className="text-[10px] md:text-[13px] text-gray-500 mt-0.5 md:mt-1 truncate">Manage patient invoices, payments, and revenue insights.</p>
         </div>
         <div className="flex shrink-0">
           <button onClick={handleOpenAdd} className="flex items-center justify-center w-8 h-8 md:w-auto md:px-4 md:py-2.5 bg-blue-600 text-white rounded-lg md:rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
@@ -206,10 +212,10 @@ export default function AdminBillingPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-col p-4 sm:p-6 min-w-0">
+      <div className="flex flex-col p-4 sm:p-6 min-w-0 flex-1 overflow-hidden">
         
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 shrink-0">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-5 md:mb-6 shrink-0">
           <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] md:text-[11px] font-bold text-gray-500 uppercase tracking-wider">Total Revenue</p>
@@ -251,86 +257,144 @@ export default function AdminBillingPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex overflow-x-auto w-full sm:w-max custom-scrollbar items-center p-1 bg-gray-100 rounded-[10px] shadow-inner mb-4">
-          {["all", "paid", "pending", "overdue"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-[12px] whitespace-nowrap font-bold rounded-[8px] transition-all capitalize shrink-0 ${
-                activeTab === tab 
-                  ? "bg-white text-blue-600 shadow-sm" 
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-              }`}
+        {/* Search & Filters */}
+        <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
+          <div className="relative flex-1 min-w-0">
+            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search invoices..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-[8px] pl-9 pr-8 py-2 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          
+          <div className="relative shrink-0">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="appearance-none pl-8 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
             >
-              {tab} Invoices
-            </button>
-          ))}
+              <option value="all">All</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="overdue">Overdue</option>
+            </select>
+            <Filter className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
         </div>
 
-        {/* Robust Table */}
-        <div className="bg-white border border-gray-200 rounded-[16px] shadow-sm flex flex-col h-auto w-full min-w-0">
-          <div className="overflow-x-auto w-full custom-scrollbar">
-            <table className="w-full text-left border-collapse min-w-[800px]">
-              <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
-                <tr>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Invoice Details</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Patient</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {loading ? (
-                  <tr><td colSpan={5} className="p-8 text-center text-[13px] text-gray-500">Loading invoices...</td></tr>
-                ) : filteredInvoices.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-12 text-center">
-                      <FileText className="w-8 h-8 text-gray-300 mx-auto mb-3" />
-                      <p className="text-[14px] font-bold text-gray-900">No invoices found</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredInvoices.map((inv) => {
-                    const meta = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
-                    const StatusIcon = meta.icon;
-                    return (
-                      <tr key={inv.id} onClick={() => handleOpenDetails(inv)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-[10px] bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                              <FileText className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">#{inv.invoiceNumber}</p>
-                              <p className="text-[11px] text-gray-500 mt-0.5">Issued: {new Date(inv.issueDate).toLocaleDateString()}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-[13px] font-medium text-gray-900">
-                          {patientName(inv.patientId)}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="text-[14px] font-bold text-gray-900">€{parseFloat(inv.totalAmount.toString()).toFixed(2)}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
-                            <StatusIcon className="w-3.5 h-3.5" /> {meta.label}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
-                            Manage
-                          </button>
-                        </td>
+        {/* Invoices List */}
+        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+          {loading ? (
+             <div className="flex-1 flex items-center justify-center text-[14px] text-gray-500 bg-white md:bg-transparent rounded-[16px] md:border md:border-gray-200">
+               Loading invoices...
+             </div>
+          ) : filteredInvoices.length === 0 ? (
+             <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[16px] border border-gray-200 shadow-sm">
+                <FileText className="w-10 h-10 text-gray-300 mx-auto mb-4" />
+                <p className="text-[16px] font-bold text-gray-900">No invoices found</p>
+                <p className="text-[14px] text-gray-500 mt-1 max-w-[250px]">Try adjusting your search or filter.</p>
+             </div>
+          ) : (
+            <>
+              {/* Mobile Card Layout */}
+              <div className="md:hidden flex-1 overflow-y-auto space-y-3 pb-[80px] custom-scrollbar -mx-2 px-2">
+                {filteredInvoices.map((inv) => {
+                  const meta = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
+                  return (
+                    <div 
+                      key={inv.id} 
+                      onClick={() => handleOpenDetails(inv)}
+                      className="bg-white rounded-2xl p-4 border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] cursor-pointer active:scale-[0.98] transition-all group relative overflow-hidden"
+                    >
+                      <div className="flex justify-between items-start gap-2 mb-2">
+                        <div>
+                          <h3 className="text-[14px] font-semibold text-gray-900 leading-snug">{patientName(inv.patientId)}</h3>
+                          <p className="text-[11px] text-gray-400 font-mono mt-0.5">#{inv.invoiceNumber}</p>
+                        </div>
+                        <span className="text-[15px] font-bold text-gray-900 shrink-0">
+                          €{parseFloat(inv.totalAmount.toString()).toFixed(2)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-3">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium tracking-wide ${meta.bg} ${meta.text}`}>
+                          <meta.icon className="w-3 h-3" />
+                          {meta.label}
+                        </span>
+                        
+                        <span className="text-[11px] font-medium text-gray-400">
+                          {new Date(inv.issueDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:flex flex-1 bg-white border border-gray-200 rounded-[16px] shadow-sm overflow-hidden flex-col">
+                <div className="overflow-x-auto flex-1 custom-scrollbar">
+                  <table className="w-full text-left border-collapse min-w-[800px]">
+                    <thead className="bg-gray-50/80 sticky top-0 z-10 shadow-[0_1px_0_0_#e5e7eb]">
+                      <tr>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Invoice Details</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Patient</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3.5 text-[11px] font-bold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                       </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {filteredInvoices.map((inv) => {
+                        const meta = STATUS_CONFIG[inv.status] || STATUS_CONFIG.pending;
+                        const StatusIcon = meta.icon;
+                        return (
+                          <tr key={inv.id} onClick={() => handleOpenDetails(inv)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-[10px] bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
+                                  <FileText className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                  <p className="text-[14px] font-bold text-gray-900 group-hover:text-blue-600 transition-colors">#{inv.invoiceNumber}</p>
+                                  <p className="text-[11px] text-gray-500 mt-0.5">Issued: {new Date(inv.issueDate).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-[13px] font-medium text-gray-900">
+                              {patientName(inv.patientId)}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-[14px] font-bold text-gray-900">€{parseFloat(inv.totalAmount.toString()).toFixed(2)}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-bold tracking-wide border ${meta.bg} ${meta.text} ${meta.border}`}>
+                                <StatusIcon className="w-3.5 h-3.5" /> {meta.label}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <button className="text-[12px] font-bold px-3 py-1.5 border border-gray-200 rounded-[8px] bg-white text-gray-700 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors">
+                                Manage
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
