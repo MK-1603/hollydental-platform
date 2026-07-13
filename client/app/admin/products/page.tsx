@@ -222,21 +222,23 @@ export default function AdminProductsPage() {
           ) : (
             <>
               {/* Mobile Card Layout */}
-              <div className="md:hidden flex-1 overflow-y-auto grid grid-cols-2 gap-3 pb-[80px] custom-scrollbar -mx-2 px-2 content-start">
+              <div className="md:hidden flex-1 overflow-y-auto grid grid-cols-2 gap-3 pb-[80px] custom-scrollbar -mx-2 px-2 content-start items-start">
                 {filteredProducts.map((p) => (
                   <div 
                     key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-[12px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform overflow-hidden h-auto"
+                    className="bg-white rounded-[14px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform overflow-hidden flex flex-col w-full"
                   >
                     {/* Image Container */}
-                    <div className="w-full aspect-[4/3] bg-gray-50 relative flex items-center justify-center border-b border-gray-100">
+                    <div className="w-full aspect-[4/3] bg-gray-50 relative shrink-0 border-b border-gray-100">
                       {p.imageUrl ? (
-                        <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                        <img src={p.imageUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
-                        <Package className="w-8 h-8 text-gray-300" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Package className="w-8 h-8 text-gray-300" />
+                        </div>
                       )}
-                      <div className="absolute top-2 left-2 flex gap-1">
+                      <div className="absolute top-2 left-2 z-10">
                         <span className={`px-1.5 py-0.5 rounded-[4px] text-[9px] font-extrabold uppercase tracking-widest shadow-sm ${
                           p.category === 'procedure' ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
                         }`}>
@@ -246,8 +248,8 @@ export default function AdminProductsPage() {
                     </div>
                     
                     {/* Text Details Container */}
-                    <div className="p-2.5 w-full bg-white">
-                      <h3 className="text-[12px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[36px]">{p.name}</h3>
+                    <div className="p-2.5 w-full bg-white flex flex-col shrink-0">
+                      <h3 className="text-[12px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">{p.name}</h3>
                       <div className="flex items-center justify-between gap-1 mt-1.5">
                         <span className="text-[14px] font-black text-gray-900">
                           €{parseFloat(p.price).toFixed(2)}
