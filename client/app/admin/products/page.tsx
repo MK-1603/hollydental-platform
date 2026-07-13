@@ -227,10 +227,10 @@ export default function AdminProductsPage() {
                   <div 
                     key={p.id} 
                     onClick={() => handleOpenDetails(p)}
-                    className="bg-white rounded-[14px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform overflow-hidden flex flex-col w-full h-auto"
+                    className="bg-white rounded-[14px] border border-gray-200 shadow-sm cursor-pointer active:scale-[0.98] transition-transform overflow-hidden block w-full"
                   >
                     {/* Image Container */}
-                    <div className="w-full h-[120px] bg-gray-50 relative shrink-0 border-b border-gray-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-[120px] bg-gray-50 relative border-b border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                       {p.imageUrl ? (
                         <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                       ) : (
@@ -246,9 +246,9 @@ export default function AdminProductsPage() {
                     </div>
                     
                     {/* Text Details Container */}
-                    <div className="p-2.5 w-full bg-white flex flex-col flex-1">
-                      <div className="text-[12.5px] font-bold text-gray-900 leading-snug line-clamp-2 mb-2 min-h-[36px]">{p.name}</div>
-                      <div className="mt-auto flex items-center justify-between gap-1">
+                    <div className="p-2.5 w-full bg-white block">
+                      <div className="text-[12px] font-bold text-gray-900 leading-snug line-clamp-2 min-h-[34px]">{p.name}</div>
+                      <div className="flex items-center justify-between gap-1 mt-2">
                         <span className="text-[14px] font-black text-gray-900">
                           €{parseFloat(p.price).toFixed(2)}
                         </span>
