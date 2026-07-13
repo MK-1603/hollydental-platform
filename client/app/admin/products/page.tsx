@@ -157,15 +157,15 @@ export default function AdminProductsPage() {
       
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:p-6 border-b border-gray-200 bg-white shrink-0">
-        <div>
-          <h1 className="text-[20px] font-bold text-gray-900 font-serif">Clinical Catalog & Inventory</h1>
-          <p className="text-[13px] text-gray-500 mt-1">Manage procedures, materials, and retail items.</p>
+        <div className="min-w-0">
+          <h1 className="text-[18px] md:text-[20px] font-bold text-gray-900 font-serif truncate">Clinical Catalog & Inventory</h1>
+          <p className="text-[12px] md:text-[13px] text-gray-500 mt-1 truncate">Manage procedures, materials, and retail items.</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleExport} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+        <div className="flex gap-2">
+          <button onClick={handleExport} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-[8px] text-[12px] md:text-[13px] font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
             <Download className="w-4 h-4" /> Export
           </button>
-          <button onClick={handleOpenAdd} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-[10px] text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
+          <button onClick={handleOpenAdd} className="flex-1 md:flex-none justify-center flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-[8px] text-[12px] md:text-[13px] font-bold hover:bg-blue-700 transition-colors shadow-sm">
             <Plus className="w-4 h-4" /> Add Item
           </button>
         </div>
@@ -174,15 +174,15 @@ export default function AdminProductsPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col p-4 md:p-6 overflow-hidden">
         {/* Search & Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 shrink-0">
-          <div className="relative w-full sm:w-80">
+        <div className="flex flex-row items-center justify-between gap-2 mb-4 shrink-0">
+          <div className="relative flex-1 min-w-0">
             <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search items, SKUs, or categories..."
+              placeholder="Search catalog..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-gray-200 rounded-[10px] pl-9 pr-8 py-2.5 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
+              className="w-full bg-white border border-gray-200 rounded-[8px] pl-9 pr-8 py-2 text-[13px] focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all"
             />
             {search && (
               <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600">
@@ -191,18 +191,18 @@ export default function AdminProductsPage() {
             )}
           </div>
           
-          <div className="relative w-full sm:w-auto">
+          <div className="relative shrink-0">
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="w-full sm:w-auto appearance-none pl-9 pr-9 py-2.5 bg-white border border-gray-200 rounded-[10px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
+              className="appearance-none pl-8 pr-8 py-2 bg-white border border-gray-200 rounded-[8px] text-[13px] font-bold text-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm cursor-pointer"
             >
-              <option value="all">All Categories</option>
-              <option value="procedure">Clinical Procedure</option>
-              <option value="extra">Retail Extra</option>
+              <option value="all">All</option>
+              <option value="procedure">Clinical</option>
+              <option value="extra">Retail</option>
             </select>
-            <Filter className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <ChevronDown className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Filter className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-gray-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
