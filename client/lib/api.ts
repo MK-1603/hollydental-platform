@@ -1,4 +1,11 @@
 const getApiUrl = () => {
+  // Always use the relative proxy path in development on the client side.
+  // This prevents Secure/SameSite cookie rejection on mobile LAN IPs (like 192.168.x.x)
+  // when an external NEXT_PUBLIC_API_URL is accidentally used in dev.
+  if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
+    return "/api";
+  }
+
   if (process.env.NEXT_PUBLIC_API_URL) {
     let url = process.env.NEXT_PUBLIC_API_URL;
     // Strip trailing slash
@@ -7,6 +14,7 @@ const getApiUrl = () => {
     if (!url.endsWith('/api')) url += '/api';
     return url;
   }
+  
   if (typeof window !== "undefined") {
     // Client-side: use relative path to leverage Next.js rewrites.
     // This perfectly avoids cross-origin SameSite cookie bugs on mobile Safari!
