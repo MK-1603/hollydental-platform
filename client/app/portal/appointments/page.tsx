@@ -251,6 +251,15 @@ export default function PortalAppointmentsPage() {
             </div>
 
             <div className="p-6 space-y-5">
+              {selected.status === 'pending' && (
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] text-amber-600 font-bold uppercase tracking-wider mb-1">Awaiting Approval</p>
+                    <p className="text-xs text-amber-800 leading-relaxed">Your requested time slot is reserved and awaiting clinic approval.</p>
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
                   <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Dentist</p>

@@ -94,7 +94,7 @@ export default function AdminSidebar({ isOpen, onClose, isCollapsed, onToggleCol
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 xl:hidden transition-opacity" onClick={onClose} />
       )}
       <aside className={cn(
-        "fixed xl:relative top-0 left-0 h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
+        "fixed xl:relative top-0 left-0 h-[100dvh] bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
         isCollapsed ? "w-[80px]" : "w-[280px]",
         isOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
       )}>

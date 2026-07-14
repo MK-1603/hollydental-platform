@@ -136,7 +136,7 @@ export default function PortalSidebar({ isOpen, onClose, isCollapsed, onToggleCo
 
       <aside
         className={cn(
-          "fixed xl:sticky top-0 left-0 h-screen bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
+          "fixed xl:sticky top-0 left-0 h-[100dvh] bg-white border-r border-gray-100 flex flex-col transition-all duration-300 ease-in-out z-50 shrink-0",
           isCollapsed ? "w-[80px]" : "w-full sm:w-[300px] xl:w-[280px]",
           isOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
         )}

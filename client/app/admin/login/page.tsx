@@ -19,7 +19,7 @@ export default function AdminLoginRedirect() {
   }, [router, openLoginModal]);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center text-navy">
+    <div className="min-h-[100dvh] bg-white flex items-center justify-center text-navy">
       <p className="text-sm font-semibold">Opening sign-in…</p>
     </div>
   );

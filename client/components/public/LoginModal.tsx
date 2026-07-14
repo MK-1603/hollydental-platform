@@ -219,10 +219,10 @@ export default function LoginModal() {
       
 
       {/* Centered Authentication Container */}
-      <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-4 md:p-8 relative z-10">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-0 sm:p-4 md:p-8 relative z-10">
 
         {/* Floating Card */}
-        <div className="w-full h-auto min-h-screen md:min-h-0 md:max-w-[960px] md:w-[960px] max-h-[90vh] md:overflow-hidden bg-white md:rounded-[24px] md:shadow-2xl md:border md:border-gray-100 flex flex-col md:flex-row relative animate-card-slide z-10 transition-all duration-200 ease-in-out">
+        <div className="w-full h-auto min-h-[100dvh] md:min-h-0 md:max-w-[960px] md:w-[960px] max-h-[90vh] md:overflow-hidden bg-white md:rounded-[24px] md:shadow-2xl md:border md:border-gray-100 flex flex-col md:flex-row relative animate-card-slide z-10 transition-all duration-200 ease-in-out">
           {processState !== 'idle' ? (
             <ProcessingView type="login" status={processState} />
           ) : (

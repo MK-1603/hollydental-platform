@@ -341,45 +341,59 @@ router.post("/", verifyToken, async (req, res, next) => {
       resolvedPatientId = profile.id;
     }
 
-    // 4) Slot collision check (same date+time, not cancelled).
-    const collisions = await db
-      .select()
-      .from(appointments)
-      .where(
-        and(
-          eq(appointments.appointmentDate, appointmentDate),
-          eq(appointments.appointmentTime, appointmentTime),
-          or(
-            eq(appointments.status, "pending"),
-            eq(appointments.status, "confirmed"),
-            eq(appointments.status, "arrived"),
-            eq(appointments.status, "in_progress")
-          )
-        )
-      );
-    if (collisions.length > 0) {
-      return res.status(409).json({
-        message: "That slot was just taken. Please pick another time.",
-      });
-    }
+    // 4) Execute booking inside a transaction to prevent concurrent double-bookings
+    const inserted = await db.transaction(async (tx) => {
+      // 4a) Serialize concurrent bookings for the same service using row-level locking
+      await tx
+        .select()
+        .from(services)
+        .where(eq(services.id, resolvedServiceId))
+        .limit(1)
+        .for("update");
 
-    // 5) Insert appointment as pending
-    const [inserted] = await db
-      .insert(appointments)
-      .values({
-        patientId: resolvedPatientId,
-        serviceId: resolvedServiceId,
-        doctorId: resolvedDoctorId,
-        appointmentDate,
-        appointmentTime,
-        durationMinutes,
-        status: "pending",
-        type: "online",
-        notes: notes || null,
-        depositPaid: false,
-        stripePaymentId: null,
-      })
-      .returning();
+      // 4b) Slot collision check (same date+time, not cancelled).
+      const collisions = await tx
+        .select()
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.appointmentDate, appointmentDate),
+            eq(appointments.appointmentTime, appointmentTime),
+            or(
+              eq(appointments.status, "pending"),
+              eq(appointments.status, "confirmed"),
+              eq(appointments.status, "arrived"),
+              eq(appointments.status, "in_progress")
+            )
+          )
+        );
+
+      if (collisions.length > 0) {
+        const conflictError = new Error("This appointment slot has just been reserved by another patient. Please select another available time.");
+        conflictError.status = 409;
+        throw conflictError;
+      }
+
+      // 4c) Insert appointment as pending
+      const [newAppt] = await tx
+        .insert(appointments)
+        .values({
+          patientId: resolvedPatientId,
+          serviceId: resolvedServiceId,
+          doctorId: resolvedDoctorId,
+          appointmentDate,
+          appointmentTime,
+          durationMinutes,
+          status: "pending",
+          type: "online",
+          notes: notes || null,
+          depositPaid: false,
+          stripePaymentId: null,
+        })
+        .returning();
+        
+      return newAppt;
+    });
 
     // 6) Send a message notification to the admin/doctor
     try {
@@ -394,7 +408,7 @@ router.post("/", verifyToken, async (req, res, next) => {
       logger.warn({ err: msgErr }, "[appointments] booking notification message failed (non-fatal)");
     }
 
-    // 7) Push-notify all admins so they see the request immediately
+    // 7) Push-notify all admins and the patient
     try {
       const admins = await db
         .select()
@@ -410,6 +424,16 @@ router.post("/", verifyToken, async (req, res, next) => {
           })
         )
       );
+
+      // Notify the patient if they are not an admin booking for someone else
+      if (req.user.role !== "admin") {
+        await sendPush(req.user.id, {
+          title: "Appointment Request Received",
+          body: "Your appointment request has been received and is awaiting clinic approval.",
+          url: `/portal/appointments/${inserted.id}`,
+          tag: `appointment-${inserted.id}`,
+        });
+      }
     } catch (_pushErr) {
       // non-fatal; logged inside sendPush
     }
@@ -551,10 +575,15 @@ router.put(
             .limit(1);
           const userId = pRows[0]?.userId;
           if (userId) {
-            const friendly = STATUS_FRIENDLY[status] || status;
+            let bodyText = `Your appointment is now ${STATUS_FRIENDLY[status] || status}.`;
+            if (status === "pending") bodyText = "Your appointment request has been received and is awaiting clinic approval.";
+            if (status === "confirmed") bodyText = "Your appointment has been confirmed.";
+            if (status === "cancelled") bodyText = "This appointment has been cancelled. Please choose another available slot if you wish to reschedule.";
+            if (status === "rejected") bodyText = "Your appointment request could not be approved. Please choose another available slot.";
+            
             await sendPush(userId, {
               title: "Appointment update",
-              body: `Your appointment is now ${friendly}.`,
+              body: bodyText,
               url: `/portal/appointments/${target.id}`,
               tag: `appointment-${target.id}`,
             });
@@ -637,46 +666,59 @@ router.patch("/:id/reschedule", verifyToken, async (req, res, next) => {
       }
     }
 
-    const collisions = await db
-      .select()
-      .from(appointments)
-      .where(
-        and(
-          eq(appointments.appointmentDate, appointmentDate),
-          eq(appointments.appointmentTime, appointmentTime),
-          or(
-            eq(appointments.status, "pending"),
-            eq(appointments.status, "confirmed"),
-            eq(appointments.status, "arrived"),
-            eq(appointments.status, "in_progress")
+    const updated = await db.transaction(async (tx) => {
+      // Serialize concurrent bookings and reschedules for the same service using row-level locking
+      await tx
+        .select()
+        .from(services)
+        .where(eq(services.id, target.serviceId))
+        .limit(1)
+        .for("update");
+
+      const collisions = await tx
+        .select()
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.appointmentDate, appointmentDate),
+            eq(appointments.appointmentTime, appointmentTime),
+            or(
+              eq(appointments.status, "pending"),
+              eq(appointments.status, "confirmed"),
+              eq(appointments.status, "arrived"),
+              eq(appointments.status, "in_progress")
+            )
           )
-        )
-      );
-    const otherCollisions = collisions.filter((c) => c.id !== target.id);
-    if (otherCollisions.length > 0) {
-      return res.status(409).json({
-        message: "That slot was just taken. Please pick another time.",
-      });
-    }
+        );
+      
+      const otherCollisions = collisions.filter((c) => c.id !== target.id);
+      if (otherCollisions.length > 0) {
+        const conflictError = new Error("This appointment slot has just been reserved by another patient. Please select another available time.");
+        conflictError.status = 409;
+        throw conflictError;
+      }
 
-    const [updated] = await db
-      .update(appointments)
-      .set({
-        appointmentDate,
-        appointmentTime,
-        // When a patient reschedules an already-confirmed visit, drop it back
-        // to pending so the clinic can reapprove the new time.
-        status:
-          req.user.role === "patient" && target.status === "confirmed"
-            ? "pending"
-            : target.status,
-        notes: notes !== undefined ? notes : target.notes,
-        updatedAt: new Date(),
-      })
-      .where(eq(appointments.id, target.id))
-      .returning();
+      const [updatedAppt] = await tx
+        .update(appointments)
+        .set({
+          appointmentDate,
+          appointmentTime,
+          // When a patient reschedules an already-confirmed visit, drop it back
+          // to pending so the clinic can reapprove the new time.
+          status:
+            req.user.role === "patient" && target.status === "confirmed"
+              ? "pending"
+              : target.status,
+          notes: notes !== undefined ? notes : target.notes,
+          updatedAt: new Date(),
+        })
+        .where(eq(appointments.id, target.id))
+        .returning();
 
-    return res.status(200).json(updated);
+      return updatedAppt;
+    });
+
+    return res.status(200).json([updated]);
   } catch (error) {
     next(error);
   }
@@ -710,7 +752,11 @@ router.delete("/:id", verifyToken, async (req, res, next) => {
       }
     }
 
-    await db.delete(appointments).where(eq(appointments.id, req.params.id));
+    await db
+      .update(appointments)
+      .set({ status: "cancelled", updatedAt: new Date() })
+      .where(eq(appointments.id, req.params.id));
+      
     return res.status(200).json({ message: "Appointment cancelled successfully." });
   } catch (error) {
     next(error);

@@ -299,7 +299,7 @@ export default function RegisterModal() {
       
 
       {/* Centered Authentication Container */}
-      <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-4 md:p-8 relative z-10">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-0 sm:p-4 md:p-8 relative z-10">
         
         {/* Mobile Top Bar */}
         <div className="md:hidden absolute top-0 left-0 right-0 px-5 pt-5 pb-4 flex items-center justify-between border-b border-[#E2E8F0] bg-white z-20">
@@ -311,7 +311,7 @@ export default function RegisterModal() {
         </div>
 
         {/* Floating Card - Master Design Spec */}
-        <div className="w-full h-auto min-h-screen md:min-h-0 md:max-w-[960px] md:w-[960px] h-[98vh] max-h-[98vh] md:overflow-hidden bg-white md:rounded-[24px] md:shadow-2xl md:border md:border-[#F1F5F9] flex flex-col md:flex-row relative animate-card-slide z-10 transition-all duration-200 ease-in-out">
+        <div className="w-full h-auto min-h-[100dvh] md:min-h-0 md:max-w-[960px] md:w-[960px] h-[98vh] max-h-[98vh] md:overflow-hidden bg-white md:rounded-[24px] md:shadow-2xl md:border md:border-[#F1F5F9] flex flex-col md:flex-row relative animate-card-slide z-10 transition-all duration-200 ease-in-out">
           {processState !== 'idle' ? (
             <ProcessingView type="register" status={processState} />
           ) : (

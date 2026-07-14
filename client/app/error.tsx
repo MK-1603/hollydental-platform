@@ -14,7 +14,7 @@ export default function Error({
     // console.error(error);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-[100dvh] bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="bg-white max-w-md w-full p-8 rounded-[16px] border border-gray-200 shadow-xl text-center">
         <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
           <AlertCircle className="w-8 h-8" />

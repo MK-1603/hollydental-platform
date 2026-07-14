@@ -27,7 +27,7 @@ function LoginRedirectInner() {
   }, [router, searchParams, openLoginModal]);
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center text-navy">
+    <div className="min-h-[100dvh] bg-white flex items-center justify-center text-navy">
       <p className="text-sm font-semibold">Opening sign-in…</p>
     </div>
   );
@@ -37,7 +37,7 @@ export default function LoginRedirect() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-white flex items-center justify-center text-navy">
+        <div className="min-h-[100dvh] bg-white flex items-center justify-center text-navy">
           <p className="text-sm font-semibold">Opening sign-in…</p>
         </div>
       }

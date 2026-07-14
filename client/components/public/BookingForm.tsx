@@ -1123,11 +1123,11 @@ export default function BookingForm({ compact = false, onClose }: BookingFormPro
             <CheckCircle className="w-10 h-10 text-emerald-500 relative z-10" />
           </div>
           <h2 className="font-serif text-3xl font-semibold text-slate-900 mb-3 tracking-tight">
-            Booking Confirmed
+            Booking Request Received
           </h2>
           <p className="text-gray-500 max-w-sm text-sm leading-relaxed mb-8">
             Thank you, <span className="font-semibold text-slate-900">{bookingResult.appointment?.patientName || "Valued Patient"}</span>.
-            Your <span className="font-semibold text-slate-900">{bookingResult.service?.name}</span> appointment is securely booked for:
+            Your <span className="font-semibold text-slate-900">{bookingResult.service?.name}</span> appointment request has been received and is awaiting clinic approval. The slot has been reserved for you for:
           </p>
           <div className="bg-white border-2 border-emerald-50 rounded-2xl p-6 w-full max-w-sm mb-8 shadow-sm">
             <p className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Date & Time</p>

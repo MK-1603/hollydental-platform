@@ -3,6 +3,7 @@ import "./globals.css";
 import AuthModals from "@/components/auth/AuthModals";
 import Toaster from "@/components/common/Toaster";
 import Preloader from "@/components/public/Preloader";
+import TransitionLoader from "@/components/common/TransitionLoader";
 import PwaRegister from "@/components/public/PwaRegister";
 import OfflineSyncManager from "@/components/common/OfflineSyncManager";
 import Chatbot from "@/components/common/Chatbot";
@@ -62,6 +63,7 @@ export default function RootLayout({
         <GoogleOAuthWrapper>
           <DialogProvider>
             <Preloader />
+            <TransitionLoader />
             <PwaRegister />
             <OfflineSyncManager />
             <NotificationManager />

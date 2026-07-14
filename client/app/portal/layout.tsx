@@ -63,12 +63,12 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   }, [isInitialized, isAuthRoute, user, router, pathname, isLoggingOut]);
 
   if (isAuthRoute) {
-    return <div className="bg-gray-50 min-h-screen flex items-center justify-center p-4">{children}</div>;
+    return <div className="bg-gray-50 min-h-[100dvh] flex items-center justify-center p-4">{children}</div>;
   }
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-xs text-gray-500 font-medium">Loading your patient session…</p>
@@ -80,7 +80,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   if (!user) return null;
 
   return (
-    <div className="flex bg-gray-50 h-screen w-full overflow-hidden relative">
+    <div className="flex bg-gray-50 h-[100dvh] w-full overflow-hidden relative">
       {isLoggingOut && <LogoutOverlay />}
       <SessionWatcher idleMinutes={30} />
 
@@ -95,9 +95,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         <PortalHeader onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         
         <main className={`flex-1 w-full min-w-0 flex flex-col bg-white overflow-y-auto overflow-x-hidden ${
-          pathname.endsWith("/messages") || pathname.endsWith("/ai")
-            ? "pb-16 xl:pb-0"
-            : "pb-20 xl:pb-6 p-4 xl:p-6"
+          pathname.endsWith("/messages") || pathname.endsWith("/ai") || pathname.endsWith("/notifications")
+            ? "pb-[calc(4rem+env(safe-area-inset-bottom))] xl:pb-0"
+            : "pb-[calc(5rem+env(safe-area-inset-bottom))] xl:pb-6 p-4 xl:p-6"
         }`}>
           {children}
         </main>

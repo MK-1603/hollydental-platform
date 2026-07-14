@@ -439,7 +439,7 @@ export default function HomeClient() {
           </div>
 
           {/* Feature Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mt-12">
 
             {/* Card 1 */}
             <motion.div
