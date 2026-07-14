@@ -1,3 +1,4 @@
+import react from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthModals from "@/components/auth/AuthModals";
@@ -48,6 +49,7 @@ export const viewport = {
 
 import { DialogProvider } from "@/components/DialogProvider";
 import GoogleOAuthWrapper from "@/components/auth/GoogleOAuthWrapper";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,
@@ -63,7 +65,9 @@ export default function RootLayout({
         <GoogleOAuthWrapper>
           <DialogProvider>
             <Preloader />
-            <TransitionLoader />
+            <react.Suspense fallback={null}>
+              <TransitionLoader />
+            </react.Suspense>
             <PwaRegister />
             <OfflineSyncManager />
             <NotificationManager />
